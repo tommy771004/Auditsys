@@ -79,15 +79,27 @@ export async function initDb() {
     CREATE TABLE IF NOT EXISTS audit_plan_settings (
       plan_id TEXT PRIMARY KEY,
       openrouter_api_key TEXT DEFAULT '',
-      allowed_models TEXT DEFAULT 'google/gemini-2.5-flash'
+      allowed_models TEXT DEFAULT ''
     );
 
-    INSERT INTO audit_plan_settings (plan_id, allowed_models) 
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name='audit_plan_settings' AND column_name='price'
+      ) THEN
+        ALTER TABLE audit_plan_settings ADD COLUMN price TEXT NOT NULL DEFAULT '$0';
+      END IF;
+    END
+    $$;
+
+    INSERT INTO audit_plan_settings (plan_id, allowed_models, price) 
     VALUES 
-      ('free', ''),
-      ('pro', 'anthropic/claude-4.5-haiku,google/gemini-3.5-flash,google/gemini-3.1-flash-lite,openai/gpt-5.4,openai/gpt-5.4-mini'),
-      ('enterprise', 'anthropic/claude-4.7-opus,anthropic/claude-4.6-sonnet,anthropic/claude-4.5-haiku,google/gemini-3.1-pro,google/gemini-2.5-pro,google/gemini-3.5-flash,google/gemini-3.1-flash-lite,openai/gpt-5.5,openai/gpt-5.4,openai/gpt-5.4-mini')
-    ON CONFLICT (plan_id) DO UPDATE SET allowed_models = EXCLUDED.allowed_models;
+      ('free', '', '$0'),
+      ('pro', 'anthropic/claude-3.5-sonnet,google/gemma-7b-it', '$29'),
+      ('enterprise', 'anthropic/claude-3.5-sonnet,anthropic/claude-3-opus,meta-llama/llama-3-70b-instruct', '$99')
+    ON CONFLICT (plan_id) DO NOTHING;
   `);
   
   const bootstrapAdmin = resolveAdminBootstrapConfig();

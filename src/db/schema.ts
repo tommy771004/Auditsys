@@ -22,4 +22,5 @@ export const planSettings = pgTable('audit_plan_settings', {
   planId: text('plan_id').primaryKey(),
   openRouterApiKey: text('openrouter_api_key').default(''),
   allowedModels: text('allowed_models').default('google/gemini-2.5-flash'),
+  price: text('price').default('$0'),
 });

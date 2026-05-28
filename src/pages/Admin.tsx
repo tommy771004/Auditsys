@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Users, FileText, LogOut, ShieldAlert, Trash2, LayoutDashboard, Activity, Settings } from "lucide-react";
+import { Users, FileText, LogOut, ShieldAlert, Trash2, LayoutDashboard, Activity, Settings, Plus, X } from "lucide-react";
 import GlassContainer from "../components/ui/GlassContainer";
 import type { NavigateTo } from "../types/home";
 
@@ -15,6 +15,7 @@ export default function Admin({ onNavigate }: Props) {
   const [audits, setAudits] = useState<any[]>([]);
   const [planSettings, setPlanSettings] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [newModels, setNewModels] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchData();
@@ -277,40 +278,109 @@ export default function Admin({ onNavigate }: Props) {
                {planSettings.map((plan) => (
                  <GlassContainer key={plan.planId} className="p-6">
                    <h3 className="text-lg font-bold capitalize mb-4 text-brand-cyan">{plan.planId} Plan</h3>
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                     <div>
-                       <label className="block text-sm font-medium text-brand-muted mb-2">Gemini API Key</label>
-                       <input
-                         type="password"
-                         placeholder="Enter API Key"
-                         value={plan.openRouterApiKey}
-                         onChange={(e) => {
-                           const newSettings = planSettings.map(p => p.planId === plan.planId ? { ...p, openRouterApiKey: e.target.value } : p);
-                           setPlanSettings(newSettings);
-                         }}
-                         className="w-full bg-brand-surface/50 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-purple"
-                       />
-                     </div>
-                     <div>
-                       <label className="block text-sm font-medium text-brand-muted mb-2">Allowed Models (comma separated)</label>
-                       <input
-                         type="text"
-                         placeholder="e.g. google/gemini-2.5-flash"
-                         value={plan.allowedModels}
-                         onChange={(e) => {
-                           const newSettings = planSettings.map(p => p.planId === plan.planId ? { ...p, allowedModels: e.target.value } : p);
-                           setPlanSettings(newSettings);
-                         }}
-                         className="w-full bg-brand-surface/50 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-purple"
-                       />
-                     </div>
-                   </div>
+                     <div className="grid grid-cols-1 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-brand-muted mb-2">OpenRouter API Key</label>
+                          <input
+                            type="password"
+                            placeholder="Enter API Key"
+                            value={plan.openRouterApiKey}
+                            onChange={(e) => {
+                              const newSettings = planSettings.map(p => p.planId === plan.planId ? { ...p, openRouterApiKey: e.target.value } : p);
+                              setPlanSettings(newSettings);
+                            }}
+                            className="w-full bg-brand-surface/50 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-purple"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-brand-muted mb-2">Plan Price</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. $29"
+                            value={plan.price || ""}
+                            onChange={(e) => {
+                              const newSettings = planSettings.map(p => p.planId === plan.planId ? { ...p, price: e.target.value } : p);
+                              setPlanSettings(newSettings);
+                            }}
+                            className="w-full bg-brand-surface/50 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-purple"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-brand-muted mb-2">Allowed Models</label>
+                        <div className="space-y-2 mb-3">
+                          {(plan.allowedModels ? plan.allowedModels.split(',').filter(Boolean) : []).map((model: string, idx: number) => (
+                            <div key={idx} className="flex items-center justify-between bg-white/5 border border-white/10 rounded-lg px-3 py-2 focus-within:border-brand-purple transition-colors">
+                              <input
+                                type="text"
+                                value={model}
+                                onChange={(e) => {
+                                  const models = plan.allowedModels ? plan.allowedModels.split(',').filter(Boolean) : [];
+                                  models[idx] = e.target.value;
+                                  setPlanSettings(planSettings.map(p => p.planId === plan.planId ? { ...p, allowedModels: models.join(',') } : p));
+                                }}
+                                className="flex-1 bg-transparent text-sm text-brand-text outline-none mr-3"
+                              />
+                              <button
+                                onClick={() => {
+                                  const models = plan.allowedModels ? plan.allowedModels.split(',').filter(Boolean) : [];
+                                  const updatedModels = models.filter((_: any, i: number) => i !== idx).join(',');
+                                  setPlanSettings(planSettings.map(p => p.planId === plan.planId ? { ...p, allowedModels: updatedModels } : p));
+                                }}
+                                className="text-brand-muted hover:text-brand-danger"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex space-x-2">
+                          <input
+                            type="text"
+                            placeholder="e.g. anthropic/claude-3.5-sonnet"
+                            value={newModels[plan.planId] || ""}
+                            onChange={(e) => setNewModels({ ...newModels, [plan.planId]: e.target.value })}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                const val = newModels[plan.planId]?.trim();
+                                if (val) {
+                                  const models = plan.allowedModels ? plan.allowedModels.split(',').filter(Boolean) : [];
+                                  models.push(val);
+                                  setPlanSettings(planSettings.map(p => p.planId === plan.planId ? { ...p, allowedModels: models.join(',') } : p));
+                                  setNewModels({ ...newModels, [plan.planId]: "" });
+                                }
+                              }
+                            }}
+                            className="flex-1 bg-brand-surface/50 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-purple text-sm"
+                          />
+                          <button
+                            onClick={() => {
+                              const val = newModels[plan.planId]?.trim();
+                              if (val) {
+                                const models = plan.allowedModels ? plan.allowedModels.split(',').filter(Boolean) : [];
+                                models.push(val);
+                                setPlanSettings(planSettings.map(p => p.planId === plan.planId ? { ...p, allowedModels: models.join(',') } : p));
+                                setNewModels({ ...newModels, [plan.planId]: "" });
+                              }
+                            }}
+                            className="px-3 py-2 bg-brand-purple/20 text-brand-purple hover:bg-brand-purple/30 rounded-lg flex items-center transition-colors"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                    <div className="mt-4 flex justify-end">
                      <button
-                       onClick={() => handleUpdatePlanSetting(plan.planId, { openRouterApiKey: plan.openRouterApiKey, allowedModels: plan.allowedModels })}
-                       className="px-4 py-2 bg-brand-blue/20 hover:bg-brand-blue/40 text-brand-cyan rounded-lg transition-colors font-medium text-sm"
+                       onClick={() => handleUpdatePlanSetting(plan.planId, { 
+                         openRouterApiKey: plan.openRouterApiKey,
+                         allowedModels: plan.allowedModels,
+                         price: plan.price
+                       })}
+                       className="px-4 py-2 bg-brand-purple/20 text-brand-purple hover:bg-brand-purple/30 rounded-lg font-medium transition-colors"
                      >
-                       Save {plan.planId} Settings
+                       Save Settings
                      </button>
                    </div>
                  </GlassContainer>

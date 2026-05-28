@@ -388,10 +388,10 @@
         "name": "新手版 (Free)",
         "price": "$0",
         "cadence": "基礎存取",
-        "description": "由極速的 Gemini 2.5 Flash 驅動，快速獲得效能與 SEO 的 AI 診斷信號。",
+        "description": "由極速的 OpenRouter API 驅動，快速獲得效能與 SEO 的 AI 診斷信號。",
         "cta": "免費開始",
         "features": {
-          "performance": "由 Google Gemini 2.5 Flash 驅動",
+          "performance": "由 OpenRouter API 驅動",
           "seo": "高速基礎 SEO 與無障礙檢查",
           "summary": "標準 Core Web Vitals 檢視"
         }
@@ -404,7 +404,7 @@
         "cta": "升級至專業版",
         "badge": "最熱門",
         "features": {
-          "performance": "開放存取 Claude Haiku 4.5, Gemini Flash 3.5 與 GPT-5.4",
+          "performance": "開放存取 Claude 3.5 Sonnet, Gemma 7B 與 Llama 3 70B",
           "architecture": "深度架構風險分析與推理",
           "remediation": "依優先順序排序的程式碼修復清單"
         }
@@ -413,10 +413,10 @@
         "name": "企業版 (Enterprise)",
         "price": "$99",
         "cadence": "每月",
-        "description": "開放 Claude Opus 4.7, Gemini Pro 3.1 與 GPT-5.5 等終極前沿模型，專為最複雜系統分析而生。",
+        "description": "開放 Claude 3 Opus, Claude 3.5 Sonnet 與 Llama 3 70B 等終極前沿模型，專為最複雜系統分析而生。",
         "cta": "升級至企業版",
         "features": {
-          "workshop": "開放 GPT-5.5, Claude Opus 4.7 與 Gemini Pro 3.1",
+          "workshop": "開放 Claude 3 Opus, Claude 3.5 Sonnet 與 Llama 3 70B",
           "roadmap": "複雜全端推理解析與路線圖生成",
           "followup": "自訂資料留存與無限上下文記憶長度"
         }

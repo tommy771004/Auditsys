@@ -382,10 +382,10 @@
         "name": "Starter (Free)",
         "price": "$0",
         "cadence": "basic access",
-        "description": "Fast AI-driven signal on performance and SEO, powered by high-speed Gemini 2.5 Flash.",
+        "description": "Fast AI-driven signal on performance and SEO, powered by high-speed OpenRouter API.",
         "cta": "Start Free",
         "features": {
-          "performance": "Powered by Google Gemini 2.5 Flash",
+          "performance": "Powered by OpenRouter API",
           "seo": "High-speed baseline SEO & accessibility checks",
           "summary": "Standard Core Web Vitals review"
         }
@@ -398,7 +398,7 @@
         "cta": "Upgrade to Pro",
         "badge": "Most popular",
         "features": {
-          "performance": "Access to Claude Haiku 4.5, Gemini Flash 3.5 & GPT-5.4",
+          "performance": "Access to Claude 3.5 Sonnet, Gemma 7B & Llama 3 70B",
           "architecture": "Deep architecture risk analysis & reasoning",
           "remediation": "Prioritized code-level remediation backlog"
         }
@@ -407,10 +407,10 @@
         "name": "Enterprise",
         "price": "$99",
         "cadence": "per month",
-        "description": "Ultimate frontier model access including Claude Opus 4.7, Gemini Pro 3.1, and GPT-5.5 for the most complex system analysis.",
+        "description": "Ultimate frontier model access including Claude 3 Opus, Claude 3.5 Sonnet, and Llama 3 70B for the most complex system analysis.",
         "cta": "Go Enterprise",
         "features": {
-          "workshop": "Access to GPT-5.5, Claude Opus 4.7 & Gemini Pro 3.1",
+          "workshop": "Access to Claude 3 Opus, Claude 3.5 Sonnet & Llama 3 70B",
           "roadmap": "Complex full-stack reasoning & roadmap generation",
           "followup": "Custom data retention & unlimited context window"
         }

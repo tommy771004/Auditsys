@@ -110,7 +110,7 @@ export interface AuditEvidenceBundle {
 }
 
 export interface AuditSynthesisResult {
-  provider: "gemini" | "fallback";
+  provider: "openrouter" | "fallback";
   queued: boolean;
   summary?: string;
   model?: string;

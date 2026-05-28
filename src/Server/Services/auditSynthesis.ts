@@ -1,5 +1,5 @@
 import type { AuditEvidenceBundle, AuditRequestPayload, AuditSynthesisResult, BrowserCollectorTimelineStep, DeterministicCollectorResult } from "./auditPipelineTypes";
-import { GoogleGenAI } from "@google/genai";
+import { fetchOpenRouterWithFallback } from "./openrouterHelper";
 
 function buildEvidenceLines(payload: AuditRequestPayload, deterministic: DeterministicCollectorResult): string[] {
   const lines = [
@@ -140,39 +140,35 @@ function buildFallbackSummary(payload: AuditRequestPayload, evidence: AuditEvide
 }
 
 export async function synthesizeAudit(payload: AuditRequestPayload, evidence: AuditEvidenceBundle, config?: { apiKey?: string, allowedModels?: string[] }): Promise<AuditSynthesisResult> {
-  const apiKey = config?.apiKey || process.env.GEMINI_API_KEY;
+  const apiKey = config?.apiKey || process.env.OPENROUTER_API_KEY;
 
   if (!apiKey) {
     return {
       provider: "fallback",
       queued: false,
-      reason: "missing_gemini_api_key",
-      summary: buildFallbackSummary(payload, evidence, "missing_gemini_api_key"),
+      reason: "missing_openrouter_api_key",
+      summary: buildFallbackSummary(payload, evidence, "missing_openrouter_api_key"),
     };
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey });
     const prompt = buildAuditPrompt(payload, evidence);
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-    });
+    const response = await fetchOpenRouterWithFallback(apiKey, prompt, config?.allowedModels);
 
     return {
-      provider: "gemini",
+      provider: "openrouter",
       queued: false,
       summary: response.text ?? "",
-      model: "gemini-2.5-flash",
+      model: response.model,
     };
   } catch (error) {
     // If it's a rate limit or similar error, we can still return a fallback
     return {
       provider: "fallback",
       queued: false,
-      reason: "gemini_api_error",
-      summary: buildFallbackSummary(payload, evidence, "gemini_api_error"),
+      reason: "openrouter_api_error",
+      summary: buildFallbackSummary(payload, evidence, "openrouter_api_error"),
     };
   }
 }

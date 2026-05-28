@@ -209,7 +209,12 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
                     <div className="space-y-2">
                       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">{t(plan.nameKey)}</p>
                       <div className="flex flex-wrap items-baseline gap-3">
-                        <span className="text-4xl font-semibold tracking-[-0.04em] text-white">{t(plan.priceKey)}</span>
+                        <span className="text-4xl font-semibold tracking-[-0.04em] text-white">
+                          {(() => {
+                            const apiPlan = plansData.find(p => p.planId === plan.planIdMap);
+                            return apiPlan?.price || t(plan.priceKey);
+                          })()}
+                        </span>
                         <span className="text-sm text-brand-muted">{t(plan.cadenceKey)}</span>
                       </div>
                     </div>

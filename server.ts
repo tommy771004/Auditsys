@@ -262,7 +262,8 @@ async function startServer() {
       const db = getDb();
       const settings = await db.select({
         planId: planSettings.planId,
-        allowedModels: planSettings.allowedModels
+        allowedModels: planSettings.allowedModels,
+        price: planSettings.price
       }).from(planSettings);
       res.json(settings);
     } catch (error: any) {
@@ -283,10 +284,11 @@ async function startServer() {
   app.patch("/api/admin/plan-settings/:planId", authenticateToken, requireAdmin, async (req, res) => {
     try {
       const db = getDb();
-      const { openRouterApiKey, allowedModels } = req.body;
+      const { openRouterApiKey, allowedModels, price } = req.body;
       const updates: any = {};
       if (openRouterApiKey !== undefined) updates.openRouterApiKey = openRouterApiKey;
       if (allowedModels !== undefined) updates.allowedModels = allowedModels;
+      if (price !== undefined) updates.price = price;
 
       await db.update(planSettings).set(updates).where(eq(planSettings.planId, req.params.planId));
       res.json({ success: true });

@@ -91,8 +91,9 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
     if (intakeUrl) {
       setUrlInput(intakeUrl);
       localStorage.removeItem("intake_submitted_url");
+      setTimeout(() => startAudit(intakeUrl), 100);
     }
-  }, []);
+  }, [startAudit]);
 
   const previewRoles = subagents.length > 0
     ? subagents.map((subagent) => subagent.role)
@@ -507,146 +508,22 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
     <main className="relative z-10 pb-24 pt-32 sm:pt-36">
       <MemorySyncBadge update={activeMemoryUpdate} />
       <PageContainer>
-        <div className="grid gap-8 xl:grid-cols-[0.92fr_1.08fr] xl:items-start">
-          <div className="space-y-6">
-            <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 rounded-full border border-violet-300/15 bg-violet-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-violet-100/92">
-                <Sparkles className="h-3.5 w-3.5" />
-                {t("auditConsole.badge")}
-              </div>
-              <div className="space-y-3">
-                <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">{t("auditConsole.title")}</h1>
-                <p className="max-w-2xl text-base leading-8 text-brand-muted sm:text-lg">{t("auditConsole.description")}</p>
-              </div>
+        <div className="flex flex-col gap-10">
+          
+          {/* Layer 1: Header */}
+          <div className="space-y-4 text-center mx-auto max-w-3xl flex flex-col items-center">
+            <div className="inline-flex items-center justify-center gap-2 rounded-full border border-violet-300/15 bg-violet-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-violet-100/92">
+              <Sparkles className="h-3.5 w-3.5" />
+              {t("auditConsole.badge")}
             </div>
-
-            <GlassContainer accent="cyan" className="space-y-4">
-              <div className="space-y-2">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/82">{t("auditConsole.capabilitiesEyebrow")}</p>
-                <p className="text-lg font-semibold text-white">{t("auditConsole.capabilitiesTitle")}</p>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-3">
-                {capabilityCards.map((item) => {
-                  const Icon = item.icon;
-
-                  return (
-                    <div key={item.id} className="rounded-[24px] border border-white/10 bg-slate-950/38 p-4">
-                      <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-white/88">
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <p className="mt-4 text-sm font-semibold text-white">{item.title}</p>
-                      <p className="mt-2 text-sm leading-7 text-brand-muted">{item.description}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </GlassContainer>
-
-            <GlassContainer accent="blue" className="space-y-4">
-              <div className="space-y-2">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-100/80">{t("auditConsole.sections.memoryTitle")}</p>
-                <p className="text-lg font-semibold text-white">{t("auditConsole.memoryPanelTitle")}</p>
-              </div>
-              <div className="space-y-3">
-                {memoryUpdates.length > 0 ? (
-                  memoryUpdates.map((update) => (
-                    <div key={`${update.key}-${update.fact}`} className="rounded-[22px] border border-white/10 bg-slate-950/38 px-4 py-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold text-white">{update.fact}</p>
-                        <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70">
-                          {t(`auditConsole.memoryType.${update.type}`)}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="rounded-[22px] border border-dashed border-white/10 px-4 py-4 text-sm leading-7 text-white/55">{t("auditConsole.sections.memoryEmpty")}</div>
-                )}
-              </div>
-            </GlassContainer>
-
-            <GlassContainer accent="purple" className="space-y-4 animate-fade-in">
-              <div className="flex items-center justify-between gap-3">
-                <div className="space-y-1">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-100/80">Audit History</p>
-                  <p className="text-lg font-semibold text-white">Your Past Analysis Runs</p>
-                </div>
-                <button 
-                  type="button"
-                  onClick={fetchHistory}
-                  disabled={isLoadingHistory}
-                  className="rounded-full bg-white/5 hover:bg-white/10 p-2 text-white/70 hover:text-white transition disabled:opacity-50"
-                  title="Refresh history"
-                >
-                  <RefreshCcw className={`h-4 w-4 ${isLoadingHistory ? "animate-spin" : ""}`} />
-                </button>
-              </div>
-
-              {isLoadingHistory ? (
-                <div className="py-6 text-center text-sm text-white/50">Loading runs...</div>
-              ) : historyItems.length > 0 ? (
-                <div className="space-y-2.5 max-h-[22rem] overflow-y-auto pr-1">
-                  {historyItems.map((item) => {
-                    const isSelected = selectedHistoryAudit?.id === item.id;
-                    const dateStr = new Date(item.createdAt).toLocaleDateString(undefined, {
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    });
-
-                    return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => {
-                          if (isSelected) {
-                            setSelectedHistoryAudit(null);
-                          } else {
-                            setSelectedHistoryAudit(item);
-                          }
-                        }}
-                        className={[
-                          "w-full text-left rounded-[18px] border p-3 min-h-[64px] text-sm transition-all flex flex-col gap-1.5 active:scale-[0.98]",
-                          isSelected
-                            ? "border-violet-400/30 bg-violet-500/10 text-white shadow-[0_0_15px_rgba(139,92,236,0.15)] ring-1 ring-violet-500/30"
-                            : "border-white/5 bg-slate-950/40 hover:bg-slate-950/60 text-white/80 hover:text-white"
-                        ].join(" ")}
-                      >
-                        <div className="flex items-center justify-between gap-2 w-full">
-                          <span className="font-sans font-medium truncate max-w-[12rem] text-white">
-                            {item.url}
-                          </span>
-                          <span className="text-[10px] text-white/40 whitespace-nowrap">
-                            {dateStr}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2 text-xs w-full">
-                          <span className="text-white/45 truncate">
-                            {item.result?.model || "Standard engine"}
-                          </span>
-                          <span className={[
-                            "rounded-full px-2 py-0.5 text-[10px] font-medium tracking-wide uppercase",
-                            item.status === 'completed' 
-                              ? "bg-emerald-500/10 text-emerald-300/90 border border-emerald-500/20" 
-                              : "bg-amber-500/10 text-amber-300/90 border border-amber-500/20"
-                          ].join(" ")}>
-                            {item.status}
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="rounded-[18px] border border-dashed border-white/8 px-4 py-5 text-center text-sm leading-6 text-white/50">
-                  No automated audit history found. Submit your first analysis URL above to start tracking performance runs.
-                </div>
-              )}
-            </GlassContainer>
+            <div className="space-y-3">
+              <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">{t("auditConsole.title")}</h1>
+              <p className="text-base leading-8 text-brand-muted sm:text-lg">{t("auditConsole.description")}</p>
+            </div>
           </div>
 
-          <GlassContainer accent="violet" className="min-h-[720px] space-y-6">
+          {/* Layer 2: Mission Control Input & Metrics */}
+          <GlassContainer accent="violet" className="space-y-8">
             <div className="flex flex-col gap-4 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
               <div className="space-y-2">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">{t("auditConsole.missionEyebrow")}</p>
@@ -724,9 +601,11 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 </motion.div>
               ))}
             </div>
+          </GlassContainer>
 
-            <div className="rounded-[28px] border border-white/10 bg-slate-950/32 p-5">
-              <div className="flex flex-wrap items-center gap-3 border-b border-white/10 pb-4">
+          {/* Layer 3: Mission Stream (The Active Execution) */}
+          <GlassContainer accent="cyan" className="min-h-[500px]">
+             <div className="flex flex-wrap items-center gap-3 border-b border-white/10 pb-4 mb-6">
                 <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-white/84">
                   <Cpu className="h-5 w-5" />
                 </div>
@@ -739,8 +618,138 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
               <AnimatePresence mode="wait" initial={false}>
                 {renderPhasePanel()}
               </AnimatePresence>
-            </div>
           </GlassContainer>
+
+          {/* Layer 4: Memory & Capabilities */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <GlassContainer accent="blue" className="space-y-4">
+              <div className="space-y-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-100/80">{t("auditConsole.sections.memoryTitle")}</p>
+                <p className="text-lg font-semibold text-white">{t("auditConsole.memoryPanelTitle")}</p>
+              </div>
+              <div className="space-y-3">
+                {memoryUpdates.length > 0 ? (
+                  memoryUpdates.map((update) => (
+                    <div key={`${update.key}-${update.fact}`} className="rounded-[22px] border border-white/10 bg-slate-950/38 px-4 py-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold text-white">{update.fact}</p>
+                        <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70">
+                          {t(`auditConsole.memoryType.${update.type}`)}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-[22px] border border-dashed border-white/10 px-4 py-4 text-sm leading-7 text-white/55">{t("auditConsole.sections.memoryEmpty")}</div>
+                )}
+              </div>
+            </GlassContainer>
+            
+            <GlassContainer accent="cyan" className="space-y-4">
+              <div className="space-y-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/82">{t("auditConsole.capabilitiesEyebrow")}</p>
+                <p className="text-lg font-semibold text-white">{t("auditConsole.capabilitiesTitle")}</p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-1">
+                {capabilityCards.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={item.id} className="rounded-[24px] border border-white/10 bg-slate-950/38 p-4 flex items-start gap-4">
+                      <div className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-white/88">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-white">{item.title}</p>
+                        <p className="mt-1 text-sm leading-6 text-brand-muted">{item.description}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </GlassContainer>
+          </div>
+
+          {/* Layer 5: Audit History */}
+          <GlassContainer accent="purple" className="space-y-4 animate-fade-in">
+              <div className="flex items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-100/80">Audit History</p>
+                  <p className="text-lg font-semibold text-white">Your Past Analysis Runs</p>
+                </div>
+                <button 
+                  type="button"
+                  onClick={fetchHistory}
+                  disabled={isLoadingHistory}
+                  className="rounded-full bg-white/5 hover:bg-white/10 p-2 text-white/70 hover:text-white transition disabled:opacity-50"
+                  title="Refresh history"
+                >
+                  <RefreshCcw className={`h-4 w-4 ${isLoadingHistory ? "animate-spin" : ""}`} />
+                </button>
+              </div>
+
+              {isLoadingHistory ? (
+                <div className="py-6 text-center text-sm text-white/50">Loading runs...</div>
+              ) : historyItems.length > 0 ? (
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 max-h-[22rem] overflow-y-auto pr-1">
+                  {historyItems.map((item) => {
+                    const isSelected = selectedHistoryAudit?.id === item.id;
+                    const dateStr = new Date(item.createdAt).toLocaleDateString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    });
+
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedHistoryAudit(null);
+                          } else {
+                            setSelectedHistoryAudit(item);
+                          }
+                        }}
+                        className={[
+                          "text-left rounded-[18px] border p-4 min-h-[80px] text-sm transition-all flex flex-col gap-2 active:scale-[0.98]",
+                          isSelected
+                            ? "border-violet-400/30 bg-violet-500/10 text-white shadow-[0_0_15px_rgba(139,92,236,0.15)] ring-1 ring-violet-500/30"
+                            : "border-white/5 bg-slate-950/40 hover:bg-slate-950/60 text-white/80 hover:text-white"
+                        ].join(" ")}
+                      >
+                        <div className="flex items-center justify-between gap-2 w-full">
+                          <span className="font-sans font-medium truncate max-w-[12rem] text-white">
+                            {item.url}
+                          </span>
+                          <span className="text-[10px] text-white/40 whitespace-nowrap">
+                            {dateStr}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2 text-xs w-full">
+                          <span className="text-white/45 truncate">
+                            {item.result?.model || "Standard engine"}
+                          </span>
+                          <span className={[
+                            "rounded-full px-2 py-0.5 text-[10px] font-medium tracking-wide uppercase",
+                            item.status === 'completed' 
+                              ? "bg-emerald-500/10 text-emerald-300/90 border border-emerald-500/20" 
+                              : "bg-amber-500/10 text-amber-300/90 border border-amber-500/20"
+                          ].join(" ")}>
+                            {item.status}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="rounded-[18px] border border-dashed border-white/8 px-4 py-5 text-center text-sm leading-6 text-white/50">
+                  No automated audit history found. Submit your first analysis URL above to start tracking performance runs.
+                </div>
+              )}
+          </GlassContainer>
+
         </div>
       </PageContainer>
     </main>
