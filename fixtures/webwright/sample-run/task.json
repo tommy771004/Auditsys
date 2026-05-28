@@ -1,0 +1,5 @@
+{
+  "id": "sample-webwright-run-20260528",
+  "instruction": "Open the homepage and pricing route, dismiss the consent layer, and capture runtime evidence for CTA visibility, pricing cards, and report handoff.",
+  "start_url": "https://demo.auditlens.io/"
+}

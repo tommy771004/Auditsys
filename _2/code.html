@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="zh-TW"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AuditLens | 您的網頁架構是否拖慢了業務增長？</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+        /* Liquid Glass Background Animations */
+        @keyframes liquidMove {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+        .bg-blob-1 {
+            animation: liquidMove 15s infinite ease-in-out;
+        }
+        .bg-blob-2 {
+            animation: liquidMove 18s infinite ease-in-out reverse;
+        }
+        /* Marquee Animation */
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            animation: marquee 30s linear infinite;
+        }
+        .glass-card-hover:hover {
+            backdrop-filter: blur(24px) saturate(200%);
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(132, 43, 210, 0.2);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#00363e",
+                        "primary-fixed-dim": "#ddb7ff",
+                        "on-error": "#690005",
+                        "on-primary": "#490080",
+                        "on-primary-container": "#400071",
+                        "surface-container-high": "#262a35",
+                        "secondary-fixed-dim": "#2fd9f4",
+                        "surface-bright": "#353944",
+                        "surface-container-low": "#171b26",
+                        "on-tertiary-container": "#002469",
+                        "on-primary-fixed": "#2c0051",
+                        "surface-container": "#1c1f2a",
+                        "inverse-on-surface": "#2c303b",
+                        "secondary-fixed": "#a2eeff",
+                        "on-primary-fixed-variant": "#6900b3",
+                        "error": "#ffb4ab",
+                        "on-surface-variant": "#cfc2d6",
+                        "on-secondary-container": "#00515d",
+                        "tertiary-fixed-dim": "#b4c5ff",
+                        "tertiary-container": "#618bff",
+                        "on-surface": "#dfe2f1",
+                        "surface-container-highest": "#313540",
+                        "tertiary-fixed": "#dbe1ff",
+                        "on-secondary-fixed-variant": "#004e5a",
+                        "surface-tint": "#ddb7ff",
+                        "primary-fixed": "#f0dbff",
+                        "primary-container": "#b76dff",
+                        "on-tertiary": "#002a78",
+                        "background": "#0f131d",
+                        "secondary": "#5de6ff",
+                        "on-secondary-fixed": "#001f25",
+                        "outline-variant": "#4d4354",
+                        "inverse-primary": "#842bd2",
+                        "primary": "#ddb7ff",
+                        "on-tertiary-fixed-variant": "#003ea8",
+                        "surface": "#0f131d",
+                        "on-background": "#dfe2f1",
+                        "surface-variant": "#313540",
+                        "on-error-container": "#ffdad6",
+                        "error-container": "#93000a",
+                        "outline": "#988d9f",
+                        "inverse-surface": "#dfe2f1",
+                        "tertiary": "#b4c5ff",
+                        "surface-container-lowest": "#0a0e18",
+                        "on-tertiary-fixed": "#00174b",
+                        "secondary-container": "#00cbe6",
+                        "surface-dim": "#0f131d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "8px",
+                        "container-max": "1280px",
+                        "stack-md": "16px",
+                        "stack-xl": "64px",
+                        "gutter": "24px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "64px",
+                        "stack-lg": "32px",
+                        "stack-xs": "4px"
+                    },
+                    "fontFamily": {
+                        "display-lg-mobile": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg-mobile": ["40px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "display-lg": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen relative overflow-x-hidden font-body-md text-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- Ambient Liquid Glass Background -->
+<div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+<div class="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] rounded-full bg-inverse-primary/20 blur-[120px] mix-blend-screen bg-blob-1 opacity-50"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-secondary/10 blur-[100px] mix-blend-screen bg-blob-2 opacity-40"></div>
+</div>
+<!-- TopAppBar -->
+<header class="fixed top-stack-md left-1/2 -translate-x-1/2 w-[calc(100%-40px)] max-w-container-max rounded-full border border-white/10 px-gutter py-stack-sm z-50 backdrop-blur-[32px] bg-surface-container-highest/30 shadow-[0_20px_40px_rgba(132,43,210,0.15)] border-t border-white/20 transition-all duration-300">
+<div class="flex justify-between items-center w-full max-w-container-max mx-auto">
+<div class="font-headline-md text-headline-md font-bold tracking-tight text-primary">AuditLens</div>
+<nav class="hidden md:flex gap-stack-lg items-center">
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors text-label-md font-label-md" href="#">Features</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors text-label-md font-label-md" href="#">Sample Report</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors text-label-md font-label-md" href="#">Pricing</a>
+</nav>
+<button class="bg-gradient-to-r from-inverse-primary to-secondary/80 text-white font-label-md text-label-md px-6 py-3 rounded-full border border-white/20 shadow-[0_0_20px_rgba(132,43,210,0.4)] hover:shadow-[0_0_30px_rgba(93,230,255,0.6)] transition-all duration-300 transform hover:scale-105 active:scale-95 ease-out">
+                Start Scan
+            </button>
+</div>
+</header>
+<main class="pt-[120px] pb-stack-xl relative z-10 flex flex-col items-center justify-center min-h-[921px]">
+<!-- Hero Section -->
+<section class="w-full max-w-container-max px-gutter mx-auto text-center flex flex-col items-center mt-stack-xl md:mt-[100px] mb-stack-xl relative">
+<h1 class="font-display-lg text-display-lg md:text-display-lg font-display-lg-mobile text-display-lg-mobile mb-stack-md bg-gradient-to-br from-white via-primary-fixed to-inverse-primary bg-clip-text text-transparent max-w-[800px] leading-tight">
+                您的網頁架構是否<br class="hidden md:block"/>拖慢了業務增長？
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-[650px] mb-stack-lg">
+                在 48 小時內獲取網站 SEO、載入速度與基礎設施的全面標準化審計。無需開會，直接交付結果。
+            </p>
+<!-- Action Area: Glass Input Panel -->
+<div class="relative w-full max-w-[600px] p-[2px] rounded-full bg-gradient-to-r from-white/10 via-white/5 to-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] group">
+<div class="absolute inset-0 bg-primary/5 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+<div class="relative flex items-center bg-surface-container/60 backdrop-blur-xl rounded-full border border-white/5 overflow-hidden p-1">
+<span class="material-symbols-outlined ml-4 text-on-surface-variant/50 group-focus-within:text-primary transition-colors">language</span>
+<input class="flex-1 bg-transparent border-none text-on-surface font-body-md text-body-md focus:ring-0 placeholder-on-surface-variant/40 px-4 py-3 outline-none w-full" placeholder="https://your-website.com" type="url"/>
+<button class="bg-gradient-to-r from-inverse-primary to-on-primary-container text-white font-label-md text-label-md px-8 py-3 rounded-full hover:from-primary-container hover:to-inverse-primary transition-all duration-300 flex items-center gap-2 whitespace-nowrap border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]">
+                        立即分析 <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="mt-stack-md flex items-center gap-2 text-label-md font-label-md text-on-surface-variant/60">
+<span class="material-symbols-outlined text-[16px] text-secondary">verified_user</span>
+<span>採用高精度分析引擎，安全保密。</span>
+</div>
+</section>
+<!-- "Why Us" Bento Grid -->
+<section class="w-full max-w-container-max px-gutter mx-auto mt-[80px]">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-stack-md">
+<!-- Card 1 -->
+<div class="glass-card-hover bg-surface-container/40 backdrop-blur-[16px] border border-white/10 border-t-white/20 rounded-xl p-stack-lg flex flex-col relative overflow-hidden transition-all duration-500 group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-[40px] group-hover:bg-secondary/20 transition-colors"></div>
+<div class="w-12 h-12 rounded-lg bg-surface-bright/50 flex items-center justify-center mb-stack-md border border-white/5 shadow-inner">
+<span class="material-symbols-outlined text-secondary text-[28px]" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-stack-sm">速度與 SEO</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">深入解析 Core Web Vitals 與渲染瓶頸，確保您的網站在搜尋引擎中佔據優勢，並提供閃電般的用戶體驗。</p>
+</div>
+<!-- Card 2 -->
+<div class="glass-card-hover bg-surface-container/40 backdrop-blur-[16px] border border-white/10 border-t-white/20 rounded-xl p-stack-lg flex flex-col relative overflow-hidden transition-all duration-500 group md:-translate-y-4">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-[40px] group-hover:bg-primary/20 transition-colors"></div>
+<div class="w-12 h-12 rounded-lg bg-surface-bright/50 flex items-center justify-center mb-stack-md border border-white/5 shadow-inner">
+<span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: 'FILL' 1;">dns</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-stack-sm">架構審查</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">由資深架構師透視前端構建與後端接口通訊，找出潛在的擴展性危機與資源浪費，重塑堅固的數位基石。</p>
+</div>
+<!-- Card 3 -->
+<div class="glass-card-hover bg-surface-container/40 backdrop-blur-[16px] border border-white/10 border-t-white/20 rounded-xl p-stack-lg flex flex-col relative overflow-hidden transition-all duration-500 group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-tertiary-container/10 rounded-full blur-[40px] group-hover:bg-tertiary-container/20 transition-colors"></div>
+<div class="w-12 h-12 rounded-lg bg-surface-bright/50 flex items-center justify-center mb-stack-md border border-white/5 shadow-inner">
+<span class="material-symbols-outlined text-tertiary text-[28px]" style="font-variation-settings: 'FILL' 1;">code_blocks</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-stack-sm">可執行的修復</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">我們不只給出分數。每份報告皆附帶具體到程式碼層級的修復指引，讓您的工程團隊能立即上手改善。</p>
+</div>
+</div>
+</section>
+<!-- Marquee -->
+<section class="w-full mt-[120px] mb-stack-xl overflow-hidden relative py-stack-md border-y border-white/5 bg-surface-container-lowest/30">
+<div class="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none"></div>
+<div class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none"></div>
+<div class="flex w-[200%] animate-marquee">
+<!-- Set 1 -->
+<div class="flex gap-stack-md px-stack-md w-1/2">
+<div class="bg-surface-container-high/50 backdrop-blur-md border border-white/10 rounded-lg p-stack-md min-w-[300px]">
+<p class="font-body-md text-body-md text-on-surface-variant italic mb-stack-sm">"AuditLens 找出了我們一年都沒發現的渲染阻塞問題，載入速度提升了 40%。"</p>
+<div class="text-label-md font-label-md text-primary">- TechStart CTO</div>
+</div>
+<div class="bg-surface-container-high/50 backdrop-blur-md border border-white/10 rounded-lg p-stack-md min-w-[300px]">
+<p class="font-body-md text-body-md text-on-surface-variant italic mb-stack-sm">"報告的精確度令人震驚，完全是高階資深工程師的視角。"</p>
+<div class="text-label-md font-label-md text-secondary">- E-commerce Lead</div>
+</div>
+<div class="bg-surface-container-high/50 backdrop-blur-md border border-white/10 rounded-lg p-stack-md min-w-[300px]">
+<p class="font-body-md text-body-md text-on-surface-variant italic mb-stack-sm">"省去了無數次會議，直接拿到可以加入 Sprint 的工單，太有效率了。"</p>
+<div class="text-label-md font-label-md text-tertiary">- SaaS Product Manager</div>
+</div>
+</div>
+<!-- Set 2 (Duplicate for seamless loop) -->
+<div class="flex gap-stack-md px-stack-md w-1/2">
+<div class="bg-surface-container-high/50 backdrop-blur-md border border-white/10 rounded-lg p-stack-md min-w-[300px]">
+<p class="font-body-md text-body-md text-on-surface-variant italic mb-stack-sm">"AuditLens 找出了我們一年都沒發現的渲染阻塞問題，載入速度提升了 40%。"</p>
+<div class="text-label-md font-label-md text-primary">- TechStart CTO</div>
+</div>
+<div class="bg-surface-container-high/50 backdrop-blur-md border border-white/10 rounded-lg p-stack-md min-w-[300px]">
+<p class="font-body-md text-body-md text-on-surface-variant italic mb-stack-sm">"報告的精確度令人震驚，完全是高階資深工程師的視角。"</p>
+<div class="text-label-md font-label-md text-secondary">- E-commerce Lead</div>
+</div>
+<div class="bg-surface-container-high/50 backdrop-blur-md border border-white/10 rounded-lg p-stack-md min-w-[300px]">
+<p class="font-body-md text-body-md text-on-surface-variant italic mb-stack-sm">"省去了無數次會議，直接拿到可以加入 Sprint 的工單，太有效率了。"</p>
+<div class="text-label-md font-label-md text-tertiary">- SaaS Product Manager</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Component from JSON -->
+<footer class="w-full py-stack-xl border-t border-white/5 bg-background flex flex-col md:flex-row justify-between items-center gap-stack-md px-margin-desktop max-w-container-max mx-auto relative z-10">
+<div class="font-headline-md text-headline-md font-bold text-primary">AuditLens</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-center">© 2024 AuditLens. Precision Architecture Analysis.</p>
+<nav class="flex gap-stack-md">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors hover:opacity-80" href="#">Documentation</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors hover:opacity-80" href="#">Privacy</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors hover:opacity-80" href="#">Terms</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors hover:opacity-80" href="#">Contact</a>
+</nav>
+</footer>
+<script>
+        // Simple input focus interaction effect for the liquid background
+        const urlInput = document.querySelector('input[type="url"]');
+        const blobs = document.querySelectorAll('.bg-blob-1, .bg-blob-2');
+        
+        if(urlInput && blobs.length > 0) {
+            urlInput.addEventListener('focus', () => {
+                blobs.forEach(blob => {
+                    blob.style.filter = 'blur(80px)';
+                    blob.style.transform = 'scale(1.2)';
+                    blob.style.transition = 'all 1s ease-out';
+                });
+            });
+            
+            urlInput.addEventListener('blur', () => {
+                blobs.forEach(blob => {
+                    blob.style.filter = '';
+                    blob.style.transform = '';
+                });
+            });
+        }
+    </script>
+</body></html>

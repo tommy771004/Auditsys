@@ -1,0 +1,785 @@
+{
+  "brand": {
+    "name": "AuditLens",
+    "tagline": "Web Performance & Architecture Audit"
+  },
+  "meta": {
+    "home": "AuditLens | Web Performance & Architecture Audit",
+    "pricing": "AuditLens | Pricing",
+    "report": "AuditLens | Sample Report",
+    "intake": "AuditLens | Intake",
+    "console": "AuditLens | Agent Mission Control"
+  },
+  "navbar": {
+    "overview": "Overview",
+    "features": "Features",
+    "sampleReport": "Sample Report",
+    "console": "Mission Control",
+    "pricing": "Pricing",
+    "intake": "Intake",
+    "startScan": "Start Scan",
+    "openMenu": "Open navigation menu",
+    "closeMenu": "Close navigation menu"
+  },
+  "footer": {
+    "summary": "Productized architecture audits for teams that need precision, speed, and a clear remediation path.",
+    "rights": "© {{year}} AuditLens. All rights reserved.",
+    "home": "Home",
+    "report": "Sample Report",
+    "console": "Mission Control",
+    "pricing": "Pricing",
+    "startScan": "Start Scan"
+  },
+  "languageSwitcher": {
+    "toggleAriaLabel": "Switch language",
+    "menuLabel": "Select language",
+    "options": {
+      "en": "English",
+      "zh-TW": "Traditional Chinese"
+    },
+    "shortOptions": {
+      "en": "EN",
+      "zh-TW": "TW"
+    }
+  },
+  "hero": {
+    "badge": "Multi-agent AI audit",
+    "titleLine1": "Stop guessing where your",
+    "titleLine2": "architecture is bleeding speed.",
+    "description": "Get a multi-agent AI audit that pinpoints frontend bottlenecks, API latency, and architecture risks in minutes—not months.",
+    "panelTitle": "Launch the intake preview",
+    "panelDescription": "Use a real website URL to test validation, async states, and the production-ready fetch flow.",
+    "inputLabel": "Website URL",
+    "inputPlaceholder": "https://your-company.com",
+    "submit": "Start Free Scan",
+    "secondaryCta": "View Sample Report",
+    "consoleCta": "Open Agent mission control",
+    "loading": "Preparing audit",
+    "helper": "Secure intake. No source code access is required for the first pass.",
+    "formCaption": "Paste a production URL and preview the productized intake flow.",
+    "formFootnote": "The endpoint can be connected through VITE_AUDIT_ENDPOINT.",
+    "successTitle": "Audit intake queued",
+    "successDescription": "The request passed validation and the workflow is ready for a real endpoint.",
+    "errorTitle": "Scan request blocked",
+    "trustPills": {
+      "security": "Secure intake",
+      "turnaround": "48-hour turnaround",
+      "expert": "Senior architect review"
+    }
+  },
+  "validation": {
+    "requiredUrl": "Enter a website URL to continue.",
+    "invalidUrl": "Enter a valid URL that starts with http:// or https://.",
+    "submitFailed": "The audit request failed. Try again in a moment.",
+    "unauthorized": "Login required or your subscription limits this action."
+  },
+  "auditConsole": {
+    "badge": "Agentic Workflow",
+    "title": "An autonomous audit console you can actually show",
+    "description": "Turn Agent-style orchestration into a premium mission control surface. Every subagent, tool call, and long-term memory write is visible in real time instead of being buried behind a spinner.",
+    "capabilitiesEyebrow": "Agent capabilities",
+    "capabilitiesTitle": "Expose parallel execution, subagent spawning, and persistent memory as first-class UI.",
+    "capabilities": {
+      "parallel": {
+        "title": "Parallel tool execution",
+        "description": "Run DOM, API, and architecture investigations in parallel so investors and clients can watch the system work." 
+      },
+      "memory": {
+        "title": "Persistent memory sync",
+        "description": "Visualize the exact moment a runtime fact is promoted into long-term memory for later synthesis and remediation."
+      },
+      "report": {
+        "title": "Streaming final report",
+        "description": "Type the final report into view character by character so the audit feels alive instead of static."
+      }
+    },
+    "missionEyebrow": "Mission Control",
+    "missionTitle": "Agent mission control terminal",
+    "phaseLabel": "Current phase: {{value}}",
+    "inputLabel": "Target website URL",
+    "inputPlaceholder": "https://demo.auditlens.io/",
+    "submit": "Launch Agent audit",
+    "submitLoading": "Agent running",
+    "helper": "This console visualizes Agent-style orchestration first and switches to real audit pipeline evidence and synthesis whenever the live result is available.",
+    "phases": {
+      "idle": "idle",
+      "analyzing_context": "analyzing context",
+      "spawning_subagents": "spawning subagents",
+      "parallel_execution": "parallel execution",
+      "synthesizing_memory": "synthesizing memory",
+      "streaming_report": "streaming report",
+      "complete": "complete"
+    },
+    "phaseDescriptions": {
+      "idle": "The Agent workflow has not started yet. Submit a URL and the console will visualize how the agent coordinates the audit from planning to synthesis.",
+      "analyzing_context": "The primary agent is reviewing the target URL, runtime context, and available tools before delegating work.",
+      "spawning_subagents": "The primary agent is creating specialist subagents and binding tools to each role.",
+      "parallel_execution": "Subagents are now running in parallel. Each glass card streams its own tool output in real time.",
+      "synthesizing_memory": "The system is promoting the latest runtime finding into long-term memory so later remediation and reporting stay aligned.",
+      "streaming_report": "The primary agent is synthesizing the subagent outputs into a final report that streams directly into view.",
+      "complete": "The Agent simulation is complete. You can open the sample report to compare the console with the evidence-driven reporting surface."
+    },
+    "metrics": {
+      "subagents": "Subagents",
+      "tools": "Tool calls",
+      "memoryWrites": "Memory writes",
+      "reportStatus": "Report status",
+      "reportReadyValue": "Ready",
+      "reportStreamingValue": "Streaming",
+      "reportPendingValue": "Pending"
+    },
+    "sections": {
+      "spawningTitle": "Queued subagents",
+      "spawningCardDescription": "Waiting for the primary agent to finish delegation and tool binding.",
+      "parallelTitle": "Subagents in parallel execution",
+      "parallelDescription": "Each glass card represents a dedicated subagent with its own live terminal output.",
+      "reportTitle": "Final report stream",
+      "reportDescription": "This pane types out how the primary agent turns subagent evidence and memory updates into an executive summary.",
+      "reportDescriptionLive": "This pane streams the real audit pipeline synthesis and evidence summary instead of only showing mock output.",
+      "reportDescriptionPending": "The primary agent is in final reporting and is waiting for the real audit pipeline to return evidence and synthesis output.",
+      "reportWaiting": "Waiting for the primary agent to begin the final report stream...",
+      "memoryTitle": "Persistent memory sync",
+      "memoryEmpty": "No long-term memory writes have been recorded yet.",
+      "missionStreamTitle": "Mission execution stream",
+      "missionStreamDescription": "Current target: {{url}}. Move through each phase to watch subagent spawning, parallel execution, and report streaming unfold."
+    },
+    "actions": {
+      "openSampleReport": "Open sample report",
+      "reset": "Reset simulation",
+      "cancel": "Cancel scan"
+    },
+    "live": {
+      "badge": "Live pipeline",
+      "memory": {
+        "runtimeGate": "Confirmed the primary runtime gate as \"{{step}}\" ({{status}}).",
+        "runtimeGateWithDetail": "Confirmed the primary runtime gate as \"{{step}}\" ({{status}}) at {{detail}}.",
+        "responseTime": "Deterministic collector recorded an initial HTML response time of {{value}} ms.",
+        "pipeline": "The audit pipeline is synthesizing with {{provider}} and the browser collector is running in {{mode}} mode."
+      },
+      "logs": {
+        "shared": {
+          "notAvailable": "not available"
+        },
+        "frontend": {
+          "responseTime": "Live deterministic evidence: initial HTML returned in {{value}} ms.",
+          "responseTimeMissing": "Live deterministic evidence: no initial HTML response time was captured for this run.",
+          "documentSignals": "Document structure synced: {{scripts}} script tag(s), {{stylesheets}} stylesheet link(s), and {{images}} image(s).",
+          "runtimeGate": "Frontend runtime gate aligned to \"{{step}}\" ({{status}}).",
+          "runtimeGateWithDetail": "Frontend runtime gate aligned to \"{{step}}\" ({{status}}) at {{detail}}.",
+          "runtimeGateMissing": "Frontend evidence did not identify a primary runtime gate."
+        },
+        "backend": {
+          "statusCode": "Initial response metadata: HTTP {{value}}, content type {{contentType}}.",
+          "cacheControl": "Cache header captured: Cache-Control = {{value}}.",
+          "serverHeader": "Server headers: Server = {{server}}; X-Powered-By = {{poweredBy}}."
+        },
+        "architecture": {
+          "browserStatus": "Browser collector is {{status}} in {{mode}} mode.",
+          "flow": "Latest browser flow: {{label}} ({{status}}).",
+          "flowMissing": "No browser flow execution was available for this run.",
+          "summary": "Synthesis returned a summary that can now be shared by the final report and memory panel.",
+          "summaryMissing": "No synthesis summary was available, so the architecture lane is summarizing from evidence metadata only."
+        }
+      },
+      "report": {
+        "title": "Agent Live Audit Summary",
+        "provider": "Synthesis source: {{value}}",
+        "target": "Target URL: {{value}}",
+        "browserStatus": "Browser collector: {{status}} in {{mode}} mode.",
+        "responseTime": "Initial HTML response time: {{value}} ms.",
+        "responseTimeMissing": "No deterministic response time was captured for this run.",
+        "runtimeGate": "Primary runtime gate: {{step}} ({{status}}).",
+        "runtimeGateWithDetail": "Primary runtime gate: {{step}} ({{status}}) at {{detail}}.",
+        "runtimeGateMissing": "No primary runtime gate was explicitly identified in this evidence bundle.",
+        "warningCount": "Total evidence warnings: {{count}}.",
+        "summaryMissing": "No synthesis summary was available, so Agent is only showing evidence metadata.",
+        "storeSynced": "The latest audit result has been synced to the sample report page for direct comparison."
+      },
+      "snapshot": {
+        "title": "Live evidence snapshot",
+        "empty": "No usable live audit pipeline result has arrived yet, so the console is still showing the mock report.",
+        "provider": "Synthesis source",
+        "browser": "Browser collector",
+        "browserValue": "{{status}} / {{mode}}",
+        "gate": "Primary runtime gate",
+        "gateValue": "{{step}} ({{status}})",
+        "gateValueWithDetail": "{{step}} ({{status}}) at {{detail}}",
+        "gateMissing": "No primary runtime gate is currently identifiable.",
+        "warnings": "Warning total",
+        "warningValue": "{{count}} evidence warning(s)"
+      }
+    },
+    "subagentCard": {
+      "eyebrow": "Subagent",
+      "toolCount": "{{count}} tool task(s)",
+      "executionTimeLabel": "Execution time",
+      "executionTime": "{{value}} ms",
+      "activeToolLabel": "Primary tool",
+      "noTool": "No tool attached yet",
+      "terminalTitle": "Live terminal output",
+      "emptyLogs": "Waiting for tool output...",
+      "argsTitle": "Tool arguments"
+    },
+    "subagentStatus": {
+      "pending": "pending",
+      "active": "active",
+      "done": "done"
+    },
+    "toolStatus": {
+      "running": "running",
+      "success": "success",
+      "failed": "failed"
+    },
+    "memoryBadge": {
+      "saved": "Saved to memory",
+      "type": "Category: {{value}}"
+    },
+    "memoryPanelTitle": "Latest long-term memory writes",
+    "memoryType": {
+      "architecture": "Architecture",
+      "bottleneck": "Bottleneck",
+      "tech_stack": "Tech stack"
+    },
+    "tools": {
+      "dom_probe": {
+        "label": "DOM Depth Probe"
+      },
+      "api_latency": {
+        "label": "API Latency Analyzer"
+      },
+      "memory_synth": {
+        "label": "Architecture Memory Synthesizer"
+      }
+    },
+    "argKeys": {
+      "targetUrl": "Target URL",
+      "probe": "Probe mode",
+      "viewport": "Viewport",
+      "samples": "Samples",
+      "focus": "Focus",
+      "memoryScope": "Memory scope"
+    },
+    "mock": {
+      "badge": "Mock fallback",
+      "subagents": {
+        "frontend": {
+          "role": "Frontend Speed Subagent"
+        },
+        "backend": {
+          "role": "API Latency Subagent"
+        },
+        "architecture": {
+          "role": "Architecture Memory Subagent"
+        }
+      },
+      "logs": {
+        "frontend": {
+          "queue": "Queueing DOM depth and hydration-boundary analysis.",
+          "dom": "Homepage DOM sampling completed with no abnormal first-route expansion.",
+          "hydration": "Report route still depends on prior audit hydration, so the runtime gate remains unresolved.",
+          "summary": "Frontend pass completed. The main risk is still the report-route hydration gate."
+        },
+        "backend": {
+          "queue": "Pinging the API gateway and establishing a latency baseline.",
+          "gateway": "Gateway round-trip latency remains within the acceptable range with no obvious burst pattern.",
+          "waterfall": "Compared the initial document waterfall with follow-up requests and did not detect a server-side choke point of the same severity.",
+          "summary": "API latency analysis completed. The primary issue remains the frontend runtime gate, not server saturation."
+        },
+        "architecture": {
+          "queue": "Aligning cross-route state dependencies with the evidence schema.",
+          "paths": "Located the report-route state boundary. Session-backed audit evidence is still the key prerequisite.",
+          "memory": "Preparing a long-term memory write so remediation planning and reporting cite the same runtime fact.",
+          "summary": "Architecture memory synthesis completed. The stuck runtime gate can now be explained clearly across the product."
+        }
+      },
+      "memory": {
+        "key": "runtime-gate",
+        "fact": "The report route still depends on a session-backed audit hydration gate, and that remains the primary blocker."
+      },
+      "report": {
+        "title": "Agent Audit Summary",
+        "lead": "Completed a three-lane parallel audit for {{url}} and converged on one primary runtime gate.",
+        "point1": "The frontend speed subagent confirmed that the homepage and pricing route remain stable, but the report route still depends on a hydration boundary.",
+        "point2": "The API latency subagent did not uncover an equivalent server-side bottleneck, so the next investigation should remain focused on the frontend runtime path.",
+        "point3": "The architecture memory subagent promoted the session-backed evidence dependency into long-term memory so remediation planning and summaries can reuse it.",
+        "closing": "Recommended next step: remove the report-route runtime hydration gate before asking browser evidence and final reporting to converge on one reliable execution path."
+      }
+    },
+    "pending": {
+      "badge": "Awaiting pipeline"
+    }
+  },
+  "features": {
+    "sectionEyebrow": "Value proposition",
+    "sectionTitle": "What the audit covers",
+    "sectionDescription": "A productized review focused on the bottlenecks that impact growth, delivery velocity, and platform resilience.",
+    "cards": {
+      "performance": {
+        "title": "Performance signals",
+        "description": "Core Web Vitals, rendering cost, bundle pressure, and delivery path analysis."
+      },
+      "architecture": {
+        "title": "Architecture risk",
+        "description": "Frontend boundaries, caching posture, API orchestration, and maintainability pressure points."
+      },
+      "remediation": {
+        "title": "Actionable fixes",
+        "description": "Prioritized recommendations with code-level direction your team can execute immediately."
+      }
+    }
+  },
+  "workflow": {
+    "sectionEyebrow": "Workflow",
+    "sectionTitle": "A fast path from URL to action plan",
+    "sectionDescription": "The page is wired like a production intake flow, with explicit loading, error, and success states.",
+    "steps": {
+      "intake": {
+        "eyebrow": "01",
+        "title": "Submit a live URL",
+        "description": "We validate the protocol format and prepare the payload for the audit service."
+      },
+      "analysis": {
+        "eyebrow": "02",
+        "title": "Trigger the audit pipeline",
+        "description": "A simulated delay mirrors real network latency while the fetch hook stays ready for production."
+      },
+      "delivery": {
+        "eyebrow": "03",
+        "title": "Return clear next actions",
+        "description": "The success state frames the handoff to remediation planning and reporting."
+      }
+    }
+  },
+  "homePreview": {
+    "sectionEyebrow": "Multi-page expansion",
+    "sectionTitle": "The marketing shell now extends into pricing, intake, and a sample report experience.",
+    "sectionDescription": "The design drafts are no longer isolated HTML references. They are connected as navigable React pages with shared Liquid Glass components and i18n wiring.",
+    "secondaryEyebrow": "Implementation note",
+    "secondaryTitle": "Hash-based navigation keeps the prototype deployable on a static host.",
+    "secondaryDescription": "The router uses location.hash so the pages can switch without adding server-side rewrite rules during prototype review."
+  },
+  "status": {
+    "idleTitle": "API-ready intake flow",
+    "idleDescription": "The form validates the URL, manages loading state, and falls back to a simulated success path when no endpoint is configured."
+  },
+  "pricing": {
+    "badge": "Transparent pricing",
+    "title": "Choose the audit depth that matches your release pressure",
+    "description": "Every plan includes a written executive summary, technical findings, and a remediation path sized for delivery teams.",
+    "compareEyebrow": "Plans",
+    "compareTitle": "Three ways to engage",
+    "compareDescription": "Start with a lightweight signal or move straight to an architect-led remediation partnership.",
+    "deliveryEyebrow": "Delivery",
+    "deliveryTitle": "A productized service, not an open-ended consulting loop",
+    "deliveryDescription": "The engagement is structured to remove calendar churn. Teams submit context once, receive focused findings, and move into execution faster.",
+    "primaryCta": "Start the intake",
+    "secondaryCta": "Preview the sample report",
+    "faqEyebrow": "FAQ",
+    "faqTitle": "What teams usually ask before they buy",
+    "faqDescription": "The offer is designed to be low-friction and decision-ready.",
+    "plans": {
+      "blueprint": {
+        "name": "Starter (Free)",
+        "price": "$0",
+        "cadence": "basic access",
+        "description": "Fast AI-driven signal on performance and SEO, powered by high-speed Gemini 2.5 Flash.",
+        "cta": "Start Free",
+        "features": {
+          "performance": "Powered by Google Gemini 2.5 Flash",
+          "seo": "High-speed baseline SEO & accessibility checks",
+          "summary": "Standard Core Web Vitals review"
+        }
+      },
+      "optimization": {
+        "name": "Pro",
+        "price": "$29",
+        "cadence": "per month",
+        "description": "Multi-agent architecture review powered by industry-leading models like Claude Sonnet 4.6 and GPT-5.4.",
+        "cta": "Upgrade to Pro",
+        "badge": "Most popular",
+        "features": {
+          "performance": "Access to Claude Haiku 4.5, Gemini Flash 3.5 & GPT-5.4",
+          "architecture": "Deep architecture risk analysis & reasoning",
+          "remediation": "Prioritized code-level remediation backlog"
+        }
+      },
+      "partner": {
+        "name": "Enterprise",
+        "price": "$99",
+        "cadence": "per month",
+        "description": "Ultimate frontier model access including Claude Opus 4.7, Gemini Pro 3.1, and GPT-5.5 for the most complex system analysis.",
+        "cta": "Go Enterprise",
+        "features": {
+          "workshop": "Access to GPT-5.5, Claude Opus 4.7 & Gemini Pro 3.1",
+          "roadmap": "Complex full-stack reasoning & roadmap generation",
+          "followup": "Custom data retention & unlimited context window"
+        }
+      }
+    },
+    "faq": {
+      "delivery": {
+        "question": "How fast is delivery?",
+        "answer": "Most audits are delivered within 48 hours after the intake is complete and access requirements are confirmed."
+      },
+      "access": {
+        "question": "Do you need repository access?",
+        "answer": "Not for the first pass. The intake starts with a live URL and platform context, then expands only if deeper review is required."
+      },
+      "scope": {
+        "question": "What does the report include?",
+        "answer": "Each plan includes structured findings, severity framing, and concrete remediation direction sized to the selected tier."
+      }
+    }
+  },
+  "report": {
+    "badge": "Sample report",
+    "title": "Preview the dashboard your team receives",
+    "description": "A concise reporting surface for executives and engineers: scores, architecture risk, and prioritized fixes.",
+    "headerTitle": "System audit report",
+    "headerSubtitle": "e-commerce-core-v2",
+    "generatedAt": "Generated on 2026-05-28 14:30 UTC",
+    "sections": {
+      "overview": "Overview",
+      "performance": "Performance",
+      "seo": "SEO",
+      "architecture": "Architecture",
+      "actions": "Actions"
+    },
+    "metrics": {
+      "overall": {
+        "label": "Overall score",
+        "support": "High-priority architecture bottlenecks found."
+      },
+      "performance": {
+        "label": "Performance",
+        "support": "Good baseline, but render blocking still hurts the first route."
+      },
+      "seo": {
+        "label": "SEO posture",
+        "support": "Search signals are stable with room for structured data cleanup."
+      },
+      "architecture": {
+        "label": "Architecture risk",
+        "support": "Checkout and data orchestration need tighter boundaries."
+      }
+    },
+    "panels": {
+      "overview": {
+        "title": "The audit highlights three root causes worth addressing first",
+        "description": "The current platform is not broadly broken. The real issue is concentrated drag in a few high-leverage paths.",
+        "items": {
+          "render": "The first route still carries unnecessary render-blocking scripts.",
+          "cache": "Edge caching is inconsistent between landing and transactional routes.",
+          "deps": "Critical views depend on cross-cutting modules with unclear ownership."
+        }
+      },
+      "performance": {
+        "title": "Performance risk is tied to a narrow critical path",
+        "description": "The site is close to target, but the checkout and personalization surfaces concentrate the largest regressions.",
+        "items": {
+          "lcp": "Largest Contentful Paint regresses on template-heavy pages.",
+          "bundle": "The application shell ships too much shared code on first paint.",
+          "thirdParty": "Third-party tags compete for bandwidth during critical rendering."
+        }
+      },
+      "seo": {
+        "title": "Search signals are healthy but still uneven",
+        "description": "The site has solid crawlability, but metadata discipline breaks on several dynamic templates.",
+        "items": {
+          "metadata": "Duplicate title and description patterns appear on filtered category views.",
+          "internalLinks": "Important navigation paths are under-linked from commercial content.",
+          "structuredData": "Structured data coverage is incomplete on product detail pages."
+        }
+      },
+      "architecture": {
+        "title": "The architecture problem is orchestration, not raw scale",
+        "description": "A few boundaries are too porous, which increases release risk and slows root-cause analysis.",
+        "items": {
+          "api": "Checkout flows still couple UI rendering to multiple synchronous API calls.",
+          "cache": "Cache ownership is split across edge and application layers without a shared policy.",
+          "observability": "Telemetry does not currently map cleanly to feature ownership."
+        }
+      },
+      "actions": {
+        "title": "These fixes can move directly into a sprint backlog",
+        "description": "The report translates findings into execution order instead of ending at a score.",
+        "items": {
+          "defer": "Defer non-critical scripts until after first meaningful paint.",
+          "cacheHeaders": "Standardize cache headers across category, product, and checkout surfaces.",
+          "checkout": "Isolate checkout data fetching into a narrower orchestration layer."
+        }
+      }
+    },
+    "architectureLens": {
+      "eyebrow": "Architecture lens",
+      "title": "A visual snapshot of the highest-risk dependency chain",
+      "description": "This panel turns a complex architecture narrative into one path engineers can act on immediately.",
+      "issueTitle": "Critical path alert",
+      "issueDescription": "The checkout API bypasses a stable cache layer and fans out into slow downstream reads, increasing both latency and operational noise.",
+      "nodes": {
+        "edge": "CDN edge",
+        "app": "App shell",
+        "api": "Checkout API",
+        "db": "Product DB"
+      }
+    },
+    "actions": {
+      "eyebrow": "Recommended actions",
+      "title": "The next sprint can start here",
+      "summary": "The current audit maps to a practical sprint backlog, not a generic scorecard.",
+      "items": {
+        "defer": "Defer non-critical marketing tags on the first route.",
+        "cacheHeaders": "Align cache headers and purge strategy across edge and app layers.",
+        "checkout": "Refactor checkout orchestration behind a narrower API boundary."
+      }
+    },
+    "primaryCta": "Start your intake",
+    "consoleCta": "Open Agent mission control",
+    "secondaryCta": "Review pricing",
+    "runtime": {
+      "empty": {
+        "title": "No live audit result yet",
+        "description": "Run a scan or submit the intake wizard to populate this report with real pipeline evidence.",
+        "primaryCta": "Start a scan",
+        "secondaryCta": "Open intake",
+        "consoleCta": "Go to Agent mission control"
+      },
+      "chips": {
+        "provider": "Synthesis: {{value}}",
+        "browser": "Browser collector: {{value}}",
+        "target": "Target: {{value}}"
+      },
+      "modes": {
+        "stub": "Stub",
+        "playwright": "Playwright",
+        "webwright": "Webwright"
+      },
+      "status": {
+        "completed": "completed",
+        "failed": "failed",
+        "skipped": "skipped",
+        "partial": "partial",
+        "blocked": "blocked",
+        "not_run": "not run"
+      },
+      "metrics": {
+        "overall": {
+          "failed": "Evidence capture did not complete end-to-end, so this score is provisional.",
+          "withBrowser": "{{warningCount}} evidence warning(s) remain after deterministic and browser collection.",
+          "withPartial": "Browser evidence is attached, but runtime coverage is still partial and leaves {{warningCount}} warning(s) unresolved.",
+          "withoutBrowser": "This score is based on deterministic evidence only; browser verification is still pending."
+        },
+        "performance": {
+          "withValue": "Initial HTML responded in {{value}} ms with {{scripts}} scripts detected.",
+          "missing": "Performance scoring is provisional because deterministic timing data is missing."
+        },
+        "seo": {
+          "withSignals": "{{missingCount}} baseline document signal(s) still need cleanup.",
+          "clean": "Core document signals are present in the initial HTML response."
+        },
+        "architecture": {
+          "withBrowser": "Browser flows are available for runtime verification.",
+          "withPartial": "Browser evidence is attached, but at least one runtime step or flow is still incomplete.",
+          "withoutBrowser": "Architecture confidence is limited until browser evidence is enabled."
+        }
+      },
+      "panels": {
+        "overview": {
+          "title": "Latest evidence snapshot",
+          "descriptionWithSummary": "This overview combines synthesis output with the latest deterministic and browser collector evidence.",
+          "descriptionWithoutSummary": "The evidence pipeline completed without a narrative summary, so this overview is assembled from raw collector output.",
+          "primaryRuntimeGate": "Primary runtime gate: {{step}} ({{status}}).",
+          "primaryRuntimeGateWithDetail": "Primary runtime gate: {{step}} ({{status}}) at {{detail}}.",
+          "deterministicStatus": "Deterministic collector status: {{status}}.",
+          "browserStatus": "Browser collector status: {{status}} using {{mode}} mode.",
+          "summaryUnavailable": "No synthesized summary was available for this run."
+        },
+        "performance": {
+          "title": "Deterministic performance evidence",
+          "description": "This section is derived from the initial HTML response and network metadata, not a fixed placeholder set.",
+          "responseTime": "Initial HTML responded in {{value}} ms.",
+          "responseTimeMissing": "Initial HTML response time was not captured.",
+          "scriptCount": "The first document included {{value}} script tags and {{stylesheets}} stylesheet links.",
+          "cacheControl": "Cache-Control header: {{value}}.",
+          "cacheControlMissing": "No Cache-Control header was returned on the initial response."
+        },
+        "seo": {
+          "title": "SEO and document signals",
+          "description": "Metadata, canonical tags, language hints, and structured data are taken from the deterministic document pass.",
+          "metaPresent": "Meta description is present in the initial document.",
+          "metaMissing": "Meta description is missing from the initial document.",
+          "canonicalPresent": "Canonical URL resolves to {{value}}.",
+          "canonicalMissing": "Canonical URL is missing.",
+          "structuredDataPresent": "{{value}} structured data block(s) were detected.",
+          "structuredDataMissing": "No structured data blocks were detected.",
+          "altMissing": "{{value}} image(s) are missing alt text.",
+          "altComplete": "No missing alt text was detected in the initial image set."
+        },
+        "architecture": {
+          "title": "Runtime architecture evidence",
+          "descriptionWithBrowser": "Architecture findings combine deterministic evidence with browser-flow observations, so the report can point at runtime boundaries instead of only HTML hints.",
+          "descriptionWithPartial": "Browser evidence is available, but at least one runtime step is still incomplete or blocked, so architecture findings should be treated as provisional.",
+          "descriptionWithoutBrowser": "Browser evidence is not available yet, so architecture findings currently reflect deterministic signals plus collector readiness.",
+          "browserFlow": "Latest browser flow: {{label}} ({{status}}).",
+          "browserFlowMissing": "No browser flow execution was recorded for this run.",
+          "serverHeader": "Server header: {{value}}.",
+          "serverHeaderMissing": "No Server header was returned.",
+          "poweredBy": "X-Powered-By header: {{value}}.",
+          "poweredByMissing": "No X-Powered-By header was exposed."
+        },
+        "actions": {
+          "title": "Evidence-based next actions",
+          "description": "These actions are generated from the current evidence bundle, so they change with each run instead of staying fixed.",
+          "actionReduceResponseTime": "Reduce initial HTML response time before adding deeper browser instrumentation.",
+          "actionReviewScripts": "Audit first-route scripts and remove render-blocking or low-value tags.",
+          "actionAddMeta": "Add a stable meta description policy for key landing and transactional templates.",
+          "actionAddCanonical": "Define canonical ownership across dynamic or filtered routes.",
+          "actionAddStructuredData": "Implement structured data on high-value templates before scaling crawl exposure.",
+          "actionFixAlt": "Backfill missing alt text on content-critical images.",
+          "actionResolveBlockedStep": "Resolve the blocked browser step \"{{step}}\" before trusting runtime coverage for this flow.",
+          "actionReviewPartialStep": "Review the incomplete browser step \"{{step}}\" and harden its selector or state setup.",
+          "actionEnableBrowser": "Enable a browser collector for stateful flows before making high-confidence architecture calls.",
+          "actionReviewCache": "Standardize cache headers so deterministic and browser evidence converge on one policy.",
+          "actionGeneral": "Use this evidence bundle as the baseline for a deeper architecture review."
+        }
+      },
+      "evidence": {
+        "eyebrow": "Browser evidence",
+        "title": "Runtime artifact readiness",
+        "description": "This card exposes whether Webwright or a future browser runner actually attached pages, flows, screenshots, logs, and trace artifacts to the current report.",
+        "stats": {
+          "pages": "Pages",
+          "flows": "Active flows",
+          "screenshots": "Screenshots",
+          "logs": "Logs"
+        },
+        "detail": {
+          "runtime": "Browser evidence is {{status}} in {{mode}} mode.",
+          "workspace": "Workspace root: {{value}}.",
+          "workspaceMissing": "No browser workspace directory was attached to this run.",
+          "taskId": "Task ID: {{value}}.",
+          "reportPath": "Report artifact: {{value}}.",
+          "reportMissing": "No report artifact path was attached.",
+          "trajectoryPath": "Trajectory artifact: {{value}}.",
+          "tracePath": "Trace artifact: {{value}}.",
+          "traceMissing": "No trajectory or trace artifact was attached.",
+          "finalUrl": "Final browser URL: {{value}}.",
+          "startUrl": "Start browser URL: {{value}}.",
+          "warning": "Collector warning: {{value}}."
+        },
+        "manifest": {
+          "title": "Artifact manifest",
+          "description": "The first attached browser artifacts are listed here so the report shows which concrete files backed the current evidence bundle.",
+          "empty": "No concrete browser artifacts were attached to this run yet.",
+          "labels": {
+            "report": "Report",
+            "trace": "Trace",
+            "trajectory": "Trajectory",
+            "screenshot": "Screenshot {{index}}",
+            "log": "Log {{index}}"
+          }
+        },
+        "timeline": {
+          "title": "Execution timeline",
+          "description": "This timeline shows the parsed Webwright trajectory steps so the report reflects what the browser runner actually did.",
+          "empty": "No executable trajectory steps were attached to this run."
+        }
+      },
+      "lens": {
+        "issueTitle": {
+          "browserPending": "Browser evidence still pending",
+          "browserPartial": "Browser flow needs remediation",
+          "performance": "Deterministic performance risk detected",
+          "seo": "Document hygiene gap detected",
+          "general": "Evidence path ready for deeper inspection"
+        },
+        "issueDescription": {
+          "browserPending": "The deterministic pass completed, but the browser collector is still in {{mode}} mode. This is the correct integration point for Webwright or Playwright.",
+          "browserPartial": "Browser evidence is attached, but at least one runtime step is incomplete or blocked. Fix the failing flow before treating this run as full coverage.",
+          "performance": "The initial HTML response and first-document payload suggest a narrow but important performance bottleneck worth instrumenting next.",
+          "seo": "The deterministic document pass surfaced metadata or structured-data gaps that can be validated before deeper crawling.",
+          "general": "Current evidence is enough to guide the next collector integration without returning to a fixed sample template."
+        },
+        "nodes": {
+          "target": "Target host: {{value}}",
+          "document": "Document: {{value}}",
+          "collector": "Collector: {{value}}",
+          "server": "Server: {{value}}"
+        }
+      }
+    }
+  },
+  "intake": {
+    "badge": "Client intake",
+    "title": "Launch your architecture audit brief",
+    "description": "This wizard captures the minimum context needed to turn a URL into a focused technical engagement.",
+    "progressEyebrow": "Three-step wizard",
+    "panelTitle": "Prepare the audit brief",
+    "progressLabel": "Step {{current}} of {{total}}",
+    "helper": "The wizard uses real React state, step validation, and a fetch-based submit flow.",
+    "summaryEyebrow": "Submission summary",
+    "summaryTitle": "Before you submit",
+    "summaryDescription": "These answers become the architect-ready brief for the next review step.",
+    "successTitle": "Intake received",
+    "successDescription": "The request cleared validation and is ready to connect to a production endpoint.",
+    "followupEyebrow": "Next steps",
+    "followupTitle": "Continue exploring the productized flow",
+    "followupDescription": "You can now review the sample report or compare packages before connecting a real backend.",
+    "fields": {
+      "companyName": "Company or product name",
+      "contactEmail": "Contact email",
+      "url": "Website URL",
+      "goals": "Primary goals",
+      "stack": "Current stack",
+      "teamSize": "Team size",
+      "notes": "Context for the architect"
+    },
+    "placeholders": {
+      "companyName": "Acme Commerce",
+      "contactEmail": "tech-lead@company.com",
+      "url": "https://your-company.com",
+      "notes": "Key releases, migration plans, or pain points you want the audit to focus on."
+    },
+    "steps": {
+      "target": {
+        "title": "Define goals",
+        "description": "Capture the live target and the business pressure behind the audit."
+      },
+      "stack": {
+        "title": "Map the stack",
+        "description": "Clarify the current frontend and delivery surfaces."
+      },
+      "context": {
+        "title": "Hand off context",
+        "description": "Provide the final detail an architect needs before the review starts."
+      }
+    },
+    "options": {
+      "goals": {
+        "seo": "SEO resilience",
+        "performance": "Performance and speed",
+        "cost": "Cost structure analysis"
+      },
+      "stack": {
+        "react": "React application",
+        "nextjs": "Next.js framework",
+        "node": "Node.js backend",
+        "azure": "Azure hosting",
+        "vercel": "Vercel delivery"
+      },
+      "teamSize": {
+        "small": "Small team (1-5 engineers)",
+        "mid": "Growing team (6-15 engineers)",
+        "large": "Scaled team (16+ engineers)"
+      }
+    },
+    "buttons": {
+      "previous": "Back",
+      "next": "Next step",
+      "submit": "Submit intake",
+      "viewReport": "View sample report",
+      "viewPricing": "View pricing",
+      "launchConsole": "Launch Live Audit Console"
+    }
+  }
+}

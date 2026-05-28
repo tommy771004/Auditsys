@@ -1,0 +1,61 @@
+{
+  "generated_at": "2026-05-28T14:30:00.000Z",
+  "sections": [
+    {
+      "title": "Consent overlay blocks primary CTA",
+      "summary": "Homepage loads quickly, but a consent banner initially covers the primary scan CTA until it is dismissed.",
+      "steps": [
+        "Opened the homepage and waited for network quiet.",
+        "Observed a consent banner overlaying the hero CTA before dismissal.",
+        "Dismissal restored CTA interaction without breaking layout stability."
+      ]
+    },
+    {
+      "title": "Pricing cards remain stable after route transition",
+      "summary": "The pricing grid rendered cleanly after navigation from the homepage, with plan CTAs still visible and interactable.",
+      "steps": [
+        "Navigated from the hero CTA to the pricing route.",
+        "Pricing cards rendered in a stable grid with no blocking modal.",
+        "Primary and secondary package CTAs remained visible above the fold."
+      ]
+    },
+    {
+      "title": "Report route depends on prior audit hydration",
+      "summary": "The report shell is reachable, but it still expects a completed audit run before live evidence can populate the page.",
+      "steps": [
+        "Moved from pricing to the report route.",
+        "Observed the report chrome loading correctly.",
+        "Confirmed that session-backed audit evidence is required for populated runtime content."
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://demo.auditlens.io/",
+      "title": "Homepage before consent dismissal",
+      "screenshot": "screenshots/home-consent-banner.png",
+      "notes": [
+        "Hero CTA present behind consent layer.",
+        "No fatal console errors appeared on initial load."
+      ]
+    },
+    {
+      "url": "https://demo.auditlens.io/#pricing",
+      "title": "Pricing route after transition",
+      "screenshot": "screenshots/pricing-plans.png",
+      "notes": [
+        "Pricing cards rendered in a stable grid.",
+        "Package CTA buttons remained interactable on desktop viewport."
+      ]
+    },
+    {
+      "url": "https://demo.auditlens.io/#report",
+      "title": "Report route shell",
+      "screenshot": "screenshots/report-shell.png",
+      "notes": [
+        "Report chrome rendered correctly.",
+        "Live evidence requires an audit result in session storage."
+      ]
+    }
+  ]
+}

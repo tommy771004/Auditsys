@@ -1,0 +1,81 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { useEffect, useRef } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import Footer from "./components/layout/Footer";
+import Navbar from "./components/layout/Navbar";
+import MeshBackground from "./components/ui/MeshBackground";
+import { useHashRoute } from "./hooks/useHashRoute";
+import AuditConsole from "./pages/AuditConsole";
+import Home from "./pages/Home";
+import Intake from "./pages/Intake";
+import Pricing from "./pages/Pricing";
+import SampleReport from "./pages/SampleReport";
+import Login from "./pages/Login";
+import Admin from "./pages/Admin";
+import type { AppRoute } from "./types/home";
+
+export default function App() {
+  const { t } = useTranslation();
+  const { navigate, route, section } = useHashRoute();
+  const previousRouteRef = useRef<AppRoute | null>(null);
+
+  useEffect(() => {
+    document.title = t(`meta.${route}`);
+  }, [route, t]);
+
+  useEffect(() => {
+    const previousRoute = previousRouteRef.current;
+
+    if (previousRoute !== null && previousRoute !== route) {
+      if (!(route === "home" && section)) {
+        window.scrollTo({ top: 0, left: 0 });
+      }
+    }
+
+    previousRouteRef.current = route;
+  }, [route, section]);
+
+  const renderCurrentPage = () => {
+    switch (route) {
+      case "console":
+        return <AuditConsole onNavigate={navigate} />;
+      case "pricing":
+        return <Pricing onNavigate={navigate} />;
+      case "report":
+        return <SampleReport activeSection={section} onNavigate={navigate} />;
+      case "intake":
+        return <Intake onNavigate={navigate} />;
+      case "login":
+        return <Login onNavigate={navigate} />;
+      case "admin":
+        return <Admin onNavigate={navigate} />;
+      case "home":
+      default:
+        return <Home activeSection={section} onNavigate={navigate} />;
+    }
+  };
+
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-brand-slate text-brand-text">
+      <MeshBackground variant={route === "console" ? "console" : "default"} />
+      <Navbar currentRoute={route} currentSection={section} onNavigate={navigate} />
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={route}
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -18 }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
+        >
+          {renderCurrentPage()}
+        </motion.div>
+      </AnimatePresence>
+      <Footer currentRoute={route} onNavigate={navigate} />
+    </div>
+  );
+}

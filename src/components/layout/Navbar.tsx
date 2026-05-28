@@ -1,0 +1,224 @@
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Menu, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import type { AppRoute, NavLinkItem, NavigateTo } from "../../types/home";
+import LanguageSwitcher from "../ui/LanguageSwitcher";
+import GlowingButton from "../ui/GlowingButton";
+import { useCurrentUser } from "../../hooks/useCurrentUser";
+import PageContainer from "./PageContainer";
+
+const navigationItems: NavLinkItem[] = [
+  {
+    id: "overview",
+    route: "home",
+    section: "overview",
+    labelKey: "navbar.overview",
+  },
+  {
+    id: "features",
+    route: "home",
+    section: "features",
+    labelKey: "navbar.features",
+  },
+  {
+    id: "sampleReport",
+    route: "report",
+    labelKey: "navbar.sampleReport",
+  },
+  {
+    id: "console",
+    route: "console",
+    labelKey: "navbar.console",
+  },
+  {
+    id: "pricing",
+    route: "pricing",
+    labelKey: "navbar.pricing",
+  },
+];
+
+interface NavbarProps {
+  currentRoute: AppRoute;
+  currentSection: string | null;
+  onNavigate: NavigateTo;
+}
+
+export default function Navbar({ currentRoute, currentSection, onNavigate }: NavbarProps) {
+  const { t } = useTranslation();
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+
+  const handleNavigation = (route: AppRoute, section?: string) => {
+    onNavigate(route, section);
+    setIsMenuOpen(false);
+  };
+
+  const isActiveItem = (item: NavLinkItem) => {
+    if (item.route !== currentRoute) {
+      return false;
+    }
+
+    if (item.route !== "home") {
+      return true;
+    }
+
+    const resolvedSection = currentSection ?? "overview";
+    return item.section === resolvedSection;
+  };
+
+  const { user } = useCurrentUser();
+  const hasToken = !!localStorage.getItem("auth_token");
+
+  const dashboardLabel = user?.isAdmin ? "Admin" : "Console";
+  const dashboardRoute: AppRoute = user?.isAdmin ? "admin" : "console";
+
+  const handleAuthAction = async () => {
+    if (hasToken) {
+      localStorage.removeItem("auth_token");
+      await fetch("/api/auth/logout", { method: "POST" });
+      onNavigate("login");
+      setIsMenuOpen(false);
+    } else {
+      handleNavigation("login");
+    }
+  };
+
+  return (
+    <motion.header initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="fixed inset-x-0 top-0 z-50 pt-4">
+      <PageContainer>
+        <div className={`glass-panel px-4 py-3 sm:px-5 transition-all duration-300 ${isMenuOpen ? "rounded-3xl" : "rounded-full"}`}>
+          <div className="flex items-center justify-between gap-4">
+            <button
+              type="button"
+              className="text-left text-lg font-semibold tracking-tight text-white transition hover:text-brand-cyan"
+              onClick={() => {
+                handleNavigation("home", "overview");
+              }}
+            >
+              {t("brand.name")}
+            </button>
+
+            <nav className="hidden items-center gap-2 lg:flex">
+              {navigationItems.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={[
+                    "rounded-full px-4 py-2 text-sm font-medium transition active:scale-[0.98]",
+                    isActiveItem(item) ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/[0.08] hover:text-white",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  onClick={() => {
+                    handleNavigation(item.route, item.section);
+                  }}
+                >
+                  {t(item.labelKey)}
+                </button>
+              ))}
+            </nav>
+
+            <div className="hidden items-center gap-3 lg:flex">
+              <LanguageSwitcher />
+              <button
+                onClick={hasToken ? () => handleNavigation(dashboardRoute) : handleAuthAction}
+                className="text-sm font-medium text-white/70 hover:text-white transition px-2"
+              >
+                {hasToken ? dashboardLabel : "Login"}
+              </button>
+              {hasToken && (
+                <button
+                  onClick={handleAuthAction}
+                  className="text-sm font-medium text-white/70 hover:text-brand-danger transition px-2"
+                >
+                  Logout
+                </button>
+              )}
+              <GlowingButton
+                className="px-5 py-2.5"
+                loadingLabel={t("hero.loading")}
+                onClick={() => {
+                  hasToken ? handleNavigation("intake") : handleNavigation("login");
+                }}
+              >
+                {t("navbar.startScan")}
+              </GlowingButton>
+            </div>
+
+            <div className="flex items-center gap-2 lg:hidden">
+              <LanguageSwitcher />
+              <button
+                type="button"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-slate-950/30 text-white/80 backdrop-blur-xl transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+                onClick={() => {
+                  setIsMenuOpen((currentValue) => !currentValue);
+                }}
+                aria-label={isMenuOpen ? t("navbar.closeMenu") : t("navbar.openMenu")}
+                aria-expanded={isMenuOpen}
+              >
+                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            </div>
+          </div>
+
+          <AnimatePresence>
+            {isMenuOpen ? (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.22 }}
+                className="overflow-hidden lg:hidden"
+              >
+                <div className="mt-4 space-y-2 border-t border-white/10 pt-4">
+                  {navigationItems.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={[
+                        "flex w-full items-center min-h-[44px] rounded-2xl px-4 py-3 text-left text-sm font-medium transition active:scale-[0.98]",
+                        isActiveItem(item) ? "bg-white/10 text-white" : "text-white/80 hover:bg-white/[0.08] hover:text-white",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                      onClick={() => {
+                        handleNavigation(item.route, item.section);
+                      }}
+                    >
+                      {t(item.labelKey)}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    className="flex w-full items-center min-h-[44px] rounded-2xl px-4 py-3 text-left text-sm font-medium transition text-white/80 hover:bg-white/[0.08] hover:text-white active:scale-[0.98]"
+                    onClick={hasToken ? () => handleNavigation(dashboardRoute) : handleAuthAction}
+                  >
+                    {hasToken ? dashboardLabel : "Login"}
+                  </button>
+                  {hasToken && (
+                    <button
+                      type="button"
+                      className="flex w-full items-center min-h-[44px] rounded-2xl px-4 py-3 text-left text-sm font-medium transition text-brand-danger hover:bg-brand-danger/10 active:scale-[0.98]"
+                      onClick={handleAuthAction}
+                    >
+                      Logout
+                    </button>
+                  )}
+                  <GlowingButton
+                    className="mt-2 w-full justify-center"
+                    loadingLabel={t("hero.loading")}
+                    onClick={() => {
+                      hasToken ? handleNavigation("intake") : handleNavigation("login");
+                    }}
+                  >
+                    {t("navbar.startScan")}
+                  </GlowingButton>
+                </div>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </div>
+      </PageContainer>
+    </motion.header>
+  );
+}

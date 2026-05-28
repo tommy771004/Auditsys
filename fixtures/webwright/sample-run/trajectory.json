@@ -1,0 +1,29 @@
+{
+  "steps": [
+    {
+      "action": "goto",
+      "url": "https://demo.auditlens.io/",
+      "status": "completed"
+    },
+    {
+      "action": "dismiss-consent",
+      "target": "button[data-consent-dismiss]",
+      "status": "completed"
+    },
+    {
+      "action": "goto",
+      "url": "https://demo.auditlens.io/#pricing",
+      "status": "completed"
+    },
+    {
+      "action": "goto",
+      "url": "https://demo.auditlens.io/#report",
+      "status": "completed"
+    },
+    {
+      "action": "assert-runtime-hydration",
+      "target": "sessionStorage.latest-audit-report",
+      "status": "blocked"
+    }
+  ]
+}

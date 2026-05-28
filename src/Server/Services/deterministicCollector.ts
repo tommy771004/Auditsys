@@ -1,0 +1,191 @@
+import type { AuditRequestPayload, DeterministicCollectorResult, DeterministicDocumentEvidence } from "./auditPipelineTypes";
+
+function decodeHtml(value: string): string {
+  return value
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">");
+}
+
+function stripHtml(value: string): string {
+  return decodeHtml(value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+}
+
+function matchContent(pattern: RegExp, source: string): string | null {
+  const match = source.match(pattern);
+  return match?.[1] ? stripHtml(match[1]) : null;
+}
+
+function matchAttribute(pattern: RegExp, source: string): string | null {
+  const match = source.match(pattern);
+  return match?.[1] ? decodeHtml(match[1].trim()) : null;
+}
+
+function countMatches(pattern: RegExp, source: string): number {
+  return source.match(pattern)?.length ?? 0;
+}
+
+function countLinksByOrigin(html: string, finalUrl: string): { internalLinks: number; externalLinks: number } {
+  const baseUrl = new URL(finalUrl);
+  const hrefMatches = [...html.matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>/gi)];
+
+  let internalLinks = 0;
+  let externalLinks = 0;
+
+  for (const match of hrefMatches) {
+    const href = match[1]?.trim();
+
+    if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) {
+      continue;
+    }
+
+    try {
+      const resolvedUrl = new URL(href, baseUrl);
+
+      if (resolvedUrl.origin === baseUrl.origin) {
+        internalLinks += 1;
+      } else {
+        externalLinks += 1;
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return {
+    internalLinks,
+    externalLinks,
+  };
+}
+
+function extractDocumentEvidence(html: string, finalUrl: string): DeterministicDocumentEvidence {
+  const linkCounts = countLinksByOrigin(html, finalUrl);
+
+  return {
+    title: matchContent(/<title[^>]*>([\s\S]*?)<\/title>/i, html),
+    metaDescription: matchAttribute(/<meta\b[^>]*name=["']description["'][^>]*content=["']([^"']*)["'][^>]*>/i, html),
+    canonical: matchAttribute(/<link\b[^>]*rel=["']canonical["'][^>]*href=["']([^"']*)["'][^>]*>/i, html),
+    robots: matchAttribute(/<meta\b[^>]*name=["']robots["'][^>]*content=["']([^"']*)["'][^>]*>/i, html),
+    lang: matchAttribute(/<html\b[^>]*lang=["']([^"']*)["'][^>]*>/i, html),
+    counts: {
+      scripts: countMatches(/<script\b/gi, html),
+      stylesheets: countMatches(/<link\b[^>]*rel=["'][^"']*stylesheet[^"']*["'][^>]*>/gi, html),
+      images: countMatches(/<img\b/gi, html),
+      imagesMissingAlt: countMatches(/<img\b(?![^>]*\balt=)[^>]*>/gi, html),
+      structuredDataBlocks: countMatches(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>/gi, html),
+      headings: countMatches(/<h[1-6]\b/gi, html),
+      internalLinks: linkCounts.internalLinks,
+      externalLinks: linkCounts.externalLinks,
+    },
+  };
+}
+
+function buildWarnings(document: DeterministicDocumentEvidence, responseTimeMs: number, statusCode: number): string[] {
+  const warnings: string[] = [];
+
+  if (statusCode >= 400) {
+    warnings.push(`Target responded with status ${statusCode}.`);
+  }
+
+  if (!document.title) {
+    warnings.push("Document title is missing.");
+  }
+
+  if (!document.metaDescription) {
+    warnings.push("Meta description is missing.");
+  }
+
+  if (!document.canonical) {
+    warnings.push("Canonical link is missing.");
+  }
+
+  if (document.counts.images > 0 && document.counts.imagesMissingAlt > 0) {
+    warnings.push(`${document.counts.imagesMissingAlt} images are missing alt text.`);
+  }
+
+  if (document.counts.structuredDataBlocks === 0) {
+    warnings.push("No structured data blocks were detected.");
+  }
+
+  if (responseTimeMs > 1800) {
+    warnings.push(`Initial HTML response was slow (${responseTimeMs} ms).`);
+  }
+
+  return warnings;
+}
+
+function buildNotes(payload: AuditRequestPayload, finalUrl: string, contentType: string | null): string[] {
+  const url = new URL(finalUrl);
+  const notes = [
+    `Resolved host: ${url.hostname}`,
+    `Resolved path depth: ${url.pathname.split("/").filter(Boolean).length}`,
+    `Content type: ${contentType ?? "unknown"}`,
+  ];
+
+  if (url.search) {
+    notes.push("Target includes query parameters, which may imply filter or personalization states.");
+  }
+
+  if (payload.goals && payload.goals.length > 0) {
+    notes.push(`Requested audit focus: ${payload.goals.join(", ")}`);
+  }
+
+  if (payload.stack && payload.stack.length > 0) {
+    notes.push(`Reported implementation stack: ${payload.stack.join(", ")}`);
+  }
+
+  return notes;
+}
+
+export async function collectDeterministicEvidence(payload: AuditRequestPayload): Promise<DeterministicCollectorResult> {
+  const startedAt = new Date().toISOString();
+  const startedTime = Date.now();
+
+  try {
+    const response = await fetch(payload.url, {
+      redirect: "follow",
+      headers: {
+        Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
+      },
+    });
+
+    const responseTimeMs = Date.now() - startedTime;
+    const contentType = response.headers.get("content-type");
+    const html = contentType?.includes("text/html") ? await response.text() : "";
+    const finalUrl = response.url || payload.url;
+    const document = html ? extractDocumentEvidence(html, finalUrl) : undefined;
+
+    return {
+      stage: "deterministic",
+      status: "completed",
+      startedAt,
+      completedAt: new Date().toISOString(),
+      targetUrl: payload.url,
+      finalUrl,
+      statusCode: response.status,
+      contentType,
+      responseTimeMs,
+      headers: {
+        cacheControl: response.headers.get("cache-control"),
+        server: response.headers.get("server"),
+        poweredBy: response.headers.get("x-powered-by"),
+      },
+      document,
+      notes: buildNotes(payload, finalUrl, contentType),
+      warnings: document ? buildWarnings(document, responseTimeMs, response.status) : ["Target did not return HTML content for deterministic parsing."],
+    };
+  } catch (error) {
+    return {
+      stage: "deterministic",
+      status: "failed",
+      startedAt,
+      completedAt: new Date().toISOString(),
+      targetUrl: payload.url,
+      notes: ["Deterministic collector could not establish a successful HTTP fetch."],
+      warnings: [],
+      error: error instanceof Error ? error.message : "Unexpected deterministic collector error",
+    };
+  }
+}

@@ -1,0 +1,523 @@
+<!DOCTYPE html><html class="dark" lang="zh-TW" style=""><head></head><body class="bg-background text-on-background min-h-screen flex flex-col relative overflow-x-hidden font-body-md text-body-md"><svg class="inline-defs-container" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"></svg>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>AuditLens - 範例報告</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary": "#00363e",
+                    "primary-fixed-dim": "#ddb7ff",
+                    "on-error": "#690005",
+                    "on-primary": "#490080",
+                    "on-primary-container": "#400071",
+                    "surface-container-high": "#262a35",
+                    "secondary-fixed-dim": "#2fd9f4",
+                    "surface-bright": "#353944",
+                    "surface-container-low": "#171b26",
+                    "on-tertiary-container": "#002469",
+                    "on-primary-fixed": "#2c0051",
+                    "surface-container": "#1c1f2a",
+                    "inverse-on-surface": "#2c303b",
+                    "secondary-fixed": "#a2eeff",
+                    "on-primary-fixed-variant": "#6900b3",
+                    "error": "#ffb4ab",
+                    "on-surface-variant": "#cfc2d6",
+                    "on-secondary-container": "#00515d",
+                    "tertiary-fixed-dim": "#b4c5ff",
+                    "tertiary-container": "#618bff",
+                    "on-surface": "#dfe2f1",
+                    "surface-container-highest": "#313540",
+                    "tertiary-fixed": "#dbe1ff",
+                    "on-secondary-fixed-variant": "#004e5a",
+                    "surface-tint": "#ddb7ff",
+                    "primary-fixed": "#f0dbff",
+                    "primary-container": "#b76dff",
+                    "on-tertiary": "#002a78",
+                    "background": "#0f131d",
+                    "secondary": "#5de6ff",
+                    "on-secondary-fixed": "#001f25",
+                    "outline-variant": "#4d4354",
+                    "inverse-primary": "#842bd2",
+                    "primary": "#ddb7ff",
+                    "on-tertiary-fixed-variant": "#003ea8",
+                    "surface": "#0f131d",
+                    "on-background": "#dfe2f1",
+                    "surface-variant": "#313540",
+                    "on-error-container": "#ffdad6",
+                    "error-container": "#93000a",
+                    "outline": "#988d9f",
+                    "inverse-surface": "#dfe2f1",
+                    "tertiary": "#b4c5ff",
+                    "surface-container-lowest": "#0a0e18",
+                    "on-tertiary-fixed": "#00174b",
+                    "secondary-container": "#00cbe6",
+                    "surface-dim": "#0f131d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-sm": "8px",
+                    "container-max": "1280px",
+                    "stack-md": "16px",
+                    "stack-xl": "64px",
+                    "gutter": "24px",
+                    "margin-mobile": "20px",
+                    "margin-desktop": "64px",
+                    "stack-lg": "32px",
+                    "stack-xs": "4px"
+            },
+            "fontFamily": {
+                    "display-lg-mobile": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg-mobile": ["40px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "display-lg": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .liquid-glass {
+            background-color: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        .liquid-glass::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%);
+            z-index: 10;
+        }
+        .ambient-glow-primary {
+            box-shadow: 0 0 60px rgba(221, 183, 255, 0.15); /* primary */
+        }
+        .ambient-glow-error {
+            box-shadow: 0 0 60px rgba(255, 180, 171, 0.2); /* error */
+        }
+        
+        /* Progress Ring Animation */
+        @keyframes dash {
+            to { stroke-dashoffset: 0; }
+        }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 1s ease-in-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* Grid Background for Architecture Lens */
+        .bg-grid-pattern {
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        /* Node Pulse */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        .pulse-node::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid theme('colors.error');
+            animation: pulse-ring 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+    
+        @keyframes pulse-glow {
+            0% { opacity: 0.8; box-shadow: 0 0 5px rgba(221, 183, 255, 0.4); }
+            50% { opacity: 1; box-shadow: 0 0 20px rgba(221, 183, 255, 0.8), 0 0 30px rgba(0, 203, 230, 0.4); }
+            100% { opacity: 0.8; box-shadow: 0 0 5px rgba(221, 183, 255, 0.4); }
+        }
+        .animate-pulse-glow {
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+        @keyframes pulse-ring-glow { 0%, 100% { filter: drop-shadow(0 0 5px #fca5a5); } 50% { filter: drop-shadow(0 0 15px #ef4444); } }
+.animate-ring-glow { animation: pulse-ring-glow 2.5s infinite ease-in-out; }
+        .sidebar-item-glow:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(221, 183, 255, 0.3), inset 0 0 10px rgba(221, 183, 255, 0.1);
+            border-left: 2px solid theme('colors.primary');
+        }
+        .sidebar-item-glow {
+            transition: all 0.3s ease-in-out;
+            border-left: 2px solid transparent;
+        }
+</style>
+<style class="">\n        @keyframes glow-pulse-cyan { 0%, 100% { box-shadow: 0 0 15px rgba(93, 230, 255, 0.3); } 50% { box-shadow: 0 0 30px rgba(93, 230, 255, 0.6); } }\n        @keyframes glow-pulse-purple { 0%, 100% { box-shadow: 0 0 15px rgba(221, 183, 255, 0.3); } 50% { box-shadow: 0 0 30px rgba(221, 183, 255, 0.6); } }\n        @keyframes glow-pulse-red { 0%, 100% { box-shadow: 0 0 15px rgba(255, 180, 171, 0.3); } 50% { box-shadow: 0 0 30px rgba(255, 180, 171, 0.6); } }\n        .node-glow-cyan { animation: glow-pulse-cyan 3s infinite ease-in-out; }\n        .node-glow-purple { animation: glow-pulse-purple 3s infinite ease-in-out; }\n        .node-glow-red { animation: glow-pulse-red 3s infinite ease-in-out; }\n
+        .sidebar-item-glow:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(221, 183, 255, 0.3), inset 0 0 10px rgba(221, 183, 255, 0.1);
+            border-left: 2px solid theme('colors.primary');
+        }
+        .sidebar-item-glow {
+            transition: all 0.3s ease-in-out;
+            border-left: 2px solid transparent;
+        }
+</style>
+
+<!-- Ambient Background Effects -->
+<div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+<div class="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px]"></div>
+<div class="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[120px]"></div>
+</div>
+<!-- JSON Component: TopAppBar -->
+<nav class="fixed top-stack-md left-1/2 -translate-x-1/2 w-[calc(100%-40px)] max-w-container-max rounded-full border border-white/10 px-gutter py-stack-sm z-50 backdrop-blur-[32px] bg-surface-container-highest/30 border-t border-white/20 shadow-[0_20px_40px_rgba(132,43,210,0.15)] flex justify-between items-center mx-auto">
+<div class="font-headline-md text-headline-md font-bold tracking-tight text-primary flex items-center gap-stack-sm cursor-pointer">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">troubleshoot</span>
+            AuditLens
+        </div>
+<div class="hidden md:flex items-center gap-stack-lg">
+<a class="text-on-surface-variant font-medium hover:text-primary hover:bg-white/5 transition-all duration-300 px-3 py-1 rounded-md" href="#">Features</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1 hover:text-primary hover:bg-white/5 transition-all duration-300 px-3 py-1 rounded-md" href="#">Sample Report</a>
+<a class="text-on-surface-variant font-medium hover:text-primary hover:bg-white/5 transition-all duration-300 px-3 py-1 rounded-md" href="#">Pricing</a>
+</div>
+<button class="bg-gradient-to-r from-inverse-primary to-primary text-background font-label-md text-label-md px-6 py-2 rounded-full font-bold shadow-[0_0_20px_rgba(221,183,255,0.3)] hover:shadow-[0_0_30px_rgba(221,183,255,0.5)] transition-all duration-300">
+            Start Scan
+        </button>
+</nav>
+<!-- Main Content Container -->
+<main class="flex-1 flex flex-col md:flex-row max-w-container-max mx-auto w-full px-margin-mobile md:px-margin-desktop pt-[120px] pb-stack-xl gap-gutter relative z-10">
+<!-- Dashboard Sidebar (Intra-page navigation) -->
+<aside class="w-full md:w-[80px] flex-shrink-0 mb-stack-md md:mb-0 transition-all duration-300">
+<div class="liquid-glass rounded-xl p-stack-xs flex flex-col gap-stack-xs sticky top-[120px] items-center">
+<div class="hidden">
+                    報呉區塀
+                </div>
+<a class="flex flex-col items-center gap-1 w-full py-stack-sm rounded-lg text-primary font-medium border sidebar-item-glow bg-white/10" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] tracking-tighter">概褽</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-full py-stack-sm rounded-lg text-on-surface hover:bg-white/5 hover:text-secondary transition-colors sidebar-item-glow" href="#">
+<span class="material-symbols-outlined">speed</span>
+<span class="text-[10px] tracking-tighter">效能</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-full py-stack-sm rounded-lg text-on-surface hover:bg-white/5 hover:text-secondary transition-colors sidebar-item-glow" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="text-[10px] tracking-tighter">SEO</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-full py-stack-sm rounded-lg text-on-surface hover:bg-white/5 hover:text-secondary transition-colors sidebar-item-glow" href="#">
+<span class="material-symbols-outlined">architecture</span>
+<span class="text-[10px] tracking-tighter text-center scale-90">朶構</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-full py-stack-sm rounded-lg text-on-surface hover:bg-white/5 hover:text-secondary transition-colors relative sidebar-item-glow" href="#">
+<span class="material-symbols-outlined">fact_check</span>
+<span class="text-[10px] tracking-tighter">行動</span>
+<span class="absolute right-2 top-2 w-2 h-2 bg-error rounded-full shadow-[0_0_10px_rgba(255,180,171,0.8)]"></span>
+</a>
+</div>
+</aside>
+<!-- Dashboard Canvas -->
+<section class="flex-1 flex flex-col gap-stack-lg">
+<!-- Header -->
+<header>
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-bold">系統健檢報告 <span class="text-on-surface-variant font-normal">/ e-commerce-core-v2</span></h1>
+<p class="text-on-surface-variant mt-stack-xs">分析完成於 2024-05-20 14:30 UTC</p>
+</header>
+<!-- Top Metrics Widgets -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-stack-md">
+<!-- Widget 1: Overall Score -->
+<div class="liquid-glass rounded-xl p-stack-md flex items-center gap-stack-md ambient-glow-error"><div class="relative w-16 h-16 flex-shrink-0">
+<svg class="w-full h-full" viewBox="0 0 100 100">
+<circle cx="50" cy="50" fill="transparent" r="40" stroke="rgba(255,255,255,0.05)" stroke-width="8"></circle>
+<circle class="progress-ring__circle text-error animate-ring-glow" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="45.2" stroke-linecap="round" stroke-width="8" style="filter: drop-shadow(rgb(255, 180, 171) 0px 0px 6px);"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center flex-col">
+<span class="font-headline-md text-headline-md font-bold text-error leading-none">82</span>
+</div>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant">總體評分</span>
+<span class="font-body-md text-body-md text-error font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">warning</span> 需關注
+                        </span>
+</div>
+<div class="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none rounded-xl"></div></div>
+<!-- Widget 2: LCP -->
+<div class="liquid-glass rounded-xl p-stack-md flex flex-col justify-between"><div class="flex justify-between items-start mb-stack-sm">
+<div class="p-2 rounded-lg bg-surface-container-high text-secondary">
+<span class="material-symbols-outlined">timer</span>
+</div>
+<span class="font-label-md text-label-md px-2 py-1 rounded bg-error/20 text-error border border-error/30">過慢</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md font-bold text-on-surface">3.2<span class="text-body-md text-on-surface-variant ml-1 font-normal">s</span></div>
+<div class="font-label-md text-label-md text-on-surface-variant mt-1">最大內容繪製 (LCP)</div>
+<div class="mt-2 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-error w-3/4 rounded-full animate-pulse-glow"></div>
+</div>
+</div>
+<div class="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none rounded-xl"></div></div>
+<!-- Widget 3: TTFB -->
+<div class="liquid-glass rounded-xl p-stack-md flex flex-col justify-between"><div class="flex justify-between items-start mb-stack-sm">
+<div class="p-2 rounded-lg bg-surface-container-high text-secondary">
+<span class="material-symbols-outlined">dns</span>
+</div>
+<span class="font-label-md text-label-md px-2 py-1 rounded bg-error/20 text-error border border-error/30">延遲</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md font-bold text-on-surface">800<span class="text-body-md text-on-surface-variant ml-1 font-normal">ms</span></div>
+<div class="font-label-md text-label-md text-on-surface-variant mt-1">首字節時間 (TTFB)</div>
+<div class="mt-2 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-error w-1/2 rounded-full animate-pulse-glow"></div>
+</div>
+</div>
+<div class="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none rounded-xl"></div></div>
+<!-- Widget 4: Unused CSS -->
+<div class="liquid-glass rounded-xl p-stack-md flex flex-col justify-between"><div class="flex justify-between items-start mb-stack-sm">
+<div class="p-2 rounded-lg bg-surface-container-high text-primary">
+<span class="material-symbols-outlined">css</span>
+</div>
+<span class="font-label-md text-label-md px-2 py-1 rounded bg-error/20 text-error border border-error/30">冗餘</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md font-bold text-on-surface">1.2<span class="text-body-md text-on-surface-variant ml-1 font-normal">MB</span></div>
+<div class="font-label-md text-label-md text-on-surface-variant mt-1">未使用 CSS</div>
+<div class="mt-2 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-2/3 rounded-full animate-pulse-glow"></div>
+</div>
+</div>
+<div class="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none rounded-xl"></div></div>
+</div>
+<!-- Complex Area: Graph & Action List -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-stack-lg mt-stack-md">
+<!-- Architecture Graph (Left 2 cols) -->
+<div class="lg:col-span-2 liquid-glass rounded-xl overflow-hidden flex flex-col h-[500px]">
+<div class="px-stack-md py-stack-sm border-b border-white/5 flex justify-between items-center bg-surface-container-highest/50">
+<h2 class="font-body-lg text-body-lg font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">hub</span>
+                            拓撲瓶頸分析
+                        </h2>
+<span class="font-label-md text-label-md text-error flex items-center gap-1 bg-error/10 px-2 py-1 rounded border border-error/20">
+<span class="material-symbols-outlined text-[16px]">priority_high</span> 偵測到高延遲連線
+                        </span>
+</div><div class="px-stack-md py-stack-sm border-b border-white/5 bg-white/5">
+    <div class="flex justify-between items-center mb-2">
+        <span class="font-label-md text-label-md text-on-surface">整體修復進度</span>
+        <span class="font-label-md text-label-md text-primary font-bold">33%</span>
+    </div>
+    <div class="h-2 w-full bg-white/10 rounded-full overflow-hidden border border-white/5">
+        <div class="h-full bg-gradient-to-r from-primary to-secondary w-1/3 rounded-full shadow-[0_0_10px_rgba(221,183,255,0.5)]"></div>
+    </div>
+</div>
+<!-- Graph Canvas -->
+<div class="flex-1 relative bg-grid-pattern p-stack-xl flex items-center justify-center overflow-hidden">
+<!-- SVG for connections -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 1;"><defs>
+<filter id="glow">
+<feGaussianBlur stdDeviation="2.5" result="coloredBlur"></feGaussianBlur>
+<feMerge>
+<feMergeNode in="coloredBlur"></feMergeNode>
+<feMergeNode in="SourceGraphic"></feMergeNode>
+</feMerge>
+</filter>
+</defs>
+<path class="opacity-30" d="M 200 250 C 300 250, 300 150, 400 150" fill="none" stroke="var(--tw-colors-secondary)" stroke-dasharray="4 4" stroke-width="2"></path>
+<path class="animate-pulse" d="M 500 150 C 600 150, 600 350, 700 350" fill="none" filter="url(#glow)" stroke="var(--tw-colors-error)" stroke-width="3" stroke-linecap="round"></path>
+<circle fill="var(--tw-colors-error)" r="5">
+<animateMotion dur="1.5s" path="M 500 150 C 600 150, 600 350, 700 350" repeatCount="indefinite"></animateMotion>
+</circle></svg>
+<!-- Nodes (HTML elements for better text rendering and glass effect) -->
+<div class="relative w-full max-w-[800px] h-full" style="z-index: 2;">
+<!-- Node 1: Frontend -->
+<div class="absolute top-[210px] left-[50px] liquid-glass px-4 py-3 rounded-lg flex items-center gap-3 bg-surface-container/80 w-[150px] node-glow-cyan">
+<div class="w-8 h-8 rounded bg-secondary/20 text-secondary flex items-center justify-center border border-secondary/30">
+<span class="material-symbols-outlined text-[18px]">desktop_windows</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-on-surface">前端</span>
+<span class="text-[10px] text-on-surface-variant">Next.js App</span>
+</div>
+</div>
+<!-- Node 2: API Gateway -->
+<div class="absolute top-[110px] left-[350px] liquid-glass px-4 py-3 rounded-lg flex items-center gap-3 bg-surface-container/80 w-[160px] node-glow-purple">
+<div class="w-8 h-8 rounded bg-primary/20 text-primary flex items-center justify-center border border-primary/30">
+<span class="material-symbols-outlined text-[18px]">router</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-on-surface">API 閘道</span>
+<span class="text-[10px] text-on-surface-variant">Kong / Nginx</span>
+</div>
+</div>
+<!-- Node 3: SQL Server -->
+<div class="absolute top-[310px] left-[650px] liquid-glass px-4 py-3 rounded-lg flex items-center gap-3 bg-error/10 border-error/40 w-[160px] pulse-node node-glow-red">
+<div class="w-8 h-8 rounded bg-error/20 text-error flex items-center justify-center border border-error/30">
+<span class="material-symbols-outlined text-[18px]">database</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-on-surface">SQL Server</span>
+<span class="text-[10px] text-error font-medium">查詢瓶頸</span>
+</div>
+</div>
+<!-- Lens Element (Decorative overlay) -->
+<div class="absolute top-[280px] left-[620px] w-[220px] h-[120px] rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm pointer-events-none shadow-[inset_0_0_20px_rgba(255,255,255,0.1)]">
+<div class="absolute -top-3 left-4 bg-background px-2 font-label-md text-[10px] text-on-surface-variant border border-white/10 rounded">Audit Lens: 鎖定目標</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action List (Right 1 col) -->
+<div class="liquid-glass rounded-xl flex flex-col h-[500px]">
+<div class="px-stack-md py-stack-sm border-b border-white/5 bg-surface-container-highest/50">
+<h2 class="font-body-lg text-body-lg font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">task_alt</span>
+                            修復建議
+                        </h2>
+</div><div class="px-stack-md py-stack-sm border-b border-white/5 bg-white/5">
+    <div class="flex justify-between items-center mb-2">
+        <span class="font-label-md text-label-md text-on-surface">整體修復進度</span>
+        <span class="font-label-md text-label-md text-primary font-bold">33%</span>
+    </div>
+    <div class="h-2 w-full bg-white/10 rounded-full overflow-hidden border border-white/5">
+        <div class="h-full bg-gradient-to-r from-primary to-secondary w-1/3 rounded-full shadow-[0_0_10px_rgba(221,183,255,0.5)] animate-pulse-glow"></div>
+    </div>
+</div>
+<div class="flex-1 overflow-y-auto p-stack-sm flex flex-col gap-2">
+<!-- Critical Item -->
+<div class="bg-surface-container-low/50 border border-error/20 rounded-lg p-stack-sm hover:bg-white/5 transition-colors group relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-error"></div>
+<div class="flex justify-between items-start mb-2 pl-2">
+<span class="font-label-md text-label-md text-error bg-error/10 px-2 py-0.5 rounded text-[12px]">關鍵項目</span>
+<span class="text-on-surface-variant text-[12px]">預估影響: 高</span>
+<span class="font-label-md text-label-md text-secondary bg-secondary/10 px-2 py-0.5 rounded text-[12px] flex items-center gap-1">
+    <span class="material-symbols-outlined text-[14px] animate-spin">sync</span>處理中
+</span></div>
+<h3 class="font-body-md text-body-md text-on-surface font-medium pl-2">實作 Redis 緩存</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1 pl-2">SQL Server 頻繁處理重複查詢，導致 TTFB 延遲。建議在 API 閘道層引入 Redis 緩存熱點數據。</p>
+<div class="mt-stack-sm pl-2">
+<button class="w-full bg-surface-bright border border-white/10 hover:border-primary/50 text-on-surface font-label-md text-label-md py-2 rounded-md transition-all flex justify-center items-center gap-2 group-hover:bg-primary/10 group-hover:text-primary">
+<span class="material-symbols-outlined text-[18px]">code</span>
+                                    查看建議代碼
+                                </button>
+</div>
+</div>
+<!-- Suggested Item -->
+<div class="bg-surface-container-low/50 border border-white/5 rounded-lg p-stack-sm hover:bg-white/5 transition-colors relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
+<div class="flex justify-between items-start mb-2 pl-2">
+<span class="font-label-md text-label-md text-secondary bg-secondary/10 px-2 py-0.5 rounded text-[12px]">建議項目</span>
+<span class="text-on-surface-variant text-[12px]">預估影響: 中</span>
+<span class="font-label-md text-label-md text-on-surface-variant bg-white/10 px-2 py-0.5 rounded text-[12px]">待處理</span></div>
+<h3 class="font-body-md text-body-md text-on-surface font-medium pl-2">優化大型圖片</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1 pl-2">首頁發現數張未壓縮的 PNG 圖片，導致 LCP 延長。建議轉換為 WebP 格式並實作延遲加載 (Lazy Loading)。</p>
+<div class="mt-stack-sm pl-2">
+<button class="w-full bg-surface-bright border border-white/10 hover:border-secondary/50 text-on-surface font-label-md text-label-md py-2 rounded-md transition-all flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">image</span>
+                                    查看資源列表
+                                </button>
+</div>
+</div>
+<!-- Normal Item -->
+<div class="bg-surface-container-low/50 border border-white/5 rounded-lg p-stack-sm hover:bg-white/5 transition-colors relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-on-surface-variant/30"></div>
+<div class="flex justify-between items-start mb-2 pl-2">
+<span class="font-label-md text-label-md text-on-surface-variant bg-white/5 px-2 py-0.5 rounded text-[12px]">一般維護</span>
+<span class="font-label-md text-label-md text-primary bg-primary/10 px-2 py-0.5 rounded text-[12px] flex items-center gap-1">
+    <span class="material-symbols-outlined text-[14px]">check_circle</span>已完成
+</span></div>
+<h3 class="font-body-md text-body-md text-on-surface font-medium pl-2">移除未使用 CSS</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1 pl-2">偵測到 1.2MB 未使用的樣式表。建議使用 PurgeCSS 等工具在建置階段進行清理。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-stack-xl flex justify-center pb-stack-lg"><button id="download-report-btn" class="liquid-glass px-10 py-4 rounded-xl font-bold text-primary border border-primary/30 flex items-center gap-3 transition-all duration-500 hover:shadow-[0_0_30px_rgba(221,183,255,0.4)] active:scale-95 group relative overflow-hidden"><span class="material-symbols-outlined transition-all duration-300 group-hover:rotate-12">download</span><span class="btn-text">下載完整報告</span><div class="loading-spinner absolute inset-0 bg-surface-container/90 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300"><div class="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div><span class="ml-3 text-sm">正在產生報告...</span></div></button></div></section>
+</main>
+<!-- JSON Component: Footer -->
+<footer class="w-full py-stack-xl border-t border-white/5 bg-background text-on-surface-variant font-body-md text-body-md relative z-10 mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center gap-stack-md px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="font-headline-md text-headline-md font-bold text-primary">
+                AuditLens
+            </div>
+<div class="flex gap-stack-md">
+<a class="hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Documentation</a>
+<a class="hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Privacy</a>
+<a class="hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Terms</a>
+<a class="hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Contact</a>
+</div>
+<div class="text-sm">
+                © 2024 AuditLens. Precision Architecture Analysis.
+            </div>
+</div>
+</footer>
+
+
+
+
+
+
+<script>
+(function() {
+    const btn = document.getElementById('download-report-btn');
+    const btnText = btn.querySelector('.btn-text');
+    const spinner = btn.querySelector('.loading-spinner');
+    const originalText = '下載完整報告';
+    let isProcessing = false;
+
+    btn.addEventListener('click', () => {
+        if (isProcessing) return;
+        isProcessing = true;
+
+        // Step 1: Loading state
+        btn.style.pointerEvents = 'none';
+        spinner.classList.remove('opacity-0', 'pointer-events-none');
+        btnText.classList.add('opacity-0');
+
+        // Simulate generation delay
+        setTimeout(() => {
+            // Step 2: Success state
+            spinner.classList.add('opacity-0', 'pointer-events-none');
+            btnText.textContent = '下載成功！';
+            btnText.classList.remove('opacity-0');
+            btnText.classList.add('text-secondary');
+            btn.classList.add('shadow-[0_0_40px_rgba(93,230,255,0.6)]', 'border-secondary/60');
+            
+            // Step 3: Reset state
+            setTimeout(() => {
+                btnText.textContent = originalText;
+                btnText.classList.remove('text-secondary');
+                btn.classList.remove('shadow-[0_0_40px_rgba(93,230,255,0.6)]', 'border-secondary/60');
+                btn.style.pointerEvents = 'auto';
+                isProcessing = false;
+            }, 2000);
+        }, 2000);
+    });
+})();
+</script></body></html>

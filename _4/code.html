@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="zh-TW"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AuditLens - 客戶引導表單</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary": "#00363e",
+                      "primary-fixed-dim": "#ddb7ff",
+                      "on-error": "#690005",
+                      "on-primary": "#490080",
+                      "on-primary-container": "#400071",
+                      "surface-container-high": "#262a35",
+                      "secondary-fixed-dim": "#2fd9f4",
+                      "surface-bright": "#353944",
+                      "surface-container-low": "#171b26",
+                      "on-tertiary-container": "#002469",
+                      "on-primary-fixed": "#2c0051",
+                      "surface-container": "#1c1f2a",
+                      "inverse-on-surface": "#2c303b",
+                      "secondary-fixed": "#a2eeff",
+                      "on-primary-fixed-variant": "#6900b3",
+                      "error": "#ffb4ab",
+                      "on-surface-variant": "#cfc2d6",
+                      "on-secondary-container": "#00515d",
+                      "tertiary-fixed-dim": "#b4c5ff",
+                      "tertiary-container": "#618bff",
+                      "on-surface": "#dfe2f1",
+                      "surface-container-highest": "#313540",
+                      "tertiary-fixed": "#dbe1ff",
+                      "on-secondary-fixed-variant": "#004e5a",
+                      "surface-tint": "#ddb7ff",
+                      "primary-fixed": "#f0dbff",
+                      "primary-container": "#b76dff",
+                      "on-tertiary": "#002a78",
+                      "background": "#0f131d",
+                      "secondary": "#5de6ff",
+                      "on-secondary-fixed": "#001f25",
+                      "outline-variant": "#4d4354",
+                      "inverse-primary": "#842bd2",
+                      "primary": "#ddb7ff",
+                      "on-tertiary-fixed-variant": "#003ea8",
+                      "surface": "#0f131d",
+                      "on-background": "#dfe2f1",
+                      "surface-variant": "#313540",
+                      "on-error-container": "#ffdad6",
+                      "error-container": "#93000a",
+                      "outline": "#988d9f",
+                      "inverse-surface": "#dfe2f1",
+                      "tertiary": "#b4c5ff",
+                      "surface-container-lowest": "#0a0e18",
+                      "on-tertiary-fixed": "#00174b",
+                      "secondary-container": "#00cbe6",
+                      "surface-dim": "#0f131d"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-sm": "8px",
+                      "container-max": "1280px",
+                      "stack-md": "16px",
+                      "stack-xl": "64px",
+                      "gutter": "24px",
+                      "margin-mobile": "20px",
+                      "margin-desktop": "64px",
+                      "stack-lg": "32px",
+                      "stack-xs": "4px"
+              },
+              "fontFamily": {
+                      "display-lg-mobile": ["Inter"],
+                      "label-md": ["Inter"],
+                      "body-md": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "body-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "display-lg-mobile": ["40px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                      "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                      "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                      "display-lg": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            overflow-x: hidden;
+        }
+
+        /* Ambient Background Mesh */
+        .ambient-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(221, 183, 255, 0.05), transparent 40%),
+                radial-gradient(circle at 85% 30%, rgba(93, 230, 255, 0.05), transparent 40%);
+            animation: meshFloat 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes meshFloat {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* Liquid Glass Card (Level 1) */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.2); /* Light leak */
+            border-left: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Input Fields */
+        .glass-input {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+            color: theme('colors.on-surface');
+            transition: all 0.3s ease;
+        }
+
+        .glass-input:focus {
+            outline: none;
+            border-color: theme('colors.primary');
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 15px rgba(221, 183, 255, 0.2);
+        }
+
+        /* Primary Button Shimmer */
+        .btn-primary {
+            background: linear-gradient(135deg, theme('colors.primary'), theme('colors.secondary'));
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-20deg);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        /* Tech Stack Selectable Buttons */
+        .tech-btn {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.2s ease;
+        }
+        .tech-btn.selected {
+            border-color: theme('colors.secondary');
+            background: rgba(93, 230, 255, 0.1);
+            box-shadow: 0 0 15px rgba(93, 230, 255, 0.2);
+        }
+
+        /* Step Transitions */
+        .step-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .step-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Success Animation */
+        .success-glow {
+            animation: pulseGlow 2s infinite;
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(93, 230, 255, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(93, 230, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(93, 230, 255, 0); }
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col justify-center items-center p-margin-mobile md:p-margin-desktop">
+<div class="ambient-mesh"></div>
+<main class="w-full max-w-[800px] relative z-10">
+<!-- Header -->
+<div class="text-center mb-stack-lg">
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary mb-stack-sm tracking-tight">AuditLens</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">啟動您的架構深度審計</p>
+</div>
+<!-- Wizard Container -->
+<div class="glass-card rounded-xl p-stack-lg md:p-stack-xl relative overflow-hidden">
+<!-- Progress Bar -->
+<div class="mb-stack-lg" id="progress-container">
+<div class="flex justify-between items-center mb-stack-sm">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">第 <span id="current-step-indicator">1</span> 步，共 3 步</span>
+<span class="font-label-md text-label-md text-secondary" id="step-title">定義目標</span>
+</div>
+<div class="w-full bg-surface-container-high h-1 rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-500 ease-out" id="progress-fill" style="width: 33.33%;"></div>
+</div>
+</div>
+<!-- Step 1: Target -->
+<div class="step-content active" id="step-1">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-stack-md">項目基本資訊</h2>
+<div class="space-y-stack-md">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-stack-xs">目標網站 URL <span class="text-error">*</span></label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">link</span>
+<input class="glass-input w-full rounded-lg py-3 pl-10 pr-4 font-body-md text-body-md focus:ring-0" placeholder="https://example.com" type="url"/>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-stack-xs">主要目標 (可多選) <span class="text-error">*</span></label>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-stack-sm">
+<button class="tech-btn rounded-lg py-3 px-4 font-body-md text-body-md text-on-surface text-center hover:bg-white/5" onclick="this.classList.toggle('selected')">SEO 最佳化</button>
+<button class="tech-btn rounded-lg py-3 px-4 font-body-md text-body-md text-on-surface text-center hover:bg-white/5" onclick="this.classList.toggle('selected')">效能與速度</button>
+<button class="tech-btn rounded-lg py-3 px-4 font-body-md text-body-md text-on-surface text-center hover:bg-white/5" onclick="this.classList.toggle('selected')">成本結構分析</button>
+</div>
+</div>
+</div>
+<div class="mt-stack-lg flex justify-end">
+<button class="btn-primary rounded-lg px-8 py-3 font-label-md text-label-md text-on-primary font-bold shadow-[0_0_20px_rgba(221,183,255,0.3)] hover:shadow-[0_0_30px_rgba(221,183,255,0.5)] transition-shadow" onclick="nextStep(2)">
+                        下一步：技術棧
+                    </button>
+</div>
+</div>
+<!-- Step 2: Tech Stack -->
+<div class="step-content" id="step-2">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-stack-md">技術架構</h2>
+<div class="space-y-stack-md">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-stack-xs">核心技術</label>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-stack-sm">
+<button class="tech-btn rounded-lg p-4 flex flex-col items-center justify-center gap-2 hover:bg-white/5" onclick="this.classList.toggle('selected')">
+<span class="material-symbols-outlined text-2xl text-on-surface">code</span>
+<span class="font-label-md text-label-md text-on-surface">React</span>
+</button>
+<button class="tech-btn rounded-lg p-4 flex flex-col items-center justify-center gap-2 hover:bg-white/5" onclick="this.classList.toggle('selected')">
+<span class="material-symbols-outlined text-2xl text-on-surface">code_blocks</span>
+<span class="font-label-md text-label-md text-on-surface">Vue</span>
+</button>
+<button class="tech-btn rounded-lg p-4 flex flex-col items-center justify-center gap-2 hover:bg-white/5" onclick="this.classList.toggle('selected')">
+<span class="material-symbols-outlined text-2xl text-on-surface">dns</span>
+<span class="font-label-md text-label-md text-on-surface">Node.js</span>
+</button>
+<button class="tech-btn rounded-lg p-4 flex flex-col items-center justify-center gap-2 hover:bg-white/5" onclick="this.classList.toggle('selected')">
+<span class="material-symbols-outlined text-2xl text-on-surface">terminal</span>
+<span class="font-label-md text-label-md text-on-surface">.NET</span>
+</button>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-stack-xs">具體疑慮或已知問題</label>
+<textarea class="glass-input w-full rounded-lg p-4 font-body-md text-body-md focus:ring-0 resize-none" placeholder="例如：首屏加載緩慢，或數據庫查詢延遲大..." rows="3"></textarea>
+</div>
+</div>
+<div class="mt-stack-lg flex justify-between">
+<button class="rounded-lg px-6 py-3 font-label-md text-label-md text-on-surface-variant border border-white/10 hover:bg-white/5 transition-colors" onclick="prevStep(1)">
+                        返回
+                    </button>
+<button class="btn-primary rounded-lg px-8 py-3 font-label-md text-label-md text-on-primary font-bold shadow-[0_0_20px_rgba(221,183,255,0.3)] hover:shadow-[0_0_30px_rgba(221,183,255,0.5)] transition-shadow" onclick="nextStep(3)">
+                        下一步：存取權限
+                    </button>
+</div>
+</div>
+<!-- Step 3: Access -->
+<div class="step-content" id="step-3">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-stack-md">環境存取權限</h2>
+<div class="space-y-stack-md">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-stack-xs">測試環境 URL (選填)</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">public</span>
+<input class="glass-input w-full rounded-lg py-3 pl-10 pr-4 font-body-md text-body-md focus:ring-0" placeholder="https://staging.example.com" type="url"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-stack-xs">測試帳號</label>
+<input class="glass-input w-full rounded-lg py-3 px-4 font-body-md text-body-md focus:ring-0" placeholder="username" type="text"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-stack-xs">測試密碼</label>
+<input class="glass-input w-full rounded-lg py-3 px-4 font-body-md text-body-md focus:ring-0" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-stack-xs">代碼庫連結 (GitHub/GitLab/Bitbucket)</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">folder_zip</span>
+<input class="glass-input w-full rounded-lg py-3 pl-10 pr-4 font-body-md text-body-md focus:ring-0" placeholder="https://github.com/..." type="url"/>
+</div>
+</div>
+</div>
+<div class="mt-stack-lg flex justify-between">
+<button class="rounded-lg px-6 py-3 font-label-md text-label-md text-on-surface-variant border border-white/10 hover:bg-white/5 transition-colors" onclick="prevStep(2)">
+                        返回
+                    </button>
+<button class="btn-primary rounded-lg px-8 py-3 font-label-md text-label-md text-on-primary font-bold shadow-[0_0_20px_rgba(93,230,255,0.4)] hover:shadow-[0_0_30px_rgba(93,230,255,0.6)] transition-shadow" onclick="submitForm()">
+                        提交並開始審計
+                    </button>
+</div>
+</div>
+<!-- Success State -->
+<div class="step-content text-center py-stack-lg" id="step-success">
+<div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-secondary/20 text-secondary mb-stack-md success-glow border border-secondary/50">
+<span class="material-symbols-outlined text-4xl">check_circle</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-stack-sm">審計已啟動</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md mx-auto">
+                    我們的系統正在解析您的架構。初始報告將於 48 小時內準備就緒。我們將透過電子郵件通知您。
+                </p>
+<div class="mt-stack-lg">
+<button class="rounded-lg px-6 py-3 font-label-md text-label-md text-primary hover:bg-primary/10 transition-colors" onclick="location.reload()">
+                        返回主頁
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<script>
+        const titles = {
+            1: "定義目標",
+            2: "技術架構",
+            3: "環境權限"
+        };
+
+        function updateProgress(step) {
+            document.getElementById('current-step-indicator').innerText = step;
+            document.getElementById('step-title').innerText = titles[step];
+            document.getElementById('progress-fill').style.width = `${(step / 3) * 100}%`;
+        }
+
+        function nextStep(step) {
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+            setTimeout(() => {
+                document.getElementById(`step-${step}`).classList.add('active');
+            }, 50);
+            updateProgress(step);
+        }
+
+        function prevStep(step) {
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+            setTimeout(() => {
+                document.getElementById(`step-${step}`).classList.add('active');
+            }, 50);
+            updateProgress(step);
+        }
+
+        function submitForm() {
+            document.getElementById('progress-container').style.display = 'none';
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+            setTimeout(() => {
+                document.getElementById('step-success').classList.add('active');
+            }, 50);
+        }
+    </script>
+</body></html>
