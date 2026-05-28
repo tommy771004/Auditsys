@@ -39,7 +39,14 @@ export default function Login({ onNavigate }: Props) {
         localStorage.setItem("auth_token", data.token);
       }
 
-      onNavigate(data.user.isAdmin ? "admin" : "home");
+      const hasIntakeData = !!localStorage.getItem("intake_submitted_data");
+      const hasIntakeUrl = !!localStorage.getItem("intake_submitted_url");
+
+      if (hasIntakeData || hasIntakeUrl) {
+        onNavigate("console");
+      } else {
+        onNavigate(data.user.isAdmin ? "admin" : "home");
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {

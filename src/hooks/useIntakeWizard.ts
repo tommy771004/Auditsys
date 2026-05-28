@@ -1,7 +1,4 @@
 import { useState } from "react";
-import { postAuditRequest } from "../services/auditApi";
-import { saveLatestAuditReport } from "../services/auditReportStore";
-
 export interface IntakeFormState {
   companyName: string;
   contactEmail: string;
@@ -149,32 +146,17 @@ export function useIntakeWizard(): UseIntakeWizardResult {
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => {
-        window.setTimeout(resolve, 1400);
-      });
+      // Small delay for UI feedback
+      await new Promise((resolve) => window.setTimeout(resolve, 600));
 
-      const responseData = await postAuditRequest({
-        endpoint: import.meta.env.VITE_INTAKE_ENDPOINT,
-        defaultEndpoint: "/api/intake",
-        payload: formState,
-        fallbackPayload: {
-          queued: true,
-          provider: "fallback",
-          formState,
-        },
-      });
-
-      saveLatestAuditReport(responseData);
-
+      // Instead of running the LLM audit here, we just signal success
+      // and let AuditConsole.tsx handle the actual API call to /api/intake.
+      // We will save the form state in Home/Intake to pass to the console.
+      
       setIsSuccess(true);
     } catch (error: any) {
-      if (error && error.message === "unauthorized") {
-        setIsError(true);
-        setErrorKey("validation.unauthorized");
-      } else {
-        setIsError(true);
-        setErrorKey("validation.submitFailed");
-      }
+      setIsError(true);
+      setErrorKey("validation.submitFailed");
     } finally {
       setIsLoading(false);
     }

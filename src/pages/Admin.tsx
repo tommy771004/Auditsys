@@ -9,10 +9,11 @@ interface Props {
 }
 
 export default function Admin({ onNavigate }: Props) {
-  const [activeTab, setActiveTab] = useState<"overview" | "users" | "audits" | "settings">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "users" | "audits" | "settings" | "leads">("overview");
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [audits, setAudits] = useState<any[]>([]);
+  const [leads, setLeads] = useState<any[]>([]);
   const [planSettings, setPlanSettings] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [newModels, setNewModels] = useState<Record<string, string>>({});
@@ -37,6 +38,7 @@ export default function Admin({ onNavigate }: Props) {
       if (activeTab === "overview") setStats(data);
       else if (activeTab === "users") setUsers(data);
       else if (activeTab === "settings") setPlanSettings(data);
+      else if (activeTab === "leads") setLeads(data);
       else setAudits(data);
     } catch (err: any) {
       setError(err.message);
@@ -62,7 +64,21 @@ export default function Admin({ onNavigate }: Props) {
       });
       fetchData();
     } catch (err: any) {
-      alert(err.message);
+      setError(err.message);
+    }
+  };
+
+  const handleDeleteLead = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this lead?")) return;
+    try {
+      const token = localStorage.getItem("auth_token");
+      await fetch(`/api/admin/leads/${id}`, {
+        method: "DELETE",
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      fetchData();
+    } catch (err: any) {
+      setError(err.message);
     }
   };
 
@@ -155,6 +171,16 @@ export default function Admin({ onNavigate }: Props) {
         >
           <Settings className="mr-2 h-4 w-4" /> Settings
         </button>
+        <button
+          onClick={() => setActiveTab("leads")}
+          className={`px-6 py-3 rounded-lg flex items-center font-medium transition-colors ${
+            activeTab === "leads"
+              ? "bg-brand-purple/20 text-brand-purple border border-brand-purple/30"
+              : "bg-surface/50 text-brand-muted hover:bg-surface/80"
+          }`}
+        >
+          <Users className="mr-2 h-4 w-4" /> Leads
+        </button>
       </div>
 
       {error ? (
@@ -208,7 +234,7 @@ export default function Admin({ onNavigate }: Props) {
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="font-medium text-lg mb-1">{item.url}</h3>
-                      <div className="flex items-center space-x-3 text-sm text-brand-muted">
+                      <div className="flex items-center space-x-3 text-sm text-brand-muted mb-3">
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                           item.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
                         }`}>
@@ -216,6 +242,31 @@ export default function Admin({ onNavigate }: Props) {
                         </span>
                         <span>{new Date(item.createdAt).toLocaleString()}</span>
                         <span>ID: {item.id}</span>
+                      </div>
+                      <div className="flex space-x-3 mt-2">
+                        <button
+                          onClick={() => {
+                            let reportText = item.result?.summary || item.result?.reason;
+                            if (reportText) {
+                              try {
+                                const parsed = JSON.parse(reportText);
+                                const findingsCount = parsed.deterministicFindings?.length || 0;
+                                const risksCount = parsed.architectureRisks?.length || 0;
+                                reportText = `Executive Summary:\n${parsed.executiveSummary}\n\nMetrics:\n- Technical Findings: ${findingsCount}\n- Architecture Risks: ${risksCount}\n\n...(more structured data available, see Console)`;
+                              } catch {
+                                // Keep as raw text
+                              }
+                              alert("Report Preview:\n\n" + reportText.substring(0, 800) + (reportText.length > 800 ? "\n\n...(truncated)" : ""));
+                            } else if (item.status === 'failed') {
+                              alert("Audit failed: " + (item.result?.error || "Unknown error"));
+                            } else {
+                              alert("No report content available for this audit record.");
+                            }
+                          }}
+                          className="text-brand-cyan hover:text-white text-sm bg-brand-cyan/10 hover:bg-brand-cyan/20 px-3 py-1.5 rounded-lg transition-colors flex items-center"
+                        >
+                          <FileText className="h-4 w-4 mr-2" /> View Report
+                        </button>
                       </div>
                     </div>
                     <button
@@ -390,6 +441,100 @@ export default function Admin({ onNavigate }: Props) {
                    No plan settings found.
                  </div>
                )}
+             </div>
+           ) : activeTab === "leads" ? (
+             <div className="space-y-6">
+               <h2 className="text-xl font-medium mb-4">Leads Management</h2>
+               <div className="grid gap-4">
+                 {leads.map((lead) => (
+                   <GlassContainer key={lead.id} className="p-4 md:p-6 flex flex-col gap-4">
+                     <div className="flex justify-between items-start">
+                       <div>
+                         <h3 className="font-semibold text-lg">{lead.companyName}</h3>
+                         <div className="text-brand-muted text-sm mt-1">{lead.contactEmail}</div>
+                       </div>
+                       <button
+                         onClick={() => handleDeleteLead(lead.id)}
+                         className="p-2 hover:bg-brand-danger/10 text-brand-danger/50 hover:text-brand-danger rounded-lg transition-colors"
+                         title="Delete Lead"
+                       >
+                         <Trash2 className="h-4 w-4" />
+                       </button>
+                     </div>
+                     
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                       <div>
+                         <span className="text-xs text-brand-muted uppercase tracking-wider block mb-1">Target URL</span>
+                         <a href={lead.url} target="_blank" rel="noopener noreferrer" className="text-brand-purple hover:underline text-sm truncate block">
+                           {lead.url}
+                         </a>
+                       </div>
+                       
+                       {lead.teamSize && (
+                         <div>
+                           <span className="text-xs text-brand-muted uppercase tracking-wider block mb-1">Team Size</span>
+                           <span className="text-sm">{lead.teamSize}</span>
+                         </div>
+                       )}
+                       
+                       {lead.stack && (
+                         <div className="col-span-full">
+                           <span className="text-xs text-brand-muted uppercase tracking-wider block mb-1">Tech Stack</span>
+                           <div className="flex flex-wrap gap-1">
+                             {(() => {
+                               try {
+                                 return JSON.parse(lead.stack).map((s: string) => (
+                                   <span key={s} className="px-2 py-0.5 bg-surface/50 rounded-full text-xs border border-white/5">
+                                     {s}
+                                   </span>
+                                 ));
+                               } catch (e) {
+                                 return <span className="text-sm">{lead.stack}</span>;
+                               }
+                             })()}
+                           </div>
+                         </div>
+                       )}
+                       
+                       {lead.goals && (
+                         <div className="col-span-full">
+                           <span className="text-xs text-brand-muted uppercase tracking-wider block mb-1">Goals</span>
+                           <div className="flex flex-wrap gap-1">
+                             {(() => {
+                               try {
+                                 return JSON.parse(lead.goals).map((g: string) => (
+                                   <span key={g} className="px-2 py-0.5 bg-brand-cyan/10 text-brand-cyan rounded-full text-xs border border-brand-cyan/20">
+                                     {g}
+                                   </span>
+                                 ));
+                               } catch (e) {
+                                 return <span className="text-sm">{lead.goals}</span>;
+                               }
+                             })()}
+                           </div>
+                         </div>
+                       )}
+                       
+                       {lead.notes && (
+                         <div className="col-span-full mt-2 p-3 bg-surface/30 rounded-lg border border-white/5">
+                           <span className="text-xs text-brand-muted uppercase tracking-wider block mb-2">Additional Notes</span>
+                           <p className="text-sm text-white/80 whitespace-pre-wrap">{lead.notes}</p>
+                         </div>
+                       )}
+                     </div>
+                     
+                     <div className="text-xs text-brand-muted mt-2">
+                       Collected on {new Date(lead.createdAt).toLocaleString()}
+                     </div>
+                   </GlassContainer>
+                 ))}
+                 
+                 {leads.length === 0 && (
+                   <div className="text-center py-12 text-brand-muted">
+                     No leads have been collected yet.
+                   </div>
+                 )}
+               </div>
              </div>
            ) : null}
         </motion.div>

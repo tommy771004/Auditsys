@@ -632,54 +632,110 @@ export async function collectBrowserEvidence(payload: AuditRequestPayload, deter
   }
 
   if (mode === "playwright") {
+    const startedAt = new Date().toISOString();
+    const finalUrl = deterministic.finalUrl ?? payload.url;
+    const timeline: BrowserCollectorTimelineStep[] = [];
+    const observations: string[] = [];
+    let internalLinksTested = 0;
+    
+    timeline.push({ id: "step-1", label: "Initialize Lightweight Crawler", status: "completed", detail: "Prepared fetch-based traversal engine." });
+
+    try {
+      timeline.push({ id: "step-2", label: "Fetch Primary Document", status: "completed", detail: finalUrl });
+      
+      const response = await fetch(finalUrl, {
+        headers: { "User-Agent": "AuditLens/1.0 (Lightweight Crawler)" },
+        signal: AbortSignal.timeout(5000)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Primary document returned HTTP ${response.status}`);
+      }
+
+      const html = await response.text();
+      timeline.push({ id: "step-3", label: "Extract DOM & Links", status: "completed", detail: "Parsed HTML for navigation paths." });
+      
+      // Extract internal links using regex
+      const baseUrl = new URL(finalUrl);
+      const hrefMatches = [...html.matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>/gi)];
+      const internalLinks = new Set<string>();
+      
+      for (const match of hrefMatches) {
+        const href = match[1]?.trim();
+        if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) continue;
+        try {
+          const resolved = new URL(href, baseUrl);
+          if (resolved.origin === baseUrl.origin && resolved.href !== baseUrl.href) {
+            internalLinks.add(resolved.href);
+          }
+        } catch { /* ignore invalid URLs */ }
+      }
+
+      observations.push(`Crawler discovered ${internalLinks.size} internal navigation links.`);
+      
+      // Test up to 2 internal links to simulate user flow
+      const linksToTest = Array.from(internalLinks).slice(0, 2);
+      if (linksToTest.length > 0) {
+        for (const link of linksToTest) {
+          try {
+             const subRes = await fetch(link, { method: "HEAD", signal: AbortSignal.timeout(3000) });
+             timeline.push({ id: `step-test-${internalLinksTested}`, label: "Navigate Flow", status: subRes.ok ? "completed" : "partial", detail: `Tested internal route: ${link}` });
+             if (subRes.ok) internalLinksTested++;
+          } catch {
+             timeline.push({ id: `step-test-${internalLinksTested}`, label: "Navigate Flow", status: "blocked", detail: `Failed to load internal route: ${link}` });
+          }
+        }
+      } else {
+        timeline.push({ id: "step-4", label: "Navigate Flow", status: "not_run", detail: "No distinct internal links found to test." });
+      }
+
+    } catch (error: any) {
+      timeline.push({ id: "step-error", label: "Crawler Execution", status: "blocked", detail: error.message });
+      observations.push(`Lightweight crawler encountered an error: ${error.message}`);
+    }
+
+    const isSuccess = timeline.every(t => t.status !== "blocked");
+
     return {
       stage: "browser",
-      status: "completed",
+      status: isSuccess ? "completed" : "partial",
       mode: "playwright",
-      startedAt: new Date().toISOString(),
+      startedAt,
       completedAt: new Date().toISOString(),
       runtime: {
         runner: "playwright",
-        instruction: `Inspect ${payload.url} with Playwright.`,
+        instruction: `Inspect ${payload.url} using lightweight fetch crawler for flow validation.`,
         startUrl: payload.url,
         finalUrl: deterministic.finalUrl ?? payload.url,
-        taskId: "playwright-mock-task",
+        taskId: "lightweight-crawler-task",
         workspaceDir: "outputs/playwright",
       },
       pages: [
         {
           url: deterministic.finalUrl ?? payload.url,
           title: deterministic.document?.title ?? "Simulated Browser Page",
-          notes: ["Analyzed DOM loaded via Playwright.", "Found 0 critical accessibility violations."],
+          notes: ["Analyzed DOM using lightweight fetch crawler.", `Tested ${internalLinksTested} internal routes for availability.`],
         },
       ],
       flows: [
         {
           id: "landing-page-load",
-          label: "Landing Page Load",
-          status: "completed",
-          summary: "Playwright navigated to the target URL and waited for network idle.",
-          steps: ["Navigate to URL", "Wait for DOMContentLoaded", "Wait for networkidle0"],
+          label: "Landing Page Content & Navigation",
+          status: isSuccess ? "completed" : "partial",
+          summary: "Lightweight crawler navigated to the target URL and extracted navigation paths.",
+          steps: ["Fetch primary document", "Extract <a> tags and internal links", "Verify document accessibility"],
         },
         {
-          id: "interaction-test",
-          label: "Interaction Test",
-          status: "completed",
-          summary: "Verified key interactive elements on the page.",
-          steps: ["Locate primary buttons", "Simulate hover state", "Verify visibility"],
+          id: "interaction-flow",
+          label: "Internal Routing Validation",
+          status: internalLinksTested > 0 ? "completed" : "not_run",
+          summary: "Verified key interactive internal links to ensure site routing is healthy.",
+          steps: ["Extract internal paths", "Perform HEAD requests to internal routes", "Verify 200 OK responses"],
         }
       ],
-      timeline: [
-        { id: "step-1", label: "Launch Browser", status: "completed", detail: "Chromium started" },
-        { id: "step-2", label: "Navigate", status: "completed", detail: payload.url },
-        { id: "step-3", label: "Extract DOM", status: "completed", detail: "HTML captured" },
-        { id: "step-4", label: "Close Browser", status: "completed", detail: "Cleaned up resources" }
-      ],
-      observations: [
-        "Playwright execution simulated for preview environment.",
-        "Page loaded without major client-side errors.",
-      ],
-      warnings: [],
+      timeline,
+      observations,
+      warnings: isSuccess ? [] : ["Crawler encountered blocked or partial steps during flow validation."],
       screenshots: [],
       artifacts: {
         screenshotPaths: [],

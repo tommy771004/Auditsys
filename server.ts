@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 import { generateAuditIntelligence } from "./src/Server/Services/auditIntelligence";
 import { AUDIT_TARGET_REDIRECT_LIMIT_ERROR, canSelfServePlanChange, getRequiredJwtSecret, parseSubscriptionPlan, UNSAFE_AUDIT_TARGET_ERROR } from "./src/Server/Services/securityPolicies";
 import { initDb, getDb } from "./src/db/index";
-import { users, audits, planSettings } from "./src/db/schema";
+import { users, audits, planSettings, intakeLeads } from "./src/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 
 async function startServer() {
@@ -257,6 +257,26 @@ async function startServer() {
     }
   });
 
+  app.get("/api/admin/leads", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const db = getDb();
+      const leadsList = await db.select().from(intakeLeads).orderBy(desc(intakeLeads.createdAt));
+      res.json(leadsList);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.delete("/api/admin/leads/:id", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const db = getDb();
+      await db.delete(intakeLeads).where(eq(intakeLeads.id, req.params.id));
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.get("/api/plans", async (req, res) => {
     try {
       const db = getDb();
@@ -351,20 +371,37 @@ async function startServer() {
         allowedModels: userPlanSettings.allowedModels ? userPlanSettings.allowedModels.split(',').map(m => m.trim()).filter(Boolean) : undefined
       } : undefined;
 
-      const result = await generateAuditIntelligence(req.body, config);
-      
-      // Save audit to DB
-      await db.insert(audits).values({
+      // 1. Immediately create a pending audit record
+      const insertedAudit = await db.insert(audits).values({
         url: req.body.url || "unknown",
-        status: result.queued ? "pending" : "completed",
-        result: JSON.stringify(result),
+        status: "pending",
+        result: JSON.stringify({}),
         userId: user.id
-      });
+      }).returning({ id: audits.id });
+      
+      const auditId = insertedAudit[0].id;
 
-      res.status(result.queued ? 202 : 200).json(result);
+      try {
+        const result = await generateAuditIntelligence(req.body, config);
+        
+        // 2. Update audit record upon success
+        await db.update(audits).set({
+          status: result.queued ? "pending" : "completed",
+          result: JSON.stringify(result)
+        }).where(eq(audits.id, auditId));
+
+        res.status(result.queued ? 202 : 200).json(result);
+      } catch (innerError: any) {
+        // 3. Update audit record upon failure
+        await db.update(audits).set({
+          status: "failed",
+          result: JSON.stringify({ error: innerError.message })
+        }).where(eq(audits.id, auditId));
+        throw innerError;
+      }
     } catch (error: any) {
       const message = error.message;
-      res.status(message === "INVALID_AUDIT_PAYLOAD" || message === UNSAFE_AUDIT_TARGET_ERROR || message === AUDIT_TARGET_REDIRECT_LIMIT_ERROR ? 400 : 502).json({ error: message });
+      res.status(message === "INVALID_AUDIT_PAYLOAD" || message === "UNSAFE_AUDIT_TARGET" || message === "AUDIT_TARGET_REDIRECT_LIMIT" ? 400 : 502).json({ error: message });
     }
   });
   
@@ -379,20 +416,53 @@ async function startServer() {
         allowedModels: userPlanSettings.allowedModels ? userPlanSettings.allowedModels.split(',').map(m => m.trim()).filter(Boolean) : undefined
       } : undefined;
 
-      const result = await generateAuditIntelligence(req.body, config);
+      const body = req.body;
 
-      // Save intake audit to DB too as part of user's past audits
-      await db.insert(audits).values({
-        url: req.body.url || "unknown",
-        status: result.queued ? "pending" : "completed",
-        result: JSON.stringify(result),
+      // 1. Save intake lead to DB immediately
+      if (body.companyName && body.contactEmail) {
+        await db.insert(intakeLeads).values({
+          userId: user.id,
+          url: body.url || "unknown",
+          companyName: body.companyName,
+          contactEmail: body.contactEmail,
+          goals: Array.isArray(body.goals) ? JSON.stringify(body.goals) : null,
+          stack: Array.isArray(body.stack) ? JSON.stringify(body.stack) : null,
+          teamSize: body.teamSize || null,
+          notes: body.notes || null,
+        });
+      }
+
+      // 2. Create pending audit record
+      const insertedAudit = await db.insert(audits).values({
+        url: body.url || "unknown",
+        status: "pending",
+        result: JSON.stringify({}),
         userId: user.id
-      });
+      }).returning({ id: audits.id });
 
-      res.status(result.queued ? 202 : 200).json(result);
+      const auditId = insertedAudit[0].id;
+
+      try {
+        const result = await generateAuditIntelligence(body, config);
+
+        // 3. Update audit record upon success
+        await db.update(audits).set({
+          status: result.queued ? "pending" : "completed",
+          result: JSON.stringify(result)
+        }).where(eq(audits.id, auditId));
+
+        res.status(result.queued ? 202 : 200).json(result);
+      } catch (innerError: any) {
+        // 4. Update audit record upon failure
+        await db.update(audits).set({
+          status: "failed",
+          result: JSON.stringify({ error: innerError.message })
+        }).where(eq(audits.id, auditId));
+        throw innerError;
+      }
     } catch (error: any) {
       const message = error.message;
-      res.status(message === "INVALID_JSON_BODY" || message === "INVALID_AUDIT_PAYLOAD" || message === UNSAFE_AUDIT_TARGET_ERROR || message === AUDIT_TARGET_REDIRECT_LIMIT_ERROR ? 400 : 502).json({ error: message });
+      res.status(message === "INVALID_JSON_BODY" || message === "INVALID_AUDIT_PAYLOAD" || message === "UNSAFE_AUDIT_TARGET" || message === "AUDIT_TARGET_REDIRECT_LIMIT" ? 400 : 502).json({ error: message });
     }
   });
 

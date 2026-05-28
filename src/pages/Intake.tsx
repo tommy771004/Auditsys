@@ -41,12 +41,6 @@ const stepContentMotion = {
 export default function Intake({ onNavigate }: IntakePageProps) {
   const { t } = useTranslation();
 
-  useEffect(() => {
-    const token = localStorage.getItem("auth_token");
-    if (!token) {
-      onNavigate("login");
-    }
-  }, [onNavigate]);
   const { currentStep, errorKey, formState, isError, isLoading, isSuccess, nextStep, previousStep, progressValue, submitWizard, toggleSelection, updateField } = useIntakeWizard();
   const isCompanyError = errorKey === "validation.requiredCompany";
   const isUrlError = errorKey === "validation.requiredUrl" || errorKey === "validation.invalidUrl";
@@ -440,7 +434,13 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                       loadingLabel={t("hero.loading")}
                       onClick={() => {
                         localStorage.setItem("intake_submitted_url", formState.url);
-                        onNavigate("console");
+                        localStorage.setItem("intake_submitted_data", JSON.stringify(formState));
+                        const hasToken = !!localStorage.getItem("auth_token");
+                        if (!hasToken) {
+                          onNavigate("login");
+                        } else {
+                          onNavigate("console");
+                        }
                       }}
                     >
                       {t("intake.buttons.launchConsole")}

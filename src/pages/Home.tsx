@@ -40,6 +40,18 @@ interface HomeProps {
 export default function Home({ activeSection, onNavigate }: HomeProps) {
   const { t } = useTranslation();
   const { errorKey, isError, isLoading, isSuccess, submitAudit, updateUrl, url } = useAuditForm();
+
+  useEffect(() => {
+    if (isSuccess && url) {
+      localStorage.setItem("intake_submitted_url", url);
+      const hasToken = !!localStorage.getItem("auth_token");
+      if (!hasToken) {
+        onNavigate("login");
+      } else {
+        onNavigate("console");
+      }
+    }
+  }, [isSuccess, url, onNavigate]);
   const isUrlFieldError = errorKey === "validation.requiredUrl" || errorKey === "validation.invalidUrl";
 
   useEffect(() => {
@@ -156,6 +168,9 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
     event.preventDefault();
     const hasToken = !!localStorage.getItem("auth_token");
     if (!hasToken) {
+      if (url) {
+        localStorage.setItem("intake_submitted_url", url);
+      }
       onNavigate("login");
       return;
     }

@@ -1,7 +1,4 @@
 import { useState } from "react";
-import { postAuditRequest } from "../services/auditApi";
-import { saveLatestAuditReport } from "../services/auditReportStore";
-
 interface UseAuditFormResult {
   url: string;
   isLoading: boolean;
@@ -57,34 +54,16 @@ export function useAuditForm(): UseAuditFormResult {
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => {
-        window.setTimeout(resolve, 1400);
-      });
-
-      const responseData = await postAuditRequest({
-        endpoint: import.meta.env.VITE_AUDIT_ENDPOINT,
-        defaultEndpoint: "/api/audit",
-        payload: {
-          url: normalizedUrl,
-        },
-        fallbackPayload: {
-          queued: true,
-          provider: "fallback",
-          url: normalizedUrl,
-        },
-      });
-
-      saveLatestAuditReport(responseData);
-
+      // Small delay for UI feedback
+      await new Promise((resolve) => window.setTimeout(resolve, 600));
+      
+      // We no longer call postAuditRequest here to avoid duplicate LLM execution.
+      // Instead, we just signal success, and let the AuditConsole handle the actual API call.
+      
       setIsSuccess(true);
     } catch (error: any) {
-      if (error && error.message === "unauthorized") {
-        setIsError(true);
-        setErrorKey("validation.unauthorized");
-      } else {
-        setIsError(true);
-        setErrorKey("validation.submitFailed");
-      }
+      setIsError(true);
+      setErrorKey("validation.submitFailed");
     } finally {
       setIsLoading(false);
     }

@@ -526,7 +526,7 @@ export function useAuditAgent(): UseAgentResult {
     });
   };
 
-  const startAudit = async (url: string) => {
+  const startAudit = async (url: string, intakeData?: any) => {
     const normalizedUrl = url.trim();
     const token = runTokenRef.current + 1;
     let resolvedAuditResult: AuditIntelligenceResult | null = null;
@@ -539,12 +539,17 @@ export function useAuditAgent(): UseAgentResult {
 
     const liveAuditPromise = (async (): Promise<AuditIntelligenceResult | null> => {
       try {
+        // Build the correct payload depending on mode
+        const auditPayload = intakeData
+          ? { ...intakeData, url: normalizedUrl }  // Ensure url is always the normalized URL
+          : { url: normalizedUrl };
+
         const responseData = await postAuditRequest({
-          endpoint: import.meta.env.VITE_AUDIT_ENDPOINT,
-          defaultEndpoint: "/api/audit",
-          payload: {
-            url: normalizedUrl,
-          },
+          endpoint: intakeData ? import.meta.env.VITE_INTAKE_ENDPOINT : import.meta.env.VITE_AUDIT_ENDPOINT,
+          defaultEndpoint: intakeData ? "/api/intake" : "/api/audit",
+          payload: auditPayload,
+          // fallbackPayload must NOT contain arrays or complex objects that fail isAuditIntelligenceResult validation.
+          // It is only used when the server is completely unreachable (no DB, no API).
           fallbackPayload: {
             queued: true,
             provider: "fallback",

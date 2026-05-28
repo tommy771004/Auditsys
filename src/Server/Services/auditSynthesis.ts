@@ -40,16 +40,18 @@ function buildAuditPrompt(payload: AuditRequestPayload, evidence: AuditEvidenceB
 
   return [
     "You are a senior web performance and architecture auditor for productized consulting engagements.",
-    "Create a concise markdown audit brief for a discovery-first website review.",
+    "Perform a discovery-first website review based strictly on the provided evidence.",
     "Base every claim on the supplied evidence. If browser evidence is unavailable, state the uncertainty rather than inventing observations.",
     "If a browser runtime gate is blocked or incomplete, explicitly name that gate in both the Executive Summary and Browser Flow Gaps sections.",
-    "Use the following sections exactly in this order:",
-    "1. Executive Summary",
-    "2. Deterministic Findings",
-    "3. Browser Flow Gaps",
-    "4. Architecture Risks",
-    "5. Highest Priority Next Actions",
-    "Keep the tone direct and actionable. Use short bullet lists.",
+    "You MUST output your response as a valid JSON object matching the following structure EXACTLY. DO NOT wrap the output in markdown code blocks (e.g., no ```json). Output ONLY the raw JSON object.",
+    "{",
+    `  "executiveSummary": "A concise, professional overview of the site's health and readiness. Focus on business impact, user experience, and technical readiness. Write this for C-level executives and stakeholders.",`,
+    '  "deterministicFindings": [{ "issue": "The technical issue found", "impact": "The business or UX impact", "severity": "high|medium|low" }],',
+    '  "browserFlowGaps": [{ "issue": "The flow gap or blocked gate", "impact": "How this affects user conversion or traversal", "severity": "high|medium|low" }],',
+    '  "architectureRisks": [{ "issue": "The architecture or scaling concern", "impact": "Long-term business or operational impact", "severity": "high|medium|low" }],',
+    '  "nextActions": [{ "action": "Clear, actionable step", "impact": "The expected improvement" }]',
+    "}",
+    "Keep the tone consultative, professional, and actionable. Frame technical issues in terms of business impact.",
     buildEvidenceLines(payload, evidence.deterministic).join("\n"),
     `Browser collector status: ${evidence.browser.status}`,
     `Browser collector mode: ${evidence.browser.mode}`,
@@ -119,24 +121,54 @@ function buildFallbackSummary(payload: AuditRequestPayload, evidence: AuditEvide
 
   nextActions.push("- Add deterministic checks for robots.txt, sitemap, and Core Web Vitals once the pipeline moves beyond intake-only mode.");
 
-  return [
-    "1. Executive Summary",
-    `- The audit ran in fallback synthesis mode (${reason}).`,
-    primaryRuntimeGate ? `- Primary runtime gate blocked or incomplete: ${formatRuntimeGate(primaryRuntimeGate)}.` : "- No blocked runtime gate was explicitly identified in the browser timeline.",
-    "2. Deterministic Findings",
-    ...findings,
-    "3. Browser Flow Gaps",
-    `- Browser collector status: ${evidence.browser.status}. ${evidence.browser.reason ?? "No additional browser detail was captured."}`,
-    `- Browser collector mode: ${evidence.browser.mode}.`,
-    evidence.browser.flows.length > 0 ? `- Browser flow readiness: ${evidence.browser.flows.map((flow) => `${flow.label} (${flow.status})`).join(", ")}.` : "- No browser flow metadata was captured.",
-    primaryRuntimeGate ? `- Primary runtime gate: ${formatRuntimeGate(primaryRuntimeGate)}.` : evidence.browser.timeline?.length ? `- Browser runtime timeline: ${evidence.browser.timeline.map((step) => formatRuntimeGate(step)).join(", ")}.` : "- No browser runtime timeline was captured.",
-    "4. Architecture Risks",
-    primaryRuntimeGate
-      ? `- The blocked runtime gate suggests a browser-only boundary still needs remediation before this run can support high-confidence architecture claims.`
-      : "- Current architecture evidence is limited to intake metadata and deterministic HTML inspection; runtime boundaries still need browser-level verification.",
-    "5. Highest Priority Next Actions",
-    ...nextActions,
-  ].join("\n");
+  const executiveSummary = `The audit was executed in fallback synthesis mode (${reason}). ${primaryRuntimeGate ? `A primary runtime gate was blocked or incomplete: ${formatRuntimeGate(primaryRuntimeGate)}, impacting deep-flow visibility.` : "No blocked runtime gate was explicitly identified in the browser timeline."}`;
+  
+  const browserFlowGaps = [
+    { 
+      issue: `Browser collector status: ${evidence.browser.status}`, 
+      impact: evidence.browser.reason ?? "No additional browser detail was captured, which limits dynamic interactivity validation.",
+      severity: "medium"
+    },
+    { 
+      issue: `Browser collector mode: ${evidence.browser.mode}`, 
+      impact: "Determines the depth of client-side JavaScript execution and network tracking.",
+      severity: "low"
+    }
+  ];
+
+  if (evidence.browser.flows.length > 0) {
+    browserFlowGaps.push({
+      issue: "Browser flow readiness",
+      impact: evidence.browser.flows.map((flow) => `${flow.label} (${flow.status})`).join(", "),
+      severity: evidence.browser.flows.some(f => f.status === "blocked") ? "high" : "low"
+    });
+  }
+
+  if (primaryRuntimeGate) {
+    browserFlowGaps.push({
+      issue: "Primary runtime gate blocked",
+      impact: formatRuntimeGate(primaryRuntimeGate),
+      severity: "high"
+    });
+  }
+
+  const architectureRisks = [
+    {
+      issue: primaryRuntimeGate ? "Runtime Boundary Remediation Required" : "Limited Architecture Evidence",
+      impact: primaryRuntimeGate
+        ? `The blocked runtime gate suggests a browser-only boundary needs remediation before this run can support high-confidence architecture claims.`
+        : "Current architecture evidence is limited to intake metadata and deterministic HTML inspection; runtime boundaries still need browser-level verification.",
+      severity: primaryRuntimeGate ? "high" : "medium"
+    }
+  ];
+
+  return JSON.stringify({
+    executiveSummary,
+    deterministicFindings: findings.map(f => ({ issue: f, impact: "Requires further investigation", severity: "medium" })),
+    browserFlowGaps,
+    architectureRisks,
+    nextActions: nextActions.map(a => ({ action: a, impact: "Improves overall pipeline visibility and stability." })),
+  });
 }
 
 export async function synthesizeAudit(payload: AuditRequestPayload, evidence: AuditEvidenceBundle, config?: { apiKey?: string, allowedModels?: string[] }): Promise<AuditSynthesisResult> {

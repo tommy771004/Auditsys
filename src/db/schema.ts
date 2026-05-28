@@ -24,3 +24,16 @@ export const planSettings = pgTable('audit_plan_settings', {
   allowedModels: text('allowed_models').default('google/gemini-2.5-flash'),
   price: text('price').default('$0'),
 });
+
+export const intakeLeads = pgTable('audit_intake_leads', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: integer('user_id').references(() => users.id),
+  url: text('url').notNull(),
+  companyName: text('company_name').notNull(),
+  contactEmail: text('contact_email').notNull(),
+  goals: text('goals'), // JSON stringified array
+  stack: text('stack'), // JSON stringified array
+  teamSize: text('team_size'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});

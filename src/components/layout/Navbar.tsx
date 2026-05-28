@@ -138,7 +138,7 @@ export default function Navbar({ currentRoute, currentSection, onNavigate }: Nav
                 className="px-5 py-2.5"
                 loadingLabel={t("hero.loading")}
                 onClick={() => {
-                  hasToken ? handleNavigation("intake") : handleNavigation("login");
+                  handleNavigation("intake");
                 }}
               >
                 {t("navbar.startScan")}
@@ -208,7 +208,7 @@ export default function Navbar({ currentRoute, currentSection, onNavigate }: Nav
                     className="mt-2 w-full justify-center"
                     loadingLabel={t("hero.loading")}
                     onClick={() => {
-                      hasToken ? handleNavigation("intake") : handleNavigation("login");
+                      handleNavigation("intake");
                     }}
                   >
                     {t("navbar.startScan")}

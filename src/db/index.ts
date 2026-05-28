@@ -94,6 +94,19 @@ export async function initDb() {
     END
     $$;
 
+    CREATE TABLE IF NOT EXISTS audit_intake_leads (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      user_id INTEGER REFERENCES audit_users(id),
+      url TEXT NOT NULL,
+      company_name TEXT NOT NULL,
+      contact_email TEXT NOT NULL,
+      goals TEXT,
+      stack TEXT,
+      team_size TEXT,
+      notes TEXT,
+      created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    );
+
     INSERT INTO audit_plan_settings (plan_id, allowed_models, price) 
     VALUES 
       ('free', '', '$0'),

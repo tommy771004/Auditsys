@@ -55,6 +55,6 @@ export interface UseAgentResult {
   latestAuditResult: AuditIntelligenceResult | null;
   reportSource: AgentReportSource | null;
   errorKey: string | null;
-  startAudit: (url: string) => Promise<void>;
+  startAudit: (url: string, intakeData?: any) => Promise<void>;
   reset: () => void;
 }
