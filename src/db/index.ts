@@ -1,7 +1,9 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import pkg from "pg";
 const { Pool } = pkg;
+import bcrypt from "bcryptjs";
 import * as schema from "./schema";
+import { resolveAdminBootstrapConfig } from "./adminBootstrap";
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -24,7 +26,7 @@ export function getDb() {
 }
 
 export async function initDb() {
-  if (!connectionString) return; // Wait until configured
+  if (!connectionString) return false;
   
   const p = new Pool({ 
     connectionString,
@@ -88,15 +90,18 @@ export async function initDb() {
     ON CONFLICT (plan_id) DO UPDATE SET allowed_models = EXCLUDED.allowed_models;
   `);
   
-  // Ensure default admin exists
-  const res = await p.query('SELECT * FROM audit_users WHERE username = $1', ['admin']);
-  if (res.rowCount === 0) {
-    // password is 'admin123'
-    await p.query(
-      'INSERT INTO audit_users (username, password_hash, is_admin) VALUES ($1, $2, $3)',
-      ['admin', '$2b$10$0Jg2mdpVRBGSv8w/6sqX3.ibRy1wOIvZ4xe8oq4sACsvIh503UG.2', true] 
-    );
+  const bootstrapAdmin = resolveAdminBootstrapConfig();
+  if (bootstrapAdmin) {
+    const res = await p.query('SELECT * FROM audit_users WHERE username = $1', [bootstrapAdmin.username]);
+    if (res.rowCount === 0) {
+      const passwordHash = await bcrypt.hash(bootstrapAdmin.password, 12);
+      await p.query(
+        'INSERT INTO audit_users (username, password_hash, is_admin) VALUES ($1, $2, $3)',
+        [bootstrapAdmin.username, passwordHash, true]
+      );
+    }
   }
   
   console.log("Database initialized and schema verified.");
+  return true;
 }

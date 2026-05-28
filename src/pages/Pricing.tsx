@@ -77,6 +77,10 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
       });
 
       if (!response.ok) {
+        if (response.status === 403) {
+          throw new Error("Plan upgrades now require admin approval.");
+        }
+
         throw new Error("Failed to upgrade plan");
       }
 
@@ -93,7 +97,7 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
       }
     } catch (err: any) {
       console.error(err);
-      setStatusMessage("Upgrade failed. Please try again.");
+      setStatusMessage(err.message || "Upgrade failed. Please try again.");
     } finally {
       setUpgradingPlan(null);
     }

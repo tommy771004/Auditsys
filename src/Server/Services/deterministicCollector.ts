@@ -1,4 +1,40 @@
 import type { AuditRequestPayload, DeterministicCollectorResult, DeterministicDocumentEvidence } from "./auditPipelineTypes";
+import { AUDIT_TARGET_REDIRECT_LIMIT_ERROR, assertSafeAuditTargetUrl } from "./securityPolicies";
+
+const REQUEST_HEADERS = {
+  Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
+};
+
+function isRedirectStatus(status: number): boolean {
+  return status === 301 || status === 302 || status === 303 || status === 307 || status === 308;
+}
+
+async function fetchAuditTarget(targetUrl: string): Promise<Response> {
+  let currentUrl = targetUrl;
+
+  for (let redirectCount = 0; redirectCount <= 5; redirectCount += 1) {
+    await assertSafeAuditTargetUrl(currentUrl);
+
+    const response = await fetch(currentUrl, {
+      redirect: "manual",
+      headers: REQUEST_HEADERS,
+    });
+
+    if (!isRedirectStatus(response.status)) {
+      return response;
+    }
+
+    const location = response.headers.get("location");
+
+    if (!location) {
+      return response;
+    }
+
+    currentUrl = new URL(location, currentUrl).toString();
+  }
+
+  throw new Error(AUDIT_TARGET_REDIRECT_LIMIT_ERROR);
+}
 
 function decodeHtml(value: string): string {
   return value
@@ -144,12 +180,7 @@ export async function collectDeterministicEvidence(payload: AuditRequestPayload)
   const startedTime = Date.now();
 
   try {
-    const response = await fetch(payload.url, {
-      redirect: "follow",
-      headers: {
-        Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
-      },
-    });
+    const response = await fetchAuditTarget(payload.url);
 
     const responseTimeMs = Date.now() - startedTime;
     const contentType = response.headers.get("content-type");

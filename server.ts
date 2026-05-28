@@ -5,11 +5,13 @@ import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { generateAuditIntelligence } from "./src/Server/Services/auditIntelligence";
+import { AUDIT_TARGET_REDIRECT_LIMIT_ERROR, canSelfServePlanChange, getRequiredJwtSecret, parseSubscriptionPlan, UNSAFE_AUDIT_TARGET_ERROR } from "./src/Server/Services/securityPolicies";
 import { initDb, getDb } from "./src/db/index";
 import { users, audits, planSettings } from "./src/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 
 async function startServer() {
+  const JWT_SECRET = getRequiredJwtSecret();
   const app = express();
   const PORT = 3000;
 
@@ -18,13 +20,15 @@ async function startServer() {
 
   // Initialize DB if URL is present
   try {
-    await initDb();
-    console.log("Database initialized");
+    const initialized = await initDb();
+    if (initialized) {
+      console.log("Database initialized");
+    } else {
+      console.warn("Database initialization skipped because DATABASE_URL is not configured.");
+    }
   } catch (error) {
     console.error("Database initialization failed. Waiting for configuration.");
   }
-
-  const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_dev";
 
   // Auth Middleware
   const authenticateToken = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -136,13 +140,23 @@ async function startServer() {
     try {
       const db = getDb();
       const user = (req as any).user;
-      const { plan } = req.body;
+      const requestedPlan = parseSubscriptionPlan(req.body?.plan);
+      const currentPlan = parseSubscriptionPlan(user.subscriptionPlan);
 
-      if (!['free', 'pro', 'enterprise'].includes(plan)) {
+      if (!requestedPlan) {
         return res.status(400).json({ error: "invalid_plan" });
       }
 
-      await db.update(users).set({ subscriptionPlan: plan }).where(eq(users.id, user.id));
+      if (!currentPlan) {
+        return res.status(500).json({ error: "invalid_user_plan" });
+      }
+
+      const decision = canSelfServePlanChange(currentPlan, requestedPlan);
+      if (!decision.allowed) {
+        return res.status(403).json({ error: decision.reason });
+      }
+
+      await db.update(users).set({ subscriptionPlan: requestedPlan }).where(eq(users.id, user.id));
 
       const updatedUserList = await db.select().from(users).where(eq(users.id, user.id));
       const updatedUser = updatedUserList[0];
@@ -348,7 +362,7 @@ async function startServer() {
       res.status(result.queued ? 202 : 200).json(result);
     } catch (error: any) {
       const message = error.message;
-      res.status(message === "INVALID_AUDIT_PAYLOAD" ? 400 : 502).json({ error: message });
+      res.status(message === "INVALID_AUDIT_PAYLOAD" || message === UNSAFE_AUDIT_TARGET_ERROR || message === AUDIT_TARGET_REDIRECT_LIMIT_ERROR ? 400 : 502).json({ error: message });
     }
   });
   
@@ -376,7 +390,7 @@ async function startServer() {
       res.status(result.queued ? 202 : 200).json(result);
     } catch (error: any) {
       const message = error.message;
-      res.status(message === "INVALID_JSON_BODY" || message === "INVALID_AUDIT_PAYLOAD" ? 400 : 502).json({ error: message });
+      res.status(message === "INVALID_JSON_BODY" || message === "INVALID_AUDIT_PAYLOAD" || message === UNSAFE_AUDIT_TARGET_ERROR || message === AUDIT_TARGET_REDIRECT_LIMIT_ERROR ? 400 : 502).json({ error: message });
     }
   });
 
