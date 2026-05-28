@@ -8,7 +8,8 @@
     "pricing": "AuditLens | 定價方案",
     "report": "AuditLens | 範例報告",
     "intake": "AuditLens | 客戶引導表單",
-    "console": "AuditLens | 任務控制台"
+    "console": "AuditLens | 任務控制台",
+    "campaign": "AuditLens | 行銷素材庫"
   },
   "navbar": {
     "overview": "總覽",
@@ -17,6 +18,7 @@
     "console": "任務控制台",
     "pricing": "定價",
     "intake": "引導表單",
+    "campaign": "行銷素材",
     "startScan": "開始掃描",
     "openMenu": "開啟導覽選單",
     "closeMenu": "關閉導覽選單"
@@ -786,6 +788,55 @@
       "viewReport": "查看範例報告",
       "viewPricing": "查看定價",
       "launchConsole": "啟動分析主控台"
+    }
+  },
+  "campaign": {
+    "badge": "Marketing Hub",
+    "title": "代理商行銷素材庫",
+    "description": "經過 A/B 測試的廣告文案與 Email 銷售序列，專為推動高意向客戶進入引導流程而設計。",
+    "googleAds": {
+      "eyebrow": "搜尋意圖 (Search Intent)",
+      "title": "Google 關鍵字廣告",
+      "headline1": "別再瞎猜。讓 AI 稽核你的網站。",
+      "headline2": "首創全自動化網站稽核平台。",
+      "description": "別等用戶抱怨才抓 Bug。AuditLens 使用 AI 在 3 分鐘內找出 UX、安全與架構漏洞。立即免費試用。",
+      "sitelinks": "查看範例報告 | 方案定價 | 代理商專區",
+      "keywords": "目標關鍵字: \"AI website auditor\", \"automated pentesting web\", \"React performance audit\""
+    },
+    "socialAds": {
+      "eyebrow": "需求生成 (Demand Generation)",
+      "title": "Meta / LinkedIn 廣告",
+      "test1": {
+        "title": "A/B 測試 1 (恐懼訴求 - LinkedIn)",
+        "visual": "一個時尚的深色終端機，用紅色標示出一個嚴重的架構漏洞，與模糊的背景形成強烈對比。",
+        "text": "你最新的一次部署剛剛引入了 3 個致命的 UX 缺陷。你是要等客戶來抱怨，還是現在就修正？",
+        "cta": "開始免費稽核"
+      },
+      "test2": {
+        "title": "A/B 測試 2 (魔法訴求 - Meta)",
+        "visual": "一段縮時影片：AuditLens 掃描一個雜亂的網頁，並瞬間生成一份乾淨、可直接向高層匯報的 PDF 報告。",
+        "text": "把這份報告寄給你的客戶，然後看著他們簽下長期合約。專為代理商打造的 AI 網站稽核工具。",
+        "cta": "了解更多"
+      }
+    },
+    "emailSequence": {
+      "eyebrow": "潛在客戶培養 (Nurture Campaign)",
+      "title": "自動化 Email 序列",
+      "email1": {
+        "title": "第一封：歡迎與「啊哈」時刻 (Aha Moment)",
+        "subject": "你的第一份 AI 稽核報告已經準備好了。",
+        "body": "歡迎來到 AuditLens。了解我們能做什麼最好的方法，就是看著我們（溫柔地）突破你自己的網站。[開始你的第一次稽核 ->]"
+      },
+      "email2": {
+        "title": "第二封：價值證明 (第 3 天)",
+        "subject": "ACME 公司如何使用 AuditLens 找出 1 萬美元的漏洞",
+        "body": "80% 的架構風險在上線前都不會被發現。來看看一次掃描是如何拯救一次產品發布的。"
+      },
+      "email3": {
+        "title": "第三封：重新喚醒 (第 14 天)",
+        "subject": "你修復了那 3 個漏洞了嗎？",
+        "body": "我們注意到你兩週前執行了一次稽核。網頁標準變動很快。執行一次全新的掃描，確保你最近的部署無懈可擊。[立即重新掃描 ->]"
+      }
     }
   }
 }

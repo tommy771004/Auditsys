@@ -122,7 +122,7 @@ export default function SubagentCard({ subagent, toolCalls }: SubagentCardProps)
                 </div>
               ))
             ) : (
-              <p className="rounded-2xl border border-dashed border-white/10 px-3 py-3 text-white/50">{t("auditConsole.subagentCard.emptyLogs")}</p>
+              <p className="rounded-2xl border border-dashed border-white/10 px-3 py-3 text-white/60">{t("auditConsole.subagentCard.emptyLogs")}</p>
             )}
           </div>
         </div>

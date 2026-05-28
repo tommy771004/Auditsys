@@ -287,9 +287,24 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 {reportSourceLabel}
               </span>
             </div>
+            <div aria-live="polite" aria-atomic="false">
             {(() => {
               if (!streamedReport) {
-                return <pre className="mt-5 min-h-[20rem] whitespace-pre-wrap rounded-[24px] border border-white/10 bg-white/[0.03] p-4 font-mono text-[13px] leading-7 text-white/86">{t("auditConsole.sections.reportWaiting")}</pre>;
+                return (
+                  <div className="mt-6 flex flex-col items-center justify-center min-h-[20rem] rounded-[32px] border border-white/5 bg-slate-950/40 p-8 shadow-inner">
+                    <div className="w-full max-w-md space-y-12">
+                      <div className="flex justify-between text-[11px] font-bold uppercase tracking-[0.2em]">
+                        <span className="flex flex-col items-center gap-3 text-brand-cyan"><div className="h-2 w-2 rounded-full bg-brand-cyan animate-pulse shadow-[0_0_8px_rgba(34,211,238,0.8)]" />Crawling</span>
+                        <span className="flex flex-col items-center gap-3 text-white/40"><div className="h-2 w-2 rounded-full bg-white/20" />Synthesizing</span>
+                        <span className="flex flex-col items-center gap-3 text-white/40"><div className="h-2 w-2 rounded-full bg-white/20" />Rendering</span>
+                      </div>
+                      <div className="relative h-1 w-full overflow-hidden rounded-full bg-white/10">
+                        <div className="absolute left-0 top-0 h-full w-1/3 rounded-full bg-brand-cyan shadow-[0_0_10px_rgba(34,211,238,0.6)] animate-pulse" />
+                      </div>
+                      <p className="text-center text-sm font-medium text-white/60 animate-pulse">{t("auditConsole.sections.reportWaiting")}</p>
+                    </div>
+                  </div>
+                );
               }
               try {
                 const parsed = JSON.parse(streamedReport);
@@ -297,15 +312,15 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 const SeverityBadge = ({ severity }: { severity?: string }) => {
                   if (!severity) return null;
                   const s = severity.toLowerCase();
-                  if (s === "high") return <span className="rounded-md bg-rose-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-rose-300 border border-rose-500/30">High Impact</span>;
-                  if (s === "medium") return <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-amber-300 border border-amber-500/30">Medium</span>;
-                  return <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-emerald-300 border border-emerald-500/30">Low</span>;
+                  if (s === "high") return <span className="rounded-md bg-semantic-danger/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-danger border border-semantic-danger/30">High Impact</span>;
+                  if (s === "medium") return <span className="rounded-md bg-semantic-warning/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-warning border border-semantic-warning/30">Medium</span>;
+                  return <span className="rounded-md bg-semantic-success/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-success border border-semantic-success/30">Low</span>;
                 };
 
                 return (
                   <div className="mt-6 flex flex-col gap-6">
                     {/* Hero Card for Executive Summary */}
-                    <div className="relative overflow-hidden rounded-[32px] border border-brand-cyan/30 bg-gradient-to-br from-brand-cyan/10 via-slate-900/50 to-slate-950/80 p-8 shadow-2xl shadow-brand-cyan/5">
+                    <div className="relative overflow-hidden rounded-[32px] border border-brand-cyan/30 bg-gradient-to-br from-brand-cyan/10 via-slate-900/50 to-slate-950/80 p-5 sm:p-8 shadow-2xl shadow-brand-cyan/5">
                       <div className="flex items-center gap-3 mb-4">
                         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-cyan/20 text-brand-cyan shadow-inner">
                           <LayoutDashboard className="h-6 w-6" />
@@ -318,10 +333,10 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                     <div className="grid gap-6 md:grid-cols-2">
                       {/* Findings */}
                       {parsed.deterministicFindings?.length > 0 && (
-                        <div className="rounded-[28px] border border-violet-500/20 bg-slate-950/40 p-6 shadow-lg shadow-black/20">
+                        <div className="rounded-[28px] border border-brand-purple/20 bg-slate-950/40 p-5 sm:p-6 shadow-lg shadow-black/20">
                           <div className="flex items-center gap-3 mb-5 border-b border-white/5 pb-4">
-                            <Zap className="h-5 w-5 text-violet-400" />
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-violet-100">Technical Findings</h3>
+                            <Zap className="h-5 w-5 text-brand-purple" />
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-white/90">Technical Findings</h3>
                           </div>
                           <div className="space-y-4">
                             {parsed.deterministicFindings.map((item: any, i: number) => (
@@ -339,10 +354,10 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
 
                       {/* Gaps */}
                       {parsed.browserFlowGaps?.length > 0 && (
-                        <div className="rounded-[28px] border border-emerald-500/20 bg-slate-950/40 p-6 shadow-lg shadow-black/20">
+                        <div className="rounded-[28px] border border-semantic-success/20 bg-slate-950/40 p-5 sm:p-6 shadow-lg shadow-black/20">
                           <div className="flex items-center gap-3 mb-5 border-b border-white/5 pb-4">
-                            <Target className="h-5 w-5 text-emerald-400" />
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-emerald-100">Flow Verification</h3>
+                            <Target className="h-5 w-5 text-semantic-success" />
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-white/90">Flow Verification</h3>
                           </div>
                           <div className="space-y-4">
                             {parsed.browserFlowGaps.map((item: any, i: number) => (
@@ -360,10 +375,10 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
 
                       {/* Architecture Risks */}
                       {parsed.architectureRisks?.length > 0 && (
-                        <div className="rounded-[28px] border border-rose-500/20 bg-slate-950/40 p-6 shadow-lg shadow-black/20 md:col-span-2">
+                        <div className="rounded-[28px] border border-semantic-danger/20 bg-slate-950/40 p-5 sm:p-6 shadow-lg shadow-black/20 md:col-span-2">
                           <div className="flex items-center gap-3 mb-5 border-b border-white/5 pb-4">
-                            <ShieldAlert className="h-5 w-5 text-rose-400" />
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-rose-100">Architecture Risks</h3>
+                            <ShieldAlert className="h-5 w-5 text-semantic-danger" />
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-white/90">Architecture Risks</h3>
                           </div>
                           <div className="grid gap-4 md:grid-cols-2">
                             {parsed.architectureRisks.map((item: any, i: number) => (
@@ -381,15 +396,15 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
 
                       {/* Next Actions */}
                       {parsed.nextActions?.length > 0 && (
-                        <div className="rounded-[28px] border border-amber-500/20 bg-slate-950/40 p-6 shadow-lg shadow-black/20 md:col-span-2">
+                        <div className="rounded-[28px] border border-semantic-warning/20 bg-slate-950/40 p-5 sm:p-6 shadow-lg shadow-black/20 md:col-span-2">
                           <div className="flex items-center gap-3 mb-5 border-b border-white/5 pb-4">
-                            <Flag className="h-5 w-5 text-amber-400" />
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-amber-100">Strategic Next Steps</h3>
+                            <Flag className="h-5 w-5 text-semantic-warning" />
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-white/90">Strategic Next Steps</h3>
                           </div>
                           <div className="grid gap-4 md:grid-cols-2">
                             {parsed.nextActions.map((item: any, i: number) => (
-                              <div key={i} className="flex gap-4 rounded-2xl bg-white/[0.02] p-4 border border-amber-500/10 hover:bg-white/[0.04] transition-colors">
-                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-300 font-bold text-sm">
+                              <div key={i} className="flex gap-4 rounded-2xl bg-white/[0.02] p-4 border border-semantic-warning/10 hover:bg-white/[0.04] transition-colors">
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-semantic-warning/20 text-semantic-warning font-bold text-sm">
                                   {i + 1}
                                 </div>
                                 <div>
@@ -409,16 +424,17 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 return <pre className="mt-5 min-h-[20rem] whitespace-pre-wrap rounded-[24px] border border-white/10 bg-white/[0.03] p-4 font-mono text-[13px] leading-7 text-white/86">{streamedReport}</pre>;
               }
             })()}
+            </div>
           </div>
 
           <div className="space-y-4">
             <div className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/48">{t("auditConsole.live.snapshot.title")}</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">{t("auditConsole.live.snapshot.title")}</p>
               <div className="mt-4 space-y-3">
                 {liveEvidenceItems.length > 0 ? (
                   liveEvidenceItems.map((item) => (
                     <div key={item.id} className="rounded-[22px] border border-white/10 bg-slate-950/35 px-4 py-3">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/48">{item.label}</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">{item.label}</p>
                       <p className="mt-2 text-sm leading-7 text-white/84">{item.value}</p>
                     </div>
                   ))
@@ -429,7 +445,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
             </div>
 
             <div className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/48">{t("auditConsole.sections.memoryTitle")}</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">{t("auditConsole.sections.memoryTitle")}</p>
               <div className="mt-4 space-y-3">
                 {memoryUpdates.length > 0 ? (
                   memoryUpdates.map((update) => (
@@ -561,7 +577,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
           <GlassContainer accent="violet" className="space-y-8">
             <div className="flex flex-col gap-4 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
               <div className="space-y-2">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">{t("auditConsole.missionEyebrow")}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">{t("auditConsole.missionEyebrow")}</p>
                 <h2 className="text-2xl font-semibold text-white">{t("auditConsole.missionTitle")}</h2>
                 <p className="max-w-2xl text-sm leading-7 text-brand-muted">{t(`auditConsole.phaseDescriptions.${phase}`)}</p>
               </div>
@@ -624,7 +640,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {metrics.map((metric) => (
                 <motion.div key={metric.id} layout className="rounded-[24px] border border-white/10 bg-white/[0.04] px-4 py-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/48">{metric.label}</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">{metric.label}</p>
                   <p
                     className={[
                       "mt-3 text-lg font-semibold",
@@ -715,15 +731,16 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                   type="button"
                   onClick={fetchHistory}
                   disabled={isLoadingHistory}
-                  className="rounded-full bg-white/5 hover:bg-white/10 p-2 text-white/70 hover:text-white transition disabled:opacity-50"
+                  className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-white/5 hover:bg-white/10 p-2 text-white/70 hover:text-white transition disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none"
+                  aria-label="Refresh history"
                   title="Refresh history"
                 >
-                  <RefreshCcw className={`h-4 w-4 ${isLoadingHistory ? "animate-spin" : ""}`} />
+                  <RefreshCcw className={`h-5 w-5 ${isLoadingHistory ? "animate-spin" : ""}`} />
                 </button>
               </div>
 
               {isLoadingHistory ? (
-                <div className="py-6 text-center text-sm text-white/50">Loading runs...</div>
+                <div className="py-6 text-center text-sm text-white/60">Loading runs...</div>
               ) : historyItems.length > 0 ? (
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 max-h-[22rem] overflow-y-auto pr-1">
                   {historyItems.map((item) => {
@@ -757,12 +774,12 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                           <span className="font-sans font-medium truncate max-w-[12rem] text-white">
                             {item.url}
                           </span>
-                          <span className="text-[10px] text-white/40 whitespace-nowrap">
+                          <span className="text-[10px] text-white/60 whitespace-nowrap">
                             {dateStr}
                           </span>
                         </div>
                         <div className="flex items-center justify-between gap-2 text-xs w-full">
-                          <span className="text-white/45 truncate">
+                          <span className="text-white/60 truncate">
                             {item.result?.model || "Standard engine"}
                           </span>
                           <span className={[
@@ -779,7 +796,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                   })}
                 </div>
               ) : (
-                <div className="rounded-[18px] border border-dashed border-white/8 px-4 py-5 text-center text-sm leading-6 text-white/50">
+                <div className="rounded-[18px] border border-dashed border-white/8 px-4 py-5 text-center text-sm leading-6 text-white/60">
                   No automated audit history found. Submit your first analysis URL above to start tracking performance runs.
                 </div>
               )}
@@ -813,7 +830,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                   <button
                     type="button"
                     onClick={() => setSelectedHistoryAudit(null)}
-                    className="rounded-full p-2 text-white/50 hover:bg-white/10 hover:text-white transition"
+                    className="rounded-full p-2 text-white/60 hover:bg-white/10 hover:text-white transition focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
                   >
                     <X className="h-5 w-5" />
                   </button>

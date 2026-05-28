@@ -161,7 +161,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
             <label className="block space-y-3">
               <span className="text-sm font-medium text-white/90">{t("intake.fields.url")}</span>
               <div className="relative">
-                <Waypoints className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/40" />
+                <Waypoints className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/60" />
                 <input
                   type="url"
                   value={formState.url}
@@ -308,7 +308,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
           <label className="block space-y-3">
             <span className="text-sm font-medium text-white/90">{t("intake.fields.contactEmail")}</span>
             <div className="relative">
-              <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/40" />
+              <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/60" />
               <input
                 type="email"
                 value={formState.contactEmail}
@@ -339,7 +339,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
           <label className="block space-y-3">
             <span className="text-sm font-medium text-white/90">{t("intake.fields.notes")}</span>
             <div className="relative">
-              <MessageSquareText className="pointer-events-none absolute left-4 top-5 h-5 w-5 text-white/40" />
+              <MessageSquareText className="pointer-events-none absolute left-4 top-5 h-5 w-5 text-white/60" />
               <textarea
                 value={formState.notes}
                 onChange={(event) => {

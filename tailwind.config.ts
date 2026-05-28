@@ -8,16 +8,28 @@ export default {
         brand: {
           slate: "#0B0F19",
           surface: "#111827",
-          purple: "#8B5CF6",
-          cyan: "#06B6D4",
+          purple: "#8B5CF6",   // Violet Token
+          cyan: "#06B6D4",     // Cyan Token
           blue: "#1D4ED8",
           text: "#F8FAFC",
           muted: "#94A3B8",
           danger: "#FB7185",
         },
+        // Semantic Tokens from design-tokens.json
+        semantic: {
+          success: "#10b981",
+          warning: "#f59e0b",
+          danger: "#f43f5e",
+        },
+        surface: {
+          background: "#020617", // Root Background
+          glass: "rgba(255, 255, 255, 0.03)",
+          glassHover: "rgba(255, 255, 255, 0.06)",
+        }
       },
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
+        sans: ["Inter", "San Francisco", "system-ui", "sans-serif"],
+        mono: ["JetBrains Mono", "Fira Code", "monospace"],
       },
       boxShadow: {
         glass: "0 0 0 1px rgba(255,255,255,0.08), 0 24px 80px rgba(2,6,23,0.45)",

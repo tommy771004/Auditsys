@@ -2,8 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    font-family: 'Inter', 'San Francisco', system-ui, sans-serif;
+    background-color: theme('colors.surface.background');
+    color: theme('colors.brand.text');
+    scroll-behavior: smooth;
+    /* Optimize font rendering on macOS/iOS */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    touch-action: manipulation;
+  }
+}
+
 @layer components {
   .glass-panel {
-    @apply border border-white/10 bg-brand-slate/85 shadow-glass backdrop-blur-2xl;
+    @apply border border-white/10 bg-surface-background/85 shadow-glass backdrop-blur-2xl;
   }
 }

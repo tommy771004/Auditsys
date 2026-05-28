@@ -221,7 +221,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
                   <label className="block space-y-3">
                     <span className="text-sm font-medium text-white/90">{t("hero.inputLabel")}</span>
                     <div className="group relative">
-                      <Globe2 className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/40 transition group-focus-within:text-brand-cyan" />
+                      <Globe2 className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/60 transition group-focus-within:text-brand-cyan" />
                       <input
                         type="url"
                         inputMode="url"

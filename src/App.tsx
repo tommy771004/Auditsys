@@ -17,6 +17,7 @@ import Pricing from "./pages/Pricing";
 import SampleReport from "./pages/SampleReport";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
+import Campaign from "./pages/Campaign";
 import type { AppRoute } from "./types/home";
 
 export default function App() {
@@ -54,6 +55,8 @@ export default function App() {
         return <Login onNavigate={navigate} />;
       case "admin":
         return <Admin onNavigate={navigate} />;
+      case "campaign":
+        return <Campaign onNavigate={navigate} />;
       case "home":
       default:
         return <Home activeSection={section} onNavigate={navigate} />;

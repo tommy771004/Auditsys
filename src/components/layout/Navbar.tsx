@@ -36,6 +36,11 @@ const navigationItems: NavLinkItem[] = [
     route: "pricing",
     labelKey: "navbar.pricing",
   },
+  {
+    id: "campaign",
+    route: "campaign",
+    labelKey: "navbar.campaign",
+  },
 ];
 
 interface NavbarProps {
@@ -90,7 +95,7 @@ export default function Navbar({ currentRoute, currentSection, onNavigate }: Nav
           <div className="flex items-center justify-between gap-4">
             <button
               type="button"
-              className="text-left text-lg font-semibold tracking-tight text-white transition hover:text-brand-cyan"
+              className="flex items-center gap-2 text-xl font-bold tracking-tight text-white transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none rounded-lg"
               onClick={() => {
                 handleNavigation("home", "overview");
               }}
@@ -104,7 +109,7 @@ export default function Navbar({ currentRoute, currentSection, onNavigate }: Nav
                   key={item.id}
                   type="button"
                   className={[
-                    "rounded-full px-4 py-2 text-sm font-medium transition active:scale-[0.98]",
+                    "rounded-full px-4 py-2 text-sm font-medium transition active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none",
                     isActiveItem(item) ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/[0.08] hover:text-white",
                   ]
                     .filter(Boolean)
@@ -122,14 +127,14 @@ export default function Navbar({ currentRoute, currentSection, onNavigate }: Nav
               <LanguageSwitcher />
               <button
                 onClick={hasToken ? () => handleNavigation(dashboardRoute) : handleAuthAction}
-                className="text-sm font-medium text-white/70 hover:text-white transition px-2"
+                className="text-sm font-medium text-white/70 hover:text-white transition px-2 py-1 focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none rounded-md"
               >
                 {hasToken ? dashboardLabel : "Login"}
               </button>
               {hasToken && (
                 <button
                   onClick={handleAuthAction}
-                  className="text-sm font-medium text-white/70 hover:text-brand-danger transition px-2"
+                  className="text-sm font-medium text-white/70 hover:text-brand-danger transition px-2 py-1 focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none rounded-md"
                 >
                   Logout
                 </button>
@@ -149,7 +154,7 @@ export default function Navbar({ currentRoute, currentSection, onNavigate }: Nav
               <LanguageSwitcher />
               <button
                 type="button"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-slate-950/30 text-white/80 backdrop-blur-xl transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-slate-950/30 text-white/80 backdrop-blur-xl transition hover:border-white/20 hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none"
                 onClick={() => {
                   setIsMenuOpen((currentValue) => !currentValue);
                 }}

@@ -17,7 +17,7 @@ export default function GlassContainer({ children, className, accent = "violet",
     <motion.section
       layout
       className={[
-        "relative overflow-hidden rounded-[32px] border border-white/10 bg-slate-900/50 p-6 backdrop-blur-xl sm:p-8",
+        "relative overflow-hidden rounded-[32px] border border-white/10 bg-slate-900/50 p-5 backdrop-blur-xl sm:p-8",
         "before:pointer-events-none before:absolute before:inset-x-10 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/65 before:to-transparent",
         accentClassNames[accent],
         className,

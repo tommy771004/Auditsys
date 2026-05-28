@@ -8,7 +8,8 @@
     "pricing": "AuditLens | Pricing",
     "report": "AuditLens | Sample Report",
     "intake": "AuditLens | Intake",
-    "console": "AuditLens | Agent Mission Control"
+    "console": "AuditLens | Agent Mission Control",
+    "campaign": "AuditLens | Marketing Campaigns"
   },
   "navbar": {
     "overview": "Overview",
@@ -17,6 +18,7 @@
     "console": "Mission Control",
     "pricing": "Pricing",
     "intake": "Intake",
+    "campaign": "Campaigns",
     "startScan": "Start Scan",
     "openMenu": "Open navigation menu",
     "closeMenu": "Close navigation menu"
@@ -780,6 +782,55 @@
       "viewReport": "View sample report",
       "viewPricing": "View pricing",
       "launchConsole": "Launch Live Audit Console"
+    }
+  },
+  "campaign": {
+    "badge": "Marketing Hub",
+    "title": "Agency Campaign Assets",
+    "description": "A/B tested ad copy and nurture sequences built to drive high-intent leads to the intake flow.",
+    "googleAds": {
+      "eyebrow": "Search Intent",
+      "title": "Google Ads Copy",
+      "headline1": "Stop Guessing. Let AI Audit Your Site.",
+      "headline2": "The First Autonomous Web Auditor.",
+      "description": "Don't wait for users to report bugs. AuditLens uses AI to find UX, security, and architecture flaws in 3 minutes. Try it free.",
+      "sitelinks": "See Example Report | Pricing | For Agencies",
+      "keywords": "Target Keywords: \"AI website auditor\", \"automated pentesting web\", \"React performance audit\""
+    },
+    "socialAds": {
+      "eyebrow": "Demand Generation",
+      "title": "Meta / LinkedIn Assets",
+      "test1": {
+        "title": "A/B Test 1 (The Fear Angle - LinkedIn)",
+        "visual": "A sleek dark-mode terminal showing a critical architecture vulnerability being flagged in red, contrasting against a blurred background.",
+        "text": "Your latest deployment just introduced 3 critical UX flaws. Are you waiting for a customer to complain, or do you want to fix it now?",
+        "cta": "Start Free Audit"
+      },
+      "test2": {
+        "title": "A/B Test 2 (The Magic Angle - Meta)",
+        "visual": "A time-lapse video of AuditLens scanning a messy webpage and instantly generating a clean, executive-ready PDF report.",
+        "text": "Send this report to your client and watch them sign the retainer. AI-powered web audits built for agencies.",
+        "cta": "Learn More"
+      }
+    },
+    "emailSequence": {
+      "eyebrow": "Nurture Campaign",
+      "title": "Email Sequence",
+      "email1": {
+        "title": "Email 1: Welcome & The \"Aha\" Moment",
+        "subject": "Your first AI audit is waiting.",
+        "body": "Welcome to AuditLens. The best way to understand what we do is to see it break your own site (gently). [Run your first audit ->]"
+      },
+      "email2": {
+        "title": "Email 2: Value Proof (Day 3)",
+        "subject": "How ACME Corp found a $10k leak using AuditLens",
+        "body": "80% of architecture risks go unnoticed until they hit production. Here's how one scan saved a launch."
+      },
+      "email3": {
+        "title": "Email 3: Re-engagement (Day 14)",
+        "subject": "Did you fix those 3 vulnerabilities?",
+        "body": "We noticed you ran an audit two weeks ago. Web standards change fast. Run a fresh scan to ensure your recent deploys are bulletproof. [Re-scan now ->]"
+      }
     }
   }
 }

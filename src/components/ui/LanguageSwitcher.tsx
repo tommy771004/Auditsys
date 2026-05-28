@@ -63,7 +63,7 @@ export default function LanguageSwitcher() {
     <div ref={containerRef} className="relative">
       <button
         type="button"
-        className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/40 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-xl transition hover:border-white/20 hover:bg-white/10"
+        className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/10 bg-slate-950/40 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-xl transition hover:border-white/20 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none"
         onClick={() => {
           setIsOpen((currentValue) => !currentValue);
         }}
@@ -94,7 +94,7 @@ export default function LanguageSwitcher() {
                     key={option.code}
                     type="button"
                     className={[
-                      "flex w-full items-center justify-between rounded-2xl px-3 py-2 text-left text-sm transition",
+                      "flex min-h-[44px] w-full items-center justify-between rounded-2xl px-3 py-2 text-left text-sm transition focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none",
                       isActive ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/[0.08] hover:text-white",
                     ]
                       .filter(Boolean)
