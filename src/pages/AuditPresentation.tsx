@@ -381,7 +381,52 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
         {/* Interactive Deck Layout */}
         {deckData ? (
           <div id="slide-window-viewport" className="grid gap-6 lg:grid-cols-4">
-            
+
+            {/* Data-source disclosure: which numbers are measured vs modeled */}
+            {deckData.measuredEvidence && (
+              <div className={`lg:col-span-4 rounded-2xl border p-4 ${
+                deckData.measuredEvidence.source === "crux"
+                  ? "border-brand-cyan/20 bg-brand-cyan/[0.04]"
+                  : "border-amber-400/20 bg-amber-400/[0.04]"
+              }`}>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                    deckData.measuredEvidence.source === "crux"
+                      ? "bg-brand-cyan/15 text-brand-cyan"
+                      : "bg-amber-400/15 text-amber-300"
+                  }`}>
+                    {deckData.measuredEvidence.source === "crux" ? (
+                      <><CheckCircle className="h-3 w-3" />真實使用者數據 (CrUX)</>
+                    ) : (
+                      <><AlertTriangle className="h-3 w-3" />模型推估示意</>
+                    )}
+                  </span>
+                  <p className="flex-1 min-w-[240px] text-[11px] leading-relaxed text-slate-300">
+                    {deckData.measuredEvidence.note}
+                  </p>
+                </div>
+                {deckData.measuredEvidence.source === "crux" && deckData.measuredEvidence.crux && (
+                  <div className="mt-3 grid grid-cols-3 gap-2">
+                    {([
+                      { id: "lcp", label: "LCP", m: deckData.measuredEvidence.crux.lcp, fmt: (v: number) => `${(v / 1000).toFixed(2)}s` },
+                      { id: "inp", label: "INP", m: deckData.measuredEvidence.crux.inp, fmt: (v: number) => `${Math.round(v)}ms` },
+                      { id: "cls", label: "CLS", m: deckData.measuredEvidence.crux.cls, fmt: (v: number) => v.toFixed(3) },
+                    ] as const).map(({ id, label, m, fmt }) => (
+                      <div key={id} className="rounded-lg bg-white/[0.02] border border-white/[0.05] p-2">
+                        <div className="text-[10px] text-slate-400">{label}</div>
+                        <div className={`text-sm font-bold mt-0.5 ${
+                          m.rating === "good" ? "text-[#05FFC4]" : m.rating === "needs-improvement" ? "text-amber-300" : m.rating === "poor" ? "text-brand-danger" : "text-slate-400"
+                        }`}>
+                          {m.p75 != null ? fmt(m.p75) : "無數據"}
+                        </div>
+                        <div className="text-[9px] text-slate-500 mt-0.5">{m.rating ?? "—"}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Sidebar Navigation: Slide Toggles */}
             <div className="lg:col-span-1 space-y-3">
               <div className="rounded-xl bg-[#0d142a]/60 border border-white/[0.06] p-4">

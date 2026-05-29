@@ -585,6 +585,7 @@
       "modes": {
         "stub": "Stub",
         "playwright": "Playwright",
+        "crawler": "Lightweight Crawler",
         "webwright": "Webwright"
       },
       "status": {

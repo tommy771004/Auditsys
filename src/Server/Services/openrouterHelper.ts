@@ -60,8 +60,8 @@ export async function fetchOpenRouterWithFallback(apiKey: string, prompt: string
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${apiKey}`,
-          'HTTP-Referer': 'https://roamjelly.app',
-          'X-Title': 'RoamJelly'
+          'HTTP-Referer': process.env.OPENROUTER_APP_URL || 'https://auditlens.app',
+          'X-Title': process.env.OPENROUTER_APP_TITLE || 'AuditLens'
         },
         body: JSON.stringify({
           model,

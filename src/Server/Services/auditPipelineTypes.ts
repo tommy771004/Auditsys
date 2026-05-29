@@ -53,7 +53,7 @@ export interface DeterministicCollectorResult {
 }
 
 export interface BrowserCollectorRuntime {
-  runner: "stub" | "playwright" | "webwright";
+  runner: "stub" | "playwright" | "crawler" | "webwright";
   instruction: string;
   startUrl: string;
   finalUrl?: string;
@@ -94,7 +94,7 @@ export interface BrowserCollectorArtifacts {
 export interface BrowserCollectorResult {
   stage: "browser";
   status: "completed" | "partial" | "skipped" | "failed";
-  mode: "stub" | "playwright" | "webwright";
+  mode: "stub" | "playwright" | "crawler" | "webwright";
   startedAt: string;
   completedAt: string;
   runtime: BrowserCollectorRuntime;

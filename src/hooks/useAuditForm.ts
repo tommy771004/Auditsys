@@ -54,12 +54,8 @@ export function useAuditForm(): UseAuditFormResult {
     setIsLoading(true);
 
     try {
-      // Small delay for UI feedback
-      await new Promise((resolve) => window.setTimeout(resolve, 600));
-      
       // We no longer call postAuditRequest here to avoid duplicate LLM execution.
       // Instead, we just signal success, and let the AuditConsole handle the actual API call.
-      
       setIsSuccess(true);
     } catch (error: any) {
       setIsError(true);

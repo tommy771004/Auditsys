@@ -15,7 +15,8 @@ import { collectDeterministicEvidence } from "./src/Server/Services/deterministi
 import { fetchCruxReport } from "./src/Server/Services/cruxCollector";
 import { fetchOpenRouterWithFallback } from "./src/Server/Services/openrouterHelper";
 import type { LiveScanSummary } from "./src/types/liveAudit.types";
-import { AUDIT_TARGET_REDIRECT_LIMIT_ERROR, canSelfServePlanChange, getRequiredJwtSecret, parseSubscriptionPlan, UNSAFE_AUDIT_TARGET_ERROR } from "./src/Server/Services/securityPolicies";
+import type { PresentationMeasuredEvidence } from "./src/types/presentation";
+import { assertSafeAuditTargetUrl, AUDIT_TARGET_REDIRECT_LIMIT_ERROR, canSelfServePlanChange, getRequiredJwtSecret, parseSubscriptionPlan, UNSAFE_AUDIT_TARGET_ERROR } from "./src/Server/Services/securityPolicies";
 import { initDb, getDb } from "./src/db/index";
 import { users, audits, planSettings, intakeLeads } from "./src/db/schema";
 import { eq, desc, and } from "drizzle-orm";
@@ -685,6 +686,24 @@ async function startServer() {
     const normalizedTechStack = techStack || "React 前端, Node.js BFF, Azure App Service";
     const normalizedIssues = knownIssues || "首頁載入較慢、API 延遲不穩定";
     const providedSummary = auditSummary ? `\n          - 真實稽核掃描數據: ${auditSummary}` : "";
+
+    // Gather REAL measurements for the deck target before prompting/synthesizing.
+    // CrUX gives real-user Core Web Vitals; a deterministic HTTP probe gives TTFB
+    // and document signals. The SSRF guard runs first because we now fetch the target.
+    let presentationEvidence: PresentationEvidence | null = null;
+    if (looksLikeHttpUrl(url)) {
+      try {
+        presentationEvidence = await collectPresentationEvidence(url);
+      } catch (evidenceError: any) {
+        if (evidenceError?.message === UNSAFE_AUDIT_TARGET_ERROR) {
+          return res.status(400).json({ error: UNSAFE_AUDIT_TARGET_ERROR });
+        }
+        console.error("Presentation evidence collection failed:", evidenceError?.message);
+      }
+    }
+    const measuredEvidence = buildPresentationMeasuredEvidence(presentationEvidence);
+    const measuredContext = buildMeasuredPromptContext(presentationEvidence);
+
     const user = (req as any).user;
     const db = getDb();
     const dbUser = await db.select().from(users).where(eq(users.id, user.id)).then(rows => rows[0]);
@@ -717,8 +736,12 @@ async function startServer() {
           2. 不要使用任何簡體字、大陸用語（不要用性能、內存、分辨率、響應等，用效能、記憶體、解析度、回應替代）。
           3. 必須輸出一個合法的、乾淨的 JSON 物件，完全匹配以下指定的 JSON Schema。請不要用 markdown 的 \`\`\`json ... \`\`\` 來封裝 output，只輸出純 JSON 字串即可，否則將無法解析。
           4. 語氣必須具備絕對的商業權威性、客觀、分析嚴密。
+          5. 數據真實性原則（最重要）：下方【實測數據】是本次伺服器端真實量測到的數值，凡有提供者必須直接採用，不得竄改。對於未量測到的面向（如後端 N+1、CDN 命中率、壓縮率等），允許依技術棧做專業推估，但必須在該指標的 comparison 欄位明確標註「估算」二字。嚴禁將推估值偽裝成實測值。
 
-          【JSON 格式定義與結構】
+          【實測數據（伺服器端真實量測）】
+          ${measuredContext}
+
+          【JSON 格式定義與結構（以下 JSON 僅示範「欄位結構與型別」，當中所有數字皆為佔位範例，嚴禁照抄；請改用上方實測數據或專業推估填入）】
           {
             "url": "當前稽核的網址/系統名稱",
             "techStack": "當前使用的技術棧",
@@ -877,7 +900,7 @@ async function startServer() {
             ]
           }
 
-          請嚴格根據你對這項技術棧 ${normalizedTechStack} 和這項已知痛點 ${normalizedIssues} 的理解進行客觀的、硬核的架構推理解析，並在 bullets、explanations、metrics 以及 chartData 中體現對應技術名詞與實踐（例如若是 .NET 8, 提及 LINQ 延遲或 EF Core、SQL Clustered Index, Kestrel 執行緒；若是 React 或者是其他，提及相對應的技術）。僅返回純 JSON。若不能產出，則自動遵循上面範例。
+          請嚴格根據你對這項技術棧 ${normalizedTechStack} 和這項已知痛點 ${normalizedIssues} 的理解進行客觀的、硬核的架構推理解析，並在 bullets、explanations、metrics 以及 chartData 中體現對應技術名詞與實踐（例如若是 .NET 8, 提及 LINQ 延遲或 EF Core、SQL Clustered Index, Kestrel 執行緒；若是 React 或者是其他，提及相對應的技術）。核心網頁指標（LCP/INP/CLS）若上方實測數據有提供，務必直接採用其數值與評級；未量測者標註「估算」。僅返回純 JSON。
         `;
 
           const response = await fetchOpenRouterWithFallback(apiKey, prompt, config?.allowedModels);
@@ -887,6 +910,7 @@ async function startServer() {
             let cleanText = textResponse.trim().replace(/^```[a-z]*\s*/i, "").replace(/\s*```$/i, "");
             const parsed = JSON.parse(cleanText);
             parsed.modelUsed = response.model;
+            parsed.measuredEvidence = measuredEvidence;
             return res.json(parsed);
           }
       } catch (openRouterError: any) {
@@ -894,17 +918,41 @@ async function startServer() {
       }
     }
 
-    // Comprehensive Fallback generator
-    const fallbackData = generateSmartPresentationFallback(url, normalizedTechStack, normalizedIssues);
+    // Comprehensive Fallback generator — uses real measurements where available.
+    const fallbackData = generateSmartPresentationFallback(url, normalizedTechStack, normalizedIssues, presentationEvidence, measuredEvidence);
     return res.json(fallbackData);
   });
 
-  function generateSmartPresentationFallback(url: string, techStack: string, knownIssues: string) {
+  function generateSmartPresentationFallback(url: string, techStack: string, knownIssues: string, evidence: PresentationEvidence | null, measuredEvidence: PresentationMeasuredEvidence) {
     const isNestDotNet = techStack.toLowerCase().includes(".net") || techStack.toLowerCase().includes("c#") || techStack.toLowerCase().includes("sql server");
     const isReact = techStack.toLowerCase().includes("react") || techStack.toLowerCase().includes("next.js") || techStack.toLowerCase().includes("nextjs");
     const isVercel = techStack.toLowerCase().includes("vercel") || techStack.toLowerCase().includes("azure");
-    
-    const score = knownIssues.length > 50 ? 56 : 64;
+
+    // Real-user Core Web Vitals from CrUX, when available. null = not measured → labelled "估算".
+    const crux = evidence?.crux?.hasData ? evidence.crux : null;
+    const realLcpSec = crux?.metrics.lcp.p75 != null ? Number((crux.metrics.lcp.p75 / 1000).toFixed(2)) : null;
+    const realInpMs = crux?.metrics.inp.p75 != null ? Math.round(crux.metrics.inp.p75) : null;
+    const realCls = crux?.metrics.cls.p75 != null ? Number(crux.metrics.cls.p75.toFixed(3)) : null;
+    const ratingToScore = (rating: string | null | undefined): number | null =>
+      rating === "good" ? 88 : rating === "needs-improvement" ? 68 : rating === "poor" ? 44 : null;
+    const cwvRatingScores = crux
+      ? [crux.metrics.lcp.rating, crux.metrics.inp.rating, crux.metrics.cls.rating].map(ratingToScore).filter((v): v is number => v != null)
+      : [];
+    const cwvHealth = (rating: string | null | undefined): "red" | "yellow" | "green" =>
+      rating === "good" ? "green" : rating === "needs-improvement" ? "yellow" : rating === "poor" ? "red" : "red";
+    const worstCwvRating = crux
+      ? ([crux.metrics.lcp.rating, crux.metrics.inp.rating, crux.metrics.cls.rating].includes("poor")
+          ? "poor"
+          : [crux.metrics.lcp.rating, crux.metrics.inp.rating, crux.metrics.cls.rating].includes("needs-improvement")
+            ? "needs-improvement"
+            : "good")
+      : null;
+    const estTag = "（估算，無 CrUX 實測）";
+
+    // Score: derive from real CWV ratings when measured, otherwise the heuristic estimate.
+    const score = cwvRatingScores.length > 0
+      ? Math.round(cwvRatingScores.reduce((a, b) => a + b, 0) / cwvRatingScores.length)
+      : (knownIssues.length > 50 ? 56 : 64);
 
     const slides = [
       {
@@ -942,30 +990,38 @@ async function startServer() {
         slideId: 2,
         title: "前端渲染與使用者體驗分析",
         subtitle: "Frontend UX & Rendering Metrics",
-        healthStatus: "red",
+        healthStatus: crux ? cwvHealth(worstCwvRating) : "red",
         bullets: [
-          isReact ? "LCP (最大內容繪製) 過高：主 Bundle 包缺乏 Code-Splitting 分割，使最大視覺區塊首屏載入受嚴重阻塞。" : "LCP 指標低下：大量關鍵渲染 CSS 與非優先腳本阻塞了瀏覽器的主渲染線索。",
-          "INP (與下個繪製互動) 過高：主線程在 Hydration 過程中被大型 JavaScript 元件樹的初始化解析長期鎖止，造成使用者輸入卡頓。",
-          "CLS (累計版面配置位移) 風險存在：缺少明確版面尺寸定義的動態資產（如 Banner 廣告、客製字型）造成版面大幅晃動。"
+          crux
+            ? `LCP (最大內容繪製) 實測 ${realLcpSec ?? "無數據"} 秒，CrUX 評級「${crux.metrics.lcp.rating ?? "無"}」。${(realLcpSec ?? 0) > 2.5 ? "高於 Google 綠色基準 2.5 秒，最大視覺區塊首屏載入受阻。" : "已達 Google 綠色基準。"}`
+            : (isReact ? "LCP (最大內容繪製) 偏高：主 Bundle 包缺乏 Code-Splitting 分割，使最大視覺區塊首屏載入受阻。" : "LCP 指標偏低：大量關鍵渲染 CSS 與非優先腳本阻塞了瀏覽器的主渲染線索。"),
+          crux
+            ? `INP (與下個繪製互動) 實測 ${realInpMs ?? "無數據"} 毫秒，CrUX 評級「${crux.metrics.inp.rating ?? "無"}」。${(realInpMs ?? 0) > 200 ? "主執行緒受 JavaScript Hydration 鎖止，使用者輸入有延遲。" : "互動回應已達標。"}`
+            : "INP (與下個繪製互動) 偏高：主線程在 Hydration 過程中被大型 JavaScript 元件樹的初始化解析鎖止，造成使用者輸入卡頓。",
+          crux
+            ? `CLS (累計版面配置位移) 實測 ${realCls ?? "無數據"}，CrUX 評級「${crux.metrics.cls.rating ?? "無"}」。${(realCls ?? 0) > 0.1 ? "動態資產缺少版面尺寸定義，造成版面晃動。" : "版面穩定度達標。"}`
+            : "CLS (累計版面配置位移) 風險存在：缺少明確版面尺寸定義的動態資產（如 Banner 廣告、客製字型）造成版面晃動。"
         ],
         explanations: [
-          isReact ? "React 應用載入時常伴隨巨量主 Bundle 包（如第三方分析、過時 Library），在行動端 CPU 弱裝置上往往耗費數秒時間載入並進行解析。" : "CSS Web Font 未配置 font-display: swap 導致字體載入前半白屏無字；多個外部 JavaScript 同步下載阻塞了瀏覽器畫面的第一次繪製效率。",
-          "當前使用者點擊按鈕或輸入輸入框時感知到的滯澀，是因為 JavaScript Hydration 嚴重擠占主執行緒，CPU 耗時甚至超過 400 毫秒。",
-          "在載入過程中，廣告版面或圖片完成加載後無預警伸展推下原有排版，在手機觸控板上極易造成使用者誤觸，屬於嚴重的體驗與轉換硬傷。"
+          crux
+            ? `以上 LCP / INP / CLS 為 Chrome UX Report 真實使用者欄位數據（${crux.scope === "origin" ? "網站整體範圍" : "此網址範圍"}${crux.collectionPeriod ? `，採集期間 ${crux.collectionPeriod}` : ""}），代表實際使用者在真實裝置與網路下的體驗。`
+            : "（注意：此目標無 CrUX 真實使用者欄位數據，以下 CWV 數值為基於技術棧的估算，僅供示意。）",
+          isReact ? "React 應用載入時常伴隨巨量主 Bundle 包（如第三方分析、過時 Library），在行動端 CPU 弱裝置上往往耗費數秒載入並解析。" : "CSS Web Font 未配置 font-display: swap 導致字體載入前半白屏；多個外部 JavaScript 同步下載阻塞了瀏覽器的第一次繪製效率。",
+          "在載入過程中，廣告版面或圖片完成加載後無預警伸展推下原有排版，在手機觸控上極易造成使用者誤觸，屬於嚴重的體驗與轉換硬傷。"
         ],
         chartType: "cvw",
         chartData: [
-          { name: "LCP 最大內容繪製", current: 4.6, good: 2.5, label: "LCP (秒)" },
-          { name: "INP 與下個繪製互動", current: 450, good: 200, label: "INP (毫秒)" },
-          { name: "CLS 累計版面配置位移", current: 0.25, good: 0.1, label: "CLS (位移值)" }
+          { name: "LCP 最大內容繪製", current: realLcpSec ?? 4.6, good: 2.5, label: "LCP (秒)" },
+          { name: "INP 與下個繪製互動", current: realInpMs ?? 450, good: 200, label: "INP (毫秒)" },
+          { name: "CLS 累計版面配置位移", current: realCls ?? 0.25, good: 0.1, label: "CLS (位移值)" }
         ],
         metrics: [
-          { label: "LCP 最大內容繪製", value: "4.6", unit: "秒", comparison: "Google 綠色基準：2.5秒內" },
-          { label: "INP 互動響應延遲", value: "450", unit: "毫秒", comparison: "Google 綠色基準：200毫秒內" },
-          { label: "CLS 累計佈局位移", value: "0.25", unit: "位移值", comparison: "Google 綠色基準：0.1以下" }
+          { label: "LCP 最大內容繪製", value: realLcpSec != null ? String(realLcpSec) : "4.6", unit: "秒", comparison: realLcpSec != null ? `CrUX 實測 · Google 綠色基準：2.5秒內` : `Google 綠色基準：2.5秒內 ${estTag}` },
+          { label: "INP 互動響應延遲", value: realInpMs != null ? String(realInpMs) : "450", unit: "毫秒", comparison: realInpMs != null ? `CrUX 實測 · Google 綠色基準：200毫秒內` : `Google 綠色基準：200毫秒內 ${estTag}` },
+          { label: "CLS 累計佈局位移", value: realCls != null ? String(realCls) : "0.25", unit: "位移值", comparison: realCls != null ? `CrUX 實測 · Google 綠色基準：0.1以下` : `Google 綠色基準：0.1以下 ${estTag}` }
         ],
-        technicalInsight: "必須引進現代代碼拆分、延遲載入非核心 JS、內聯核心路徑 css，以及指定排版圖片的寬高，以徹底解決三項 CWV 的紅色警示。",
-        businessTakeaway: "將 Core Web Vitals 均優化至綠色安全值後，轉換率平均可提高 11% 以上，並全面改善行動裝置的使用流暢滿意度。"
+        technicalInsight: "必須引進現代代碼拆分、延遲載入非核心 JS、內聯核心路徑 CSS，以及指定排版圖片的寬高，以改善三項 CWV。",
+        businessTakeaway: "將 Core Web Vitals 優化至綠色安全值後，轉換率平均可提高 11% 以上，並全面改善行動裝置的使用流暢滿意度。"
       },
       {
         slideId: 3,
@@ -990,9 +1046,9 @@ async function startServer() {
           { name: "API 網路下載延遲", current: 400, target: 150 }
         ],
         metrics: [
-          { label: "資料 N+1 慢查詢", value: "偵測到預期瓶頸", unit: "警示", comparison: "亟需以 Join/Select 裁剪改進" },
-          { label: "API payload 體積", value: "2.5", unit: "MB", comparison: "業界高標準：200KB 內" },
-          { label: "後端快取配置", value: "目前無有效快取", unit: "狀態", comparison: "必須置入記憶體快取或預加載" }
+          { label: "資料 N+1 慢查詢", value: "偵測到預期瓶頸", unit: "警示", comparison: "亟需以 Join/Select 裁剪改進（模型推估）" },
+          { label: "API payload 體積", value: "2.5", unit: "MB", comparison: "業界高標準：200KB 內（模型推估）" },
+          { label: "後端快取配置", value: "目前無有效快取", unit: "狀態", comparison: "必須置入記憶體快取或預加載（模型推估）" }
         ],
         technicalInsight: `「${techStack}」之後端需要實施 DTO 全面裁剪與 SQL 集群預加載，杜絕多餘的關聯樹序列化和無謂內存浪費。`,
         businessTakeaway: "解決資料層慢查詢與引入 Redis 快取後，API 的回應速度普遍可提振 80%，不僅節省 65% 源伺服器開銷，更消除了高流量當機威脅。"
@@ -1019,9 +1075,9 @@ async function startServer() {
           { name: "CDN 繞過 Bypass", value: 20, label: "BYPASS" }
         ],
         metrics: [
-          { label: "CDN 快取命中率", value: "25%", unit: "百分比", comparison: "業界優良目標：80%以上" },
-          { label: "靜態與 API 壓縮力", value: "限制普通 Gzip", unit: "狀態", comparison: "建議更換為 Brotli 極致壓縮" },
-          { label: "連線協定", value: "HTTP/1.1 混雜", unit: "協定", comparison: "極佳推薦升級 HTTP/2 ＆ HTTP/3" }
+          { label: "CDN 快取命中率", value: "25%", unit: "百分比", comparison: "業界優良目標：80%以上（模型推估）" },
+          { label: "靜態與 API 壓縮力", value: "限制普通 Gzip", unit: "狀態", comparison: "建議更換為 Brotli 極致壓縮（模型推估）" },
+          { label: "連線協定", value: "HTTP/1.1 混雜", unit: "協定", comparison: "極佳推薦升級 HTTP/2 ＆ HTTP/3（模型推估）" }
         ],
         technicalInsight: "為部署資產加上永恆快取 Hash，並更換為動態 Brotli 壓縮（壓縮比高 30% 級別），是解決傳輸瀑布死鎖的不二法則。",
         businessTakeaway: "優化 CDN 快取命中率至 85% 後，除了大幅減輕伺服器原站頻寬費用負擔，還能在高流量促銷時確保全網極速加載不塞車。"
@@ -1064,8 +1120,98 @@ async function startServer() {
       generatedAt: new Date().toISOString(),
       overallScore: score,
       slides,
-      modelUsed: "Offline Fallback Generator"
+      modelUsed: crux ? "Offline Fallback Generator (CrUX-grounded)" : "Offline Fallback Generator",
+      measuredEvidence,
     };
+  }
+
+  // --- Presentation evidence collection (real measurements for the deck) ---
+  type PresentationEvidence = {
+    deterministic: Awaited<ReturnType<typeof collectDeterministicEvidence>> | null;
+    crux: Awaited<ReturnType<typeof fetchCruxReport>> | null;
+  };
+
+  function looksLikeHttpUrl(value: string): boolean {
+    try {
+      const parsed = new URL(value);
+      return parsed.protocol === "http:" || parsed.protocol === "https:";
+    } catch {
+      return false;
+    }
+  }
+
+  async function collectPresentationEvidence(targetUrl: string): Promise<PresentationEvidence> {
+    // SSRF guard FIRST — we are about to fetch the target server-side. Throws
+    // UNSAFE_AUDIT_TARGET_ERROR on private/reserved/credentialed/non-http targets.
+    await assertSafeAuditTargetUrl(targetUrl);
+    const [deterministic, crux] = await Promise.all([
+      collectDeterministicEvidence({ url: targetUrl }).catch((err: any) => {
+        console.error("Presentation deterministic probe failed:", err?.message);
+        return null;
+      }),
+      fetchCruxReport(targetUrl).catch((err: any) => {
+        console.error("Presentation CrUX fetch failed:", err?.message);
+        return null;
+      }),
+    ]);
+    return { deterministic, crux };
+  }
+
+  function buildPresentationMeasuredEvidence(evidence: PresentationEvidence | null): PresentationMeasuredEvidence {
+    const crux = evidence?.crux?.hasData ? evidence.crux : null;
+    const det = evidence?.deterministic ?? null;
+    const note = crux
+      ? `核心網頁指標 (LCP/INP/CLS) 來自 Chrome UX Report 真實使用者欄位數據${crux.scope === "origin" ? "（網站整體範圍）" : "（此網址範圍）"}${crux.collectionPeriod ? `，採集期間 ${crux.collectionPeriod}` : ""}。後端、資料層與基礎架構等無法遠端量測的項目為模型推估。`
+      : `此目標無 CrUX 真實使用者欄位數據；所有效能數值均為基於技術棧與已知痛點的模型推估，僅供示意。`;
+    return {
+      source: crux ? "crux" : "modeled",
+      crux: crux
+        ? {
+            hasData: true,
+            scope: crux.scope,
+            collectionPeriod: crux.collectionPeriod,
+            lcp: { p75: crux.metrics.lcp.p75, rating: crux.metrics.lcp.rating },
+            inp: { p75: crux.metrics.inp.p75, rating: crux.metrics.inp.rating },
+            cls: { p75: crux.metrics.cls.p75, rating: crux.metrics.cls.rating },
+          }
+        : null,
+      responseTimeMs: det?.responseTimeMs ?? null,
+      server: det?.headers?.server ?? null,
+      note,
+    };
+  }
+
+  function buildMeasuredPromptContext(evidence: PresentationEvidence | null): string {
+    if (!evidence) {
+      return "（本次未取得任何伺服器端實測數據，請完全依據技術棧與已知痛點進行嚴謹推理，並在所有 metrics 的 comparison 欄位明確標註「估算」。）";
+    }
+    const lines: string[] = [];
+    const crux = evidence.crux?.hasData ? evidence.crux : null;
+    if (crux) {
+      lines.push(`核心網頁指標 (Chrome UX Report${crux.scope === "origin" ? "，網站整體" : "，此網址"}${crux.collectionPeriod ? `，${crux.collectionPeriod}` : ""}):`);
+      lines.push(`- LCP p75: ${crux.metrics.lcp.p75 == null ? "無數據" : `${(crux.metrics.lcp.p75 / 1000).toFixed(2)} 秒`}（評級 ${crux.metrics.lcp.rating ?? "無"}）`);
+      lines.push(`- INP p75: ${crux.metrics.inp.p75 == null ? "無數據" : `${Math.round(crux.metrics.inp.p75)} 毫秒`}（評級 ${crux.metrics.inp.rating ?? "無"}）`);
+      lines.push(`- CLS p75: ${crux.metrics.cls.p75 == null ? "無數據" : crux.metrics.cls.p75.toFixed(3)}（評級 ${crux.metrics.cls.rating ?? "無"}）`);
+    } else {
+      lines.push("核心網頁指標：此目標無 CrUX 真實使用者欄位數據；LCP/INP/CLS 必須標註為估算。");
+    }
+    const det = evidence.deterministic;
+    if (det) {
+      const probe: string[] = [];
+      if (det.responseTimeMs != null) probe.push(`首次回應時間（近似 TTFB）${det.responseTimeMs} 毫秒`);
+      if (det.statusCode != null) probe.push(`HTTP 狀態碼 ${det.statusCode}`);
+      if (det.headers?.server) probe.push(`Server 標頭「${det.headers.server}」`);
+      if (det.headers?.cacheControl) probe.push(`Cache-Control「${det.headers.cacheControl}」`);
+      if (det.document?.counts) {
+        const c = det.document.counts;
+        probe.push(`文件資產：腳本 ${c.scripts}、樣式表 ${c.stylesheets}、圖片 ${c.images}（缺 alt ${c.imagesMissingAlt}）`);
+      }
+      if (probe.length > 0) {
+        lines.push("伺服器端單次 HTTP 探測:");
+        probe.forEach((entry) => lines.push(`- ${entry}`));
+      }
+    }
+    return lines.length > 0 ? lines.join("\n") : "（無可用實測數據。）";
   }
 
   // Sitemap Generator

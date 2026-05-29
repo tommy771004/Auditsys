@@ -591,6 +591,7 @@
       "modes": {
         "stub": "Stub",
         "playwright": "Playwright",
+        "crawler": "輕量爬蟲",
         "webwright": "Webwright"
       },
       "status": {

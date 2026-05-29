@@ -146,13 +146,9 @@ export function useIntakeWizard(): UseIntakeWizardResult {
     setIsLoading(true);
 
     try {
-      // Small delay for UI feedback
-      await new Promise((resolve) => window.setTimeout(resolve, 600));
-
       // Instead of running the LLM audit here, we just signal success
       // and let AuditConsole.tsx handle the actual API call to /api/intake.
       // We will save the form state in Home/Intake to pass to the console.
-      
       setIsSuccess(true);
     } catch (error: any) {
       setIsError(true);

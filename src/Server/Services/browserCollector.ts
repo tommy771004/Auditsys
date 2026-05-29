@@ -281,7 +281,9 @@ function getBrowserMode(): BrowserCollectorResult["mode"] {
     return configuredMode as any;
   }
 
-  // Default to playwright so we have mock evidence instead of stub mode warning
+  // Default to the "playwright" env value, which routes to the real fetch-based
+  // crawler (buildCrawlerResult). The crawler reports its honest mode as "crawler";
+  // this is only the config token that selects which collector path runs.
   return "playwright";
 }
 
@@ -844,16 +846,16 @@ async function buildCrawlerResult(payload: AuditRequestPayload, deterministic: D
   return {
     stage: "browser",
     status,
-    mode: "playwright",
+    mode: "crawler",
     startedAt,
     completedAt: new Date().toISOString(),
     runtime: {
-      runner: "playwright",
+      runner: "crawler",
       instruction: `Inspect ${payload.url} using a lightweight multi-route fetch crawler for flow and timing validation.`,
       startUrl: payload.url,
       finalUrl,
       taskId: "lightweight-crawler-task",
-      workspaceDir: "outputs/playwright",
+      workspaceDir: "outputs/crawler",
     },
     pages,
     flows,
