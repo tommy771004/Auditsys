@@ -616,7 +616,17 @@ async function startServer() {
           ? await htmlResponse.text()
           : "";
         if (html) {
-          const networkEvidence = await collectNetworkProbe(html, finalUrl);
+          // Opt-in real-browser collector; falls back to the fetch probe when
+          // the mode is off or Playwright (an optional dep) is not installed.
+          let networkEvidence = await collectNetworkProbe(html, finalUrl);
+          if (process.env.BROWSER_COLLECTOR_MODE === "playwright-real") {
+            try {
+              const { collectPlaywrightEvidence } = await import("./src/Server/Services/playwrightCollector");
+              networkEvidence = await collectPlaywrightEvidence(finalUrl);
+            } catch {
+              sendLog("warn", "Playwright 收集器無法使用，改用 fetch 探針結果。");
+            }
+          }
           const findings = analyzeNetworkBottlenecks(networkEvidence);
           for (const line of formatBottleneckReport(findings)) {
             if (closed) return res.end();
