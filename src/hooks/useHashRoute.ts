@@ -10,7 +10,7 @@ interface UseHashRouteResult extends RouteState {
   navigate: NavigateTo;
 }
 
-const knownRoutes: AppRoute[] = ["home", "pricing", "report", "intake", "console", "login", "admin"];
+const knownRoutes: AppRoute[] = ["home", "pricing", "report", "intake", "console", "live", "login", "admin", "campaign"];
 const legacyHomeSections = new Set(["overview", "features", "workflow", "scan-form"]);
 
 function isAppRoute(value: string): value is AppRoute {
