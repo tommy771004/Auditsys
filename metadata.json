@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "description": "",
+  "name": "Web Performance Auditor",
+  "description": "A comprehensive web performance auditing tool that generates slide-ready corporate reports and interactive presentation decks based on site speed metrics.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

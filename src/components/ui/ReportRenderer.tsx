@@ -1,6 +1,7 @@
-import React from "react";
-import { LayoutDashboard, Zap, Target, ShieldAlert, Flag } from "lucide-react";
+import React, { useState } from "react";
+import { LayoutDashboard, Zap, Target, ShieldAlert, Flag, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ParsedReport {
   executiveSummary?: string;
@@ -9,6 +10,47 @@ interface ParsedReport {
   architectureRisks?: { issue: string; impact: string; severity?: string }[];
   nextActions?: { action: string; impact: string }[];
 }
+
+const CollapsibleCard: React.FC<{ 
+  title: string; 
+  icon: React.ReactNode; 
+  colorClass: string; 
+  borderColorClass: string;
+  children: React.ReactNode; 
+  defaultOpen?: boolean;
+}> = ({ title, icon, colorClass, borderColorClass, children, defaultOpen = true }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <div className={`rounded-[28px] border bg-slate-950/40 shadow-lg shadow-black/20 overflow-hidden transition-colors ${borderColorClass}`}>
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between p-5 sm:p-6 text-left hover:bg-white/[0.02]"
+      >
+        <div className="flex items-center gap-3">
+          {icon}
+          <h3 className="text-sm font-bold uppercase tracking-widest text-white/90">{title}</h3>
+        </div>
+        <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+          <ChevronDown className={`h-5 w-5 ${colorClass}`} />
+        </motion.div>
+      </button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="px-5 pb-5 sm:px-6 sm:pb-6 border-t border-white/5 pt-4">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }) => {
   const { t, i18n } = useTranslation();
@@ -50,14 +92,16 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
         </div>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="flex flex-col gap-6">
         {parsed.deterministicFindings && parsed.deterministicFindings.length > 0 && (
-          <div className={`rounded-[28px] border border-brand-purple/20 bg-slate-950/40 p-5 sm:p-6 shadow-lg shadow-black/20 ${!(parsed.browserFlowGaps && parsed.browserFlowGaps.length > 0) ? "md:col-span-2" : ""}`}>
-            <div className="flex items-center gap-3 mb-5 border-b border-white/5 pb-4">
-              <Zap className="h-5 w-5 text-brand-purple" />
-              <h3 className="text-sm font-bold uppercase tracking-widest text-white/90">{isZh ? "技術發現" : "Technical Findings"}</h3>
-            </div>
-            <div className={!(parsed.browserFlowGaps && parsed.browserFlowGaps.length > 0) ? "grid gap-4 md:grid-cols-2" : "space-y-4"}>
+          <CollapsibleCard
+            title={isZh ? "技術發現" : "Technical Findings"}
+            icon={<Zap className="h-5 w-5 text-brand-purple" />}
+            colorClass="text-brand-purple"
+            borderColorClass="border-brand-purple/20"
+            defaultOpen={true}
+          >
+            <div className="grid gap-4 md:grid-cols-2">
               {parsed.deterministicFindings.map((item, i) => (
                 <div key={i} className="rounded-2xl bg-white/[0.02] p-4 border border-white/[0.05] hover:bg-white/[0.04] transition-colors">
                   <div className="flex justify-between items-start mb-2 gap-2">
@@ -68,16 +112,18 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
                 </div>
               ))}
             </div>
-          </div>
+          </CollapsibleCard>
         )}
 
         {parsed.browserFlowGaps && parsed.browserFlowGaps.length > 0 && (
-          <div className={`rounded-[28px] border border-semantic-success/20 bg-slate-950/40 p-5 sm:p-6 shadow-lg shadow-black/20 ${!(parsed.deterministicFindings && parsed.deterministicFindings.length > 0) ? "md:col-span-2" : ""}`}>
-            <div className="flex items-center gap-3 mb-5 border-b border-white/5 pb-4">
-              <Target className="h-5 w-5 text-semantic-success" />
-              <h3 className="text-sm font-bold uppercase tracking-widest text-white/90">{isZh ? "流程驗證" : "Flow Verification"}</h3>
-            </div>
-            <div className={!(parsed.deterministicFindings && parsed.deterministicFindings.length > 0) ? "grid gap-4 md:grid-cols-2" : "space-y-4"}>
+          <CollapsibleCard
+            title={isZh ? "流程驗證 (Browser evidence)" : "Flow Verification"}
+            icon={<Target className="h-5 w-5 text-semantic-success" />}
+            colorClass="text-semantic-success"
+            borderColorClass="border-semantic-success/20"
+            defaultOpen={true}
+          >
+            <div className="grid gap-4 md:grid-cols-2">
               {parsed.browserFlowGaps.map((item, i) => (
                 <div key={i} className="rounded-2xl bg-white/[0.02] p-4 border border-white/[0.05] hover:bg-white/[0.04] transition-colors">
                   <div className="flex justify-between items-start mb-2 gap-2">
@@ -88,15 +134,17 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
                 </div>
               ))}
             </div>
-          </div>
+          </CollapsibleCard>
         )}
 
         {parsed.architectureRisks && parsed.architectureRisks.length > 0 && (
-          <div className="rounded-[28px] border border-semantic-danger/20 bg-slate-950/40 p-5 sm:p-6 shadow-lg shadow-black/20 md:col-span-2">
-            <div className="flex items-center gap-3 mb-5 border-b border-white/5 pb-4">
-              <ShieldAlert className="h-5 w-5 text-semantic-danger" />
-              <h3 className="text-sm font-bold uppercase tracking-widest text-white/90">{isZh ? "架構風險" : "Architecture Risks"}</h3>
-            </div>
+          <CollapsibleCard
+            title={isZh ? "架構風險 (Architecture Lens)" : "Architecture Risks"}
+            icon={<ShieldAlert className="h-5 w-5 text-semantic-danger" />}
+            colorClass="text-semantic-danger"
+            borderColorClass="border-semantic-danger/20"
+            defaultOpen={true}
+          >
             <div className="grid gap-4 md:grid-cols-2">
               {parsed.architectureRisks.map((item, i) => (
                 <div key={i} className="rounded-2xl bg-white/[0.02] p-4 border border-white/[0.05] hover:bg-white/[0.04] transition-colors">
@@ -108,15 +156,17 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
                 </div>
               ))}
             </div>
-          </div>
+          </CollapsibleCard>
         )}
 
         {parsed.nextActions && parsed.nextActions.length > 0 && (
-          <div className="rounded-[28px] border border-semantic-warning/20 bg-slate-950/40 p-5 sm:p-6 shadow-lg shadow-black/20 md:col-span-2">
-            <div className="flex items-center gap-3 mb-5 border-b border-white/5 pb-4">
-              <Flag className="h-5 w-5 text-semantic-warning" />
-              <h3 className="text-sm font-bold uppercase tracking-widest text-white/90">{isZh ? "後續建議行動" : "Strategic Next Steps"}</h3>
-            </div>
+          <CollapsibleCard
+            title={isZh ? "後續建議行動 (Action)" : "Strategic Next Steps"}
+            icon={<Flag className="h-5 w-5 text-semantic-warning" />}
+            colorClass="text-semantic-warning"
+            borderColorClass="border-semantic-warning/20"
+            defaultOpen={true}
+          >
             <div className="grid gap-4 md:grid-cols-2">
               {parsed.nextActions.map((item, i) => (
                 <div key={i} className="flex gap-4 rounded-2xl bg-white/[0.02] p-4 border border-semantic-warning/10 hover:bg-white/[0.04] transition-colors">
@@ -130,7 +180,7 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
                 </div>
               ))}
             </div>
-          </div>
+          </CollapsibleCard>
         )}
       </div>
     </div>

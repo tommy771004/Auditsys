@@ -22,19 +22,9 @@ const navigationItems: NavLinkItem[] = [
     labelKey: "navbar.features",
   },
   {
-    id: "sampleReport",
-    route: "report",
-    labelKey: "navbar.sampleReport",
-  },
-  {
     id: "console",
     route: "console",
     labelKey: "navbar.console",
-  },
-  {
-    id: "live",
-    route: "live",
-    labelKey: "navbar.live",
   },
   {
     id: "pricing",

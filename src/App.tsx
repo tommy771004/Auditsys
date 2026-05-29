@@ -9,7 +9,9 @@ import { useTranslation } from "react-i18next";
 import Footer from "./components/layout/Footer";
 import Navbar from "./components/layout/Navbar";
 import MeshBackground from "./components/ui/MeshBackground";
+import MetaTags from "./components/ui/MetaTags";
 import { useHashRoute } from "./hooks/useHashRoute";
+import { useMetaLogger } from "./hooks/useMetaLogger";
 import AuditConsole from "./pages/AuditConsole";
 import RealAuditDashboard from "./pages/RealAuditDashboard";
 import Home from "./pages/Home";
@@ -19,6 +21,7 @@ import SampleReport from "./pages/SampleReport";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import Campaign from "./pages/Campaign";
+import AuditPresentation from "./pages/AuditPresentation";
 import type { AppRoute } from "./types/home";
 
 export default function App() {
@@ -26,9 +29,9 @@ export default function App() {
   const { navigate, route, section } = useHashRoute();
   const previousRouteRef = useRef<AppRoute | null>(null);
 
-  useEffect(() => {
-    document.title = t(`meta.${route}`);
-  }, [route, t]);
+  useMetaLogger(route);
+
+  // Note: document.title is now managed by MetaTags component
 
   useEffect(() => {
     const previousRoute = previousRouteRef.current;
@@ -60,14 +63,34 @@ export default function App() {
         return <Admin onNavigate={navigate} />;
       case "campaign":
         return <Campaign onNavigate={navigate} />;
+      case "presentation":
+        return <AuditPresentation onNavigate={navigate} />;
       case "home":
       default:
         return <Home activeSection={section} onNavigate={navigate} />;
     }
   };
 
+  const baseUrl = import.meta.env.VITE_CLIENT_URL || window.location.origin;
+  const canonicalUrl = `${baseUrl}/#${route}`;
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-brand-slate text-brand-text">
+      <MetaTags 
+        title={t(`meta.${route}`)} 
+        description={t(`metaDesc.${route}`, { defaultValue: t('metaDesc.home') })} 
+        canonicalUrl={canonicalUrl}
+        ogTitle={t(`meta.${route}`)}
+        siteName="Agentic SEO Audit"
+        ogImage={`${baseUrl}/og-image.jpg`}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "Agentic SEO Audit",
+          "url": baseUrl,
+          "description": t(`metaDesc.${route}`, { defaultValue: t('metaDesc.home') })
+        }}
+      />
       <MeshBackground variant={route === "console" || route === "live" ? "console" : "default"} />
       <Navbar currentRoute={route} currentSection={section} onNavigate={navigate} />
       <AnimatePresence mode="wait" initial={false}>

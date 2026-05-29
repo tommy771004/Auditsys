@@ -1,15 +1,22 @@
+import { useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertTriangle, Gauge, LayoutDashboard, ListChecks, Network, Search } from "lucide-react";
+import { AlertTriangle, Gauge, LayoutDashboard, ListChecks, Network, Search, Download, Loader2, ChevronDown } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../components/layout/PageContainer";
 import GlassCard from "../components/ui/GlassCard";
+import ConsoleTabs from "../components/ui/ConsoleTabs";
 import Tooltip from "../components/ui/Tooltip";
 import GlowingButton from "../components/ui/GlowingButton";
 import PageIntro from "../components/ui/PageIntro";
 import { useLatestAuditReport } from "../hooks/useLatestAuditReport";
 import { buildSampleReportViewModel, type PanelContent, type ReportSectionId } from "../services/reportViewModel";
 import type { NavigateTo } from "../types/home";
+import SeoChecklist from "../components/ui/SeoChecklist";
+import MetricRing from "../components/ui/MetricRing";
+import ProgressBar from "../components/ui/ProgressBar";
 
 interface SampleReportProps {
   activeSection: string | null;
@@ -67,6 +74,41 @@ function isReportSectionId(value: string | null): value is ReportSectionId {
   return sectionItems.some((item) => item.id === value);
 }
 
+const CollapsibleBlock: React.FC<{
+  title: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}> = ({ title, defaultOpen = true, children }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <div className="flex flex-col">
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex w-full items-center justify-between px-2 pb-4 text-left transition-colors hover:opacity-80"
+      >
+        <h3 className="text-xl font-bold tracking-tight text-white">{title}</h3>
+        <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+          <ChevronDown className="h-5 w-5 text-white/50" />
+        </motion.div>
+      </button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="pb-4">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 export default function SampleReport({ activeSection, onNavigate }: SampleReportProps) {
   const { i18n, t } = useTranslation();
   const latestReport = useLatestAuditReport();
@@ -75,8 +117,39 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
   const activePanel: PanelContent | null = viewModel ? viewModel.panelContentMap[resolvedActiveSection] : null;
   const activeSectionItem = sectionItems.find((item) => item.id === resolvedActiveSection) ?? sectionItems[0];
 
+  const [isExporting, setIsExporting] = useState(false);
+  const reportRef = useRef<HTMLDivElement>(null);
+
+  const handleExportPdf = async () => {
+    if (!reportRef.current || isExporting) return;
+    try {
+      setIsExporting(true);
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#0f172a', // Align with dark theme
+      });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`audit-report-${Date.now()}.pdf`);
+    } catch (error) {
+      console.error("Failed to generate PDF:", error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <PageContainer className="relative z-10 flex flex-col gap-10 pb-16 pt-28 sm:pt-32 lg:gap-12 lg:pb-24">
+      <ConsoleTabs currentRoute="report" onNavigate={onNavigate} />
       <motion.section {...pageMotion} className="max-w-4xl">
         <PageIntro
           eyebrow={t("report.badge")}
@@ -132,39 +205,7 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
       ) : null}
 
       {viewModel ? (
-        <section className="grid gap-6 lg:grid-cols-[96px_minmax(0,1fr)]">
-          <motion.aside {...pageMotion} className="lg:sticky lg:top-28 lg:self-start">
-            <GlassCard className="p-2">
-              <div className="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-visible">
-                {sectionItems.map((item) => {
-                  const SectionIcon = item.icon;
-                  const isActive = resolvedActiveSection === item.id;
-
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      className={[
-                        "flex min-w-[88px] flex-col items-center gap-2 rounded-[22px] px-3 py-3 text-center text-[11px] font-medium transition lg:min-w-0",
-                        isActive
-                          ? "bg-white/12 text-white shadow-[0_0_30px_rgba(139,92,246,0.18)]"
-                          : "text-white/65 hover:bg-white/[0.08] hover:text-white",
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
-                      onClick={() => {
-                        onNavigate("report", item.id);
-                      }}
-                    >
-                      <SectionIcon className="h-4 w-4" />
-                      <span>{t(item.labelKey)}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </GlassCard>
-          </motion.aside>
-
+        <section ref={reportRef} className="flex flex-col gap-6">
           <div className="space-y-6">
             <motion.div {...pageMotion} className="space-y-4">
               <div className="flex flex-wrap items-end justify-between gap-4">
@@ -172,7 +213,18 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
                   <h2 className="text-3xl font-semibold tracking-[-0.03em] text-white">{t("report.headerTitle")}</h2>
                   <p className="text-sm text-brand-muted">{viewModel.headerSubtitle}</p>
                 </div>
-                <p className="text-sm text-brand-muted">{viewModel.generatedAtLabel}</p>
+                <div className="flex items-center gap-4">
+                  <p className="text-sm text-brand-muted">{viewModel.generatedAtLabel}</p>
+                  <GlowingButton
+                    variant="ghost"
+                    loadingLabel=""
+                    onClick={handleExportPdf}
+                    disabled={isExporting}
+                  >
+                    {isExporting ? <Loader2 className="animate-spin h-3.5 w-3.5" /> : <Download className="h-3.5 w-3.5" />}
+                    {isExporting ? "Exporting..." : "Export PDF"}
+                  </GlowingButton>
+                </div>
               </div>
               <div className="flex flex-wrap gap-2">
                 {viewModel.metadataChips.map((chip) => (
@@ -196,26 +248,29 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
                         ) : (
                           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-white/55">{t(item.labelKey)}</p>
                         )}
-                        <div className="rounded-full border border-white/10 bg-slate-950/40 px-3 py-1 text-sm font-semibold text-white">{item.value}</div>
+                        <MetricRing value={item.value} delay={index * 0.1 + 0.2} />
                       </div>
-                      <p className="text-sm leading-7 text-brand-muted">{item.support}</p>
+                      <div className="space-y-3">
+                        <p className="text-sm leading-7 text-brand-muted">{item.support}</p>
+                        <ProgressBar value={item.value} delay={index * 0.1 + 0.3} />
+                      </div>
                     </div>
                   </GlassCard>
                 </motion.div>
               ))}
             </div>
 
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+            <div className="flex flex-col gap-6 w-full">
               <motion.div {...pageMotion}>
                 <GlassCard glow="purple" className="h-full p-6 sm:p-8">
-                  <AnimatePresence mode="wait">
+                  <CollapsibleBlock title={t("report.sections.overview")}>
                     <motion.div
                       key={resolvedActiveSection}
                       initial={{ opacity: 0, y: 14 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -14 }}
                       transition={{ duration: 0.2, ease: "easeOut" }}
-                      className="space-y-5"
+                      className="space-y-5 pt-4"
                     >
                       <div className="space-y-3">
                         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t(activeSectionItem.labelKey)}</p>
@@ -236,22 +291,27 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
                           </motion.div>
                         ))}
                       </div>
+                      {resolvedActiveSection === "seo" && latestReport?.evidence.deterministic.document && (
+                        <div className="mt-8 pt-4">
+                          <SeoChecklist documentEvidence={latestReport.evidence.deterministic.document} />
+                        </div>
+                      )}
                     </motion.div>
-                  </AnimatePresence>
+                  </CollapsibleBlock>
                 </GlassCard>
               </motion.div>
 
-              <div className="space-y-6">
+              <div className="flex flex-col gap-6">
                 <motion.div {...pageMotion}>
                   <GlassCard glow="cyan" className="p-6">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t("report.architectureLens.eyebrow")}</p>
-                        <h3 className="text-xl font-semibold text-white">{t("report.architectureLens.title")}</h3>
-                        <p className="text-sm leading-7 text-brand-muted">{t("report.architectureLens.description")}</p>
-                      </div>
+                    <CollapsibleBlock title={t("report.architectureLens.title")}>
+                      <div className="space-y-4 pt-2">
+                        <div className="space-y-2">
+                          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t("report.architectureLens.eyebrow")}</p>
+                          <p className="text-sm leading-7 text-brand-muted">{t("report.architectureLens.description")}</p>
+                        </div>
 
-                      <div className="relative h-64 overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(rgba(148,163,184,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.07)_1px,transparent_1px)] bg-[size:28px_28px]">
+                        <div className="relative h-64 overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(rgba(148,163,184,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.07)_1px,transparent_1px)] bg-[size:28px_28px]">
                         <div className="absolute left-[20%] top-[29%] h-px w-[22%] bg-gradient-to-r from-cyan-300/60 to-violet-300/40" />
                         <div className="absolute right-[24%] top-[27%] h-px w-[18%] bg-gradient-to-r from-violet-300/50 to-rose-300/60" />
                         <div className="absolute right-[22%] top-[52%] h-px w-[12%] rotate-[60deg] bg-gradient-to-r from-rose-300/50 to-blue-300/55" />
@@ -275,19 +335,20 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
                         <p className="mt-2 text-sm leading-7 text-white/75">{viewModel.architectureIssueDescription}</p>
                       </div>
                     </div>
+                  </CollapsibleBlock>
                   </GlassCard>
                 </motion.div>
 
                 <motion.div {...pageMotion}>
                   <GlassCard glow="blue" className="p-6">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t("report.runtime.evidence.eyebrow")}</p>
-                        <h3 className="text-xl font-semibold text-white">{t("report.runtime.evidence.title")}</h3>
-                        <p className="text-sm leading-7 text-brand-muted">{t("report.runtime.evidence.description")}</p>
-                      </div>
+                    <CollapsibleBlock title={t("report.runtime.evidence.title")}>
+                      <div className="space-y-4 pt-2">
+                        <div className="space-y-2">
+                          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t("report.runtime.evidence.eyebrow")}</p>
+                          <p className="text-sm leading-7 text-brand-muted">{t("report.runtime.evidence.description")}</p>
+                        </div>
 
-                      <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-3">
                         {viewModel.browserEvidence.stats.map((stat) => (
                           <div key={stat.id} className={["rounded-[20px] border px-4 py-4", statToneClasses[stat.tone]].join(" ")}>
                             <p className="text-2xl font-semibold tracking-[-0.03em] text-white">{stat.value}</p>
@@ -355,19 +416,20 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
                         )}
                       </div>
                     </div>
+                  </CollapsibleBlock>
                   </GlassCard>
                 </motion.div>
 
                 <motion.div {...pageMotion}>
                   <GlassCard className="p-6">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t("report.actions.eyebrow")}</p>
-                        <h3 className="text-xl font-semibold text-white">{t("report.actions.title")}</h3>
-                        <p className="text-sm leading-7 text-brand-muted">{viewModel.actionSummary}</p>
-                      </div>
+                    <CollapsibleBlock title={t("report.actions.title")}>
+                      <div className="space-y-4 pt-2">
+                        <div className="space-y-2">
+                          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t("report.actions.eyebrow")}</p>
+                          <p className="text-sm leading-7 text-brand-muted">{viewModel.actionSummary}</p>
+                        </div>
 
-                      <div className="space-y-3">
+                        <div className="space-y-3">
                         {viewModel.actionItems.map((actionItem) => (
                           <div key={actionItem} className="flex items-start gap-3 text-sm text-white/85">
                             <ListChecks className="mt-0.5 h-4 w-4 shrink-0 text-brand-cyan" />
@@ -408,6 +470,7 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
                         </GlowingButton>
                       </div>
                     </div>
+                    </CollapsibleBlock>
                   </GlassCard>
                 </motion.div>
               </div>

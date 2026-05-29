@@ -10,7 +10,18 @@
     "intake": "AuditLens | 客戶引導表單",
     "console": "AuditLens | 任務控制台",
     "live": "AuditLens | 即時執行引擎",
-    "campaign": "AuditLens | 行銷素材庫"
+    "campaign": "AuditLens | 行銷素材庫",
+    "presentation": "AuditLens | 稽核簡報"
+  },
+  "metaDesc": {
+    "home": "全方位網站效能與架構稽核，深度分析技術債並提供最具商業價值的系統最佳化方案。",
+    "pricing": "選擇合適的層級方案，深入檢測並釐清網站效能瓶頸。",
+    "report": "查看由 AuditLens 生成的網站技術與效能稽核範例報告。",
+    "intake": "提供您的網站基礎架構來安排專家級的效能稽核分析。",
+    "console": "在任務控制台中管理您的多項網頁即時稽核專案。",
+    "live": "立即在線上執行網站平台深度的效能與架構技術體檢。",
+    "campaign": "AuditLens 相關行銷宣傳與 A/B 測試廣告素材。",
+    "presentation": "將嚴謹的程式稽核報告直接轉換為高階主管與投資人能秒懂的商業投影片。"
   },
   "navbar": {
     "overview": "總覽",
@@ -18,6 +29,7 @@
     "sampleReport": "範例報告",
     "console": "任務控制台",
     "live": "即時引擎",
+    "presentation": "稽核簡報",
     "pricing": "定價",
     "intake": "引導表單",
     "campaign": "行銷素材",
@@ -189,6 +201,12 @@
           "flowMissing": "這次沒有可用的 browser flow execution。",
           "summary": "Synthesis 已回傳摘要，可直接供最終報告與 memory panel 共用。",
           "summaryMissing": "這次沒有 synthesis 摘要，architecture lane 只能根據 evidence metadata 綜整。"
+        },
+        "a11y": {
+          "imageCount": "已掃描目標上的 {{images}} 張圖片；發現 {{missingAlt}} 處缺少 alt 替代文字。",
+          "missingAltFound": "發現缺少替代文字的圖片。標記為待修復。",
+          "allAltPresent": "未發現缺少替代文字的圖片。所有圖片均有描述。",
+          "domInspectorUpdated": "已將調查結果發送至 DOM Inspector 顯示面板。"
         }
       },
       "report": {
@@ -259,6 +277,9 @@
       },
       "memory_synth": {
         "label": "架構記憶綜整器"
+      },
+      "alt_inspector": {
+        "label": "替代文字遺失分析器"
       }
     },
     "argKeys": {
@@ -280,6 +301,9 @@
         },
         "architecture": {
           "role": "架構記憶子代理"
+        },
+        "a11y": {
+          "role": "無障礙體驗子代理"
         }
       },
       "logs": {
@@ -300,6 +324,11 @@
           "paths": "已定位報告路由的狀態邊界，session-backed audit evidence 是目前的主要前置條件。",
           "memory": "準備將 runtime gate 寫入長期記憶，讓後續修復優先序與報告層同步。",
           "summary": "架構記憶綜整完成，已可對外說明是哪個 runtime gate 阻塞完整覆蓋。"
+        },
+        "a11y": {
+          "queue": "正在排入全頁 DOM 圖片掃描任務。",
+          "scan": "正在分析所有圖片的 alt 替代文字標籤。",
+          "summary": "替代文字檢查完成。已將結果派送至 DOM Inspector 同步顯示。"
         }
       },
       "memory": {

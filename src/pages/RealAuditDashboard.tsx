@@ -3,12 +3,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Radio, RefreshCcw, ScanSearch, Sparkles, TriangleAlert, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../components/layout/PageContainer";
+import ConsoleTabs from "../components/ui/ConsoleTabs";
 import GlassContainer from "../components/ui/GlassContainer";
 import GlowingButton from "../components/ui/GlowingButton";
 import CoreWebVitalsCard from "../components/live/CoreWebVitalsCard";
 import DOMIssueHighlighter from "../components/live/DOMIssueHighlighter";
 import ExecutionTerminal from "../components/live/ExecutionTerminal";
 import ScanSummaryPanel from "../components/live/ScanSummaryPanel";
+import AnalyticsChartsPanel from "../components/ui/AnalyticsChartsPanel";
 import { useRealTimeAudit } from "../hooks/useRealTimeAudit";
 import type { ExecutionStatus } from "../types/liveAudit.types";
 import type { NavigateTo } from "../types/home";
@@ -26,6 +28,15 @@ const STATUS_TONE: Record<ExecutionStatus, string> = {
   analyzing: "border-violet-400/25 bg-violet-400/10 text-violet-100",
   complete: "border-emerald-400/25 bg-emerald-400/10 text-emerald-100",
   error: "border-rose-400/25 bg-rose-400/10 text-rose-100",
+};
+
+const STATUS_PROGRESS: Record<ExecutionStatus, number> = {
+  idle: 0,
+  connecting: 15,
+  scanning: 45,
+  analyzing: 75,
+  complete: 100,
+  error: 100,
 };
 
 /**
@@ -73,6 +84,7 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
   return (
     <main className="relative z-10 pb-24 pt-32 sm:pt-36">
       <PageContainer>
+        <ConsoleTabs currentRoute="live" onNavigate={onNavigate} />
         <div className="flex flex-col gap-10">
           {/* Header */}
           <div className="mx-auto flex max-w-3xl flex-col items-center space-y-4 text-center">
@@ -93,9 +105,30 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">{t("liveAudit.missionEyebrow")}</p>
                 <h2 className="text-2xl font-semibold text-white">{t("liveAudit.missionTitle")}</h2>
               </div>
-              <div className={["inline-flex items-center gap-2 self-start rounded-full border px-4 py-2 text-sm", STATUS_TONE[state.status]].join(" ")}>
-                <ScanSearch className="h-4 w-4" />
-                <span>{t("liveAudit.phaseLabel", { value: t(`liveAudit.status.${state.status}`) })}</span>
+              <div className="flex flex-col items-start gap-3 sm:items-end">
+                <div className={["inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm", STATUS_TONE[state.status]].join(" ")}>
+                  <ScanSearch className="h-4 w-4" />
+                  <span>{t("liveAudit.phaseLabel", { value: t(`liveAudit.status.${state.status}`) })}</span>
+                </div>
+                
+                {state.status !== "idle" && (
+                  <div className="h-1.5 w-full sm:w-48 overflow-hidden rounded-full bg-white/10">
+                    <motion.div
+                      className={`h-full rounded-full ${
+                        state.status === "error"
+                          ? "bg-rose-400"
+                          : state.status === "complete"
+                            ? "bg-emerald-400"
+                            : state.status === "analyzing"
+                              ? "bg-violet-400"
+                              : "bg-brand-cyan"
+                      }`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${STATUS_PROGRESS[state.status]}%` }}
+                      transition={{ duration: 0.8, ease: "easeInOut" }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -192,7 +225,12 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
                 transition={{ duration: 0.22 }}
                 className="space-y-6"
               >
-                {showReport && summary ? <ScanSummaryPanel summary={summary} /> : null}
+                {showReport && summary ? (
+                  <div className="space-y-6">
+                    <AnalyticsChartsPanel />
+                    <ScanSummaryPanel summary={summary} />
+                  </div>
+                ) : null}
 
                 <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
                 <div className="space-y-6">

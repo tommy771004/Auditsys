@@ -4,6 +4,7 @@ import { ArrowRight, Bot, BrainCircuit, Cpu, Database, RefreshCcw, Sparkles, Ter
 import { useTranslation } from "react-i18next";
 import type { BrowserCollectorTimelineStep } from "../Server/Services/auditPipelineTypes";
 import PageContainer from "../components/layout/PageContainer";
+import ConsoleTabs from "../components/ui/ConsoleTabs";
 import GlassContainer from "../components/ui/GlassContainer";
 import { ReportRenderer } from "../components/ui/ReportRenderer";
 import GlowingButton from "../components/ui/GlowingButton";
@@ -444,6 +445,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
     <main className="relative z-10 pb-24 pt-32 sm:pt-36">
       <MemorySyncBadge update={activeMemoryUpdate} />
       <PageContainer>
+        <ConsoleTabs currentRoute="console" onNavigate={onNavigate} />
         <div className="flex flex-col gap-10">
           
           {/* Layer 1: Header */}

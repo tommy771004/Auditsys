@@ -64,6 +64,21 @@ function buildMockPlan(targetUrl: string): MockSubagentDefinition[] {
       intervalMs: 520,
     },
     {
+      id: "a11y-scanner",
+      roleKey: "auditConsole.mock.subagents.a11y.role",
+      toolName: "alt_inspector",
+      args: {
+        targetUrl,
+        focus: "missing-alt-text",
+      },
+      logKeys: [
+        "auditConsole.mock.logs.a11y.queue",
+        "auditConsole.mock.logs.a11y.scan",
+        "auditConsole.mock.logs.a11y.summary",
+      ],
+      intervalMs: 480,
+    },
+    {
       id: "memory-synth",
       roleKey: "auditConsole.mock.subagents.architecture.role",
       toolName: "memory_synth",
@@ -207,6 +222,16 @@ function buildLiveToolLogMap(report: AuditIntelligenceResult, t: TFunction): Rec
         server: deterministic.headers?.server ?? notAvailableLabel,
         poweredBy: deterministic.headers?.poweredBy ?? notAvailableLabel,
       }),
+    ],
+    "a11y-scanner-tool": [
+      t("auditConsole.live.logs.a11y.imageCount", {
+        images: document?.counts.images ?? 0,
+        missingAlt: document?.counts.imagesMissingAlt ?? 0,
+      }),
+      (document?.counts.imagesMissingAlt ?? 0) > 0
+        ? t("auditConsole.live.logs.a11y.missingAltFound")
+        : t("auditConsole.live.logs.a11y.allAltPresent"),
+      t("auditConsole.live.logs.a11y.domInspectorUpdated")
     ],
     "memory-synth-tool": [
       t("auditConsole.live.logs.architecture.browserStatus", {
