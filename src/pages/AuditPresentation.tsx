@@ -41,7 +41,8 @@ import type { AuditPresentationResult, AuditSlide, SlideChartData, SlideMetric }
 import type { NavigateTo } from "../types/home";
 import ConsoleTabs from "../components/ui/ConsoleTabs";
 
-const CHART_COLORS = ["#00F2FE", "#05FFC4", "#FF2255", "#FFBB28", "#8884d8"];
+// Chart palette aligned to brand/semantic tokens (see tailwind.config.ts).
+const CHART_COLORS = ["#06B6D4", "#05FFC4", "#F43F5E", "#F59E0B", "#8B5CF6"];
 
 interface AuditPresentationProps {
   onNavigate: NavigateTo;
@@ -165,14 +166,14 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
         return (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={slide.chartData} margin={{ top: 20, right: 30, left: 10, bottom: 10 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#22334F" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
               <XAxis dataKey="speed" stroke="#94A3B8" style={{ fontSize: 11 }} />
-              <YAxis yAxisId="left" orientation="left" stroke="#00F2FE" label={{ value: "轉換率 (%)", angle: -90, position: "insideLeft", fill: "#00F2FE", style: { fontSize: 11, textAnchor: 'middle' } }} />
-              <YAxis yAxisId="right" orientation="right" stroke="#FF2255" label={{ value: "跳出率 (%)", angle: 90, position: "insideRight", fill: "#FF2255", style: { fontSize: 11, textAnchor: 'middle' } }} />
-              <Tooltip contentStyle={{ backgroundColor: "#0A192F", border: "1px solid #1E293B", borderRadius: "8px", fontSize: 12 }} />
+              <YAxis yAxisId="left" orientation="left" stroke="#06B6D4" label={{ value: "轉換率 (%)", angle: -90, position: "insideLeft", fill: "#06B6D4", style: { fontSize: 11, textAnchor: 'middle' } }} />
+              <YAxis yAxisId="right" orientation="right" stroke="#F43F5E" label={{ value: "跳出率 (%)", angle: 90, position: "insideRight", fill: "#F43F5E", style: { fontSize: 11, textAnchor: 'middle' } }} />
+              <Tooltip contentStyle={{ backgroundColor: "#0F172A", border: "1px solid #1E293B", borderRadius: "8px", fontSize: 12 }} />
               <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
-              <Line yAxisId="left" type="monotone" dataKey="conversion" name="訂單轉換率" stroke="#00F2FE" strokeWidth={2.5} activeDot={{ r: 8 }} />
-              <Line yAxisId="right" type="monotone" dataKey="bounce" name="行動端跳出率" stroke="#FF2255" strokeWidth={2.5} />
+              <Line yAxisId="left" type="monotone" dataKey="conversion" name="訂單轉換率" stroke="#06B6D4" strokeWidth={2.5} activeDot={{ r: 8 }} />
+              <Line yAxisId="right" type="monotone" dataKey="bounce" name="行動端跳出率" stroke="#F43F5E" strokeWidth={2.5} />
             </LineChart>
           </ResponsiveContainer>
         );
@@ -180,17 +181,17 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
         return (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={slide.chartData} layout="vertical" margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#22334F" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
               <XAxis type="number" stroke="#94A3B8" style={{ fontSize: 11 }} />
               <YAxis dataKey="name" type="category" stroke="#94A3B8" style={{ fontSize: 11, width: 120 }} width={120} />
-              <Tooltip contentStyle={{ backgroundColor: "#0A192F", border: "1px solid #1E293B", borderRadius: "8px", fontSize: 12 }} />
+              <Tooltip contentStyle={{ backgroundColor: "#0F172A", border: "1px solid #1E293B", borderRadius: "8px", fontSize: 12 }} />
               <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
-              <Bar dataKey="current" name="當前系統實測" fill="#FFBB28">
+              <Bar dataKey="current" name="當前系統實測" fill="#F59E0B">
                 {slide.chartData.map((entry, index) => (
-                  <Cell key={`cell-curr-${index}`} fill={entry.current > entry.good ? "#FF2255" : "#05FFC4"} />
+                  <Cell key={`cell-curr-${index}`} fill={entry.current > entry.good ? "#F43F5E" : "#05FFC4"} />
                 ))}
               </Bar>
-              <Bar dataKey="good" name="Google 綠色標準臨界值" fill="#05FFC4" stroke="#00F0FF" strokeDasharray="2" />
+              <Bar dataKey="good" name="Google 綠色標準臨界值" fill="#05FFC4" stroke="#06B6D4" strokeDasharray="2" />
             </BarChart>
           </ResponsiveContainer>
         );
@@ -198,12 +199,12 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
         return (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={slide.chartData} margin={{ top: 20, right: 30, left: 10, bottom: 10 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#22334F" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
               <XAxis dataKey="name" stroke="#94A3B8" style={{ fontSize: 10 }} />
               <YAxis stroke="#94A3B8" label={{ value: "延遲時間 (毫秒)", angle: -90, position: "insideLeft", stroke: "#94A3B8", style: { fontSize: 11 } }} style={{ fontSize: 11 }} />
-              <Tooltip contentStyle={{ backgroundColor: "#0A192F", border: "1px solid #1E293B", borderRadius: "8px", fontSize: 12 }} />
+              <Tooltip contentStyle={{ backgroundColor: "#0F172A", border: "1px solid #1E293B", borderRadius: "8px", fontSize: 12 }} />
               <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
-              <Bar dataKey="current" name="優化前" fill="#FF2255" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="current" name="優化前" fill="#F43F5E" radius={[4, 4, 0, 0]} />
               <Bar dataKey="target" name="優化後目標" fill="#05FFC4" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -226,7 +227,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
                   <Cell key={`cell-pie-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip contentStyle={{ backgroundColor: "#0A192F", border: "1px solid #1E293B", borderRadius: "8px", fontSize: 12 }} />
+              <Tooltip contentStyle={{ backgroundColor: "#0F172A", border: "1px solid #1E293B", borderRadius: "8px", fontSize: 12 }} />
               <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: 11 }} />
             </PieChart>
           </ResponsiveContainer>
@@ -235,13 +236,13 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
         return (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={slide.chartData} margin={{ top: 20, right: 30, left: 10, bottom: 10 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#22334F" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
               <XAxis dataKey="name" stroke="#94A3B8" style={{ fontSize: 10 }} />
               <YAxis stroke="#94A3B8" domain={[0, 100]} style={{ fontSize: 11 }} />
-              <Tooltip contentStyle={{ backgroundColor: "#0A192F", border: "1px solid #1E293B", borderRadius: "8px", fontSize: 11 }} />
+              <Tooltip contentStyle={{ backgroundColor: "#0F172A", border: "1px solid #1E293B", borderRadius: "8px", fontSize: 11 }} />
               <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
               <Bar dataKey="impact" name="優化效益 (0-100)" fill="#05FFC4" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="effort" name="開發難度 (0-100)" fill="#FF2255" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="effort" name="開發難度 (0-100)" fill="#F43F5E" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         );
@@ -251,10 +252,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
   };
 
   return (
-    <div className="relative min-h-screen bg-[#070b15] text-slate-100 pb-20 pt-24">
-      {/* Mesh Background */}
-      <div className="absolute inset-x-0 top-0 -z-10 h-[500px] bg-gradient-to-b from-[#0a142c] to-transparent opacity-40" />
-
+    <main className="relative z-10 pb-20 pt-24 text-brand-text">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         <ConsoleTabs currentRoute="presentation" onNavigate={onNavigate} />
@@ -277,7 +275,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => handleCopyMarkdown(99)}
-              className="inline-flex items-center gap-2 rounded-xl bg-white/[0.05] border border-white/10 px-4 py-2.5 text-xs font-semibold text-white hover:bg-white/[0.08] active:scale-95 transition"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-white/[0.05] border border-white/10 px-4 py-2.5 text-xs font-semibold text-white hover:bg-white/[0.08] active:scale-95 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/60"
             >
               {copiedIndex === 99 ? (
                 <>
@@ -295,7 +293,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
         </div>
 
         {/* Audit Inputs Setup Panel */}
-        <div className="mb-10 rounded-2xl border border-white/[0.06] bg-[#0c1328]/35 p-5 backdrop-blur-xl md:p-6">
+        <div className="mb-10 rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl md:p-6">
           <div className="mb-4 flex items-center gap-2.5 border-b border-white/[0.06] pb-3">
             <div className="rounded-lg bg-white/[0.05] p-1.5 text-brand-cyan">
               <Sliders className="h-4 w-4" />
@@ -317,7 +315,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
                 placeholder="例如: https://roamjelly-travel.com"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-[#091024]/80 px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-brand-cyan focus:outline-none focus:ring-1 focus:ring-brand-cyan/50"
+                className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 py-2.5 text-xs text-white placeholder-white/30 focus:border-brand-cyan focus:outline-none focus:ring-1 focus:ring-brand-cyan/50"
               />
             </div>
 
@@ -331,7 +329,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
                 placeholder="例如: React + .NET 8 Web API + PostgreSQL"
                 value={techStack}
                 onChange={(e) => setTechStack(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-[#091024]/80 px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-brand-cyan focus:outline-none focus:ring-1 focus:ring-brand-cyan/50"
+                className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 py-2.5 text-xs text-white placeholder-white/30 focus:border-brand-cyan focus:outline-none focus:ring-1 focus:ring-brand-cyan/50"
               />
             </div>
 
@@ -345,7 +343,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
                 placeholder="例如: 熱門景點搜尋超過 5 秒、API 延遲很高"
                 value={knownIssues}
                 onChange={(e) => setKnownIssues(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-[#091024]/80 px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-brand-cyan focus:outline-none focus:ring-1 focus:ring-brand-cyan/50"
+                className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 py-2.5 text-xs text-white placeholder-white/30 focus:border-brand-cyan focus:outline-none focus:ring-1 focus:ring-brand-cyan/50"
               />
             </div>
           </div>
@@ -361,7 +359,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
             <button
               onClick={generatePresentation}
               disabled={loading}
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-brand-cyan to-brand-green px-6 py-3 text-xs font-bold text-slate-950 hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:scale-100 transition shadow-lg shadow-brand-cyan/25"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-gradient-to-r from-brand-cyan to-brand-green px-6 py-3 text-xs font-bold text-slate-950 hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:scale-100 transition shadow-lg shadow-brand-cyan/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/60"
             >
               {loading ? (
                 <>
@@ -379,7 +377,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
         </div>
 
         {/* Interactive Deck Layout */}
-        {deckData ? (
+        {deckData && currentSlide ? (
           <div id="slide-window-viewport" className="grid gap-6 lg:grid-cols-4">
 
             {/* Data-source disclosure: which numbers are measured vs modeled */}
@@ -429,7 +427,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
 
             {/* Sidebar Navigation: Slide Toggles */}
             <div className="lg:col-span-1 space-y-3">
-              <div className="rounded-xl bg-[#0d142a]/60 border border-white/[0.06] p-4">
+              <div className="rounded-xl bg-white/[0.04] border border-white/10 p-4">
                 <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
                   簡報投影片目錄
                 </h3>
@@ -448,13 +446,19 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
                       }`}
                     >
                       <div className="flex items-start gap-2.5">
-                        <div className={`mt-0.5 rounded-full h-2 w-2 shrink-0 ${
+                        <div
+                          aria-hidden="true"
+                          className={`mt-0.5 rounded-full h-2 w-2 shrink-0 ${
                           slide.healthStatus === "red"
                             ? "bg-brand-danger animate-pulse"
                             : slide.healthStatus === "yellow"
                             ? "bg-amber-400"
-                            : "bg-[#05FFC4]"
-                        }`} />
+                            : "bg-brand-green"
+                        }`}
+                        />
+                        <span className="sr-only">
+                          {slide.healthStatus === "red" ? "高衝擊" : slide.healthStatus === "yellow" ? "中衝擊" : "低衝擊"}
+                        </span>
                         <div>
                           <div className={`text-[10px] font-medium tracking-wide uppercase transition ${
                             isActive ? "text-brand-cyan" : "text-slate-400 group-hover:text-slate-300"
@@ -522,8 +526,8 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
           <div className="lg:col-span-3 space-y-6">
             
             {/* The Physical Slide Component Canvas */}
-            <div className="rounded-2xl border border-white/10 bg-[#060b18] p-6 shadow-2xl relative overflow-hidden ring-1 ring-white/5">
-              <div className="absolute top-0 right-0 h-[200px] w-[200px] bg-sky-500/5 rounded-full blur-3xl -z-10" />
+            <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-6 shadow-2xl relative overflow-hidden ring-1 ring-white/10">
+              <div className="absolute top-0 right-0 h-[200px] w-[200px] bg-brand-cyan/5 rounded-full blur-3xl -z-10" />
               
               {/* Slide Meta Top Bar */}
               <div className="mb-6 flex items-center justify-between border-b border-white/[0.06] pb-4">
@@ -544,7 +548,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
                       ? "bg-red-500/10 text-brand-danger"
                       : currentSlide.healthStatus === "yellow"
                       ? "bg-amber-500/10 text-amber-300"
-                      : "bg-emerald-500/10 text-[#05FFC4]"
+                      : "bg-brand-green/10 text-brand-green"
                   }`}>
                     {currentSlide.healthStatus === "red" ? "高 (紅色預警)" : currentSlide.healthStatus === "yellow" ? "中 (黃色警告)" : "低 (安全指標)"}
                   </span>
@@ -569,7 +573,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
                   <div className="space-y-3">
                     {currentSlide.bullets.map((bullet, idx) => (
                       <div key={idx} className="flex gap-2.5 items-start">
-                        <div className="mt-1 rounded bg-[#091a32] p-1 text-brand-cyan shrink-0">
+                        <div className="mt-1 rounded bg-slate-950/60 p-1 text-brand-cyan shrink-0">
                           <Activity className="h-3 w-3" />
                         </div>
                         <div className="text-xs font-semibold leading-relaxed text-slate-200">
@@ -605,7 +609,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
                 </div>
 
                 {/* Right side: Recharts Visualization Chart Box */}
-                <div className="flex flex-col rounded-xl border border-white/[0.06] bg-[#091024]/60 p-4">
+                <div className="flex flex-col rounded-xl border border-white/10 bg-slate-950/40 p-4">
                   <div className="mb-3 flex items-center justify-between">
                     <span className="text-xs font-semibold text-white">
                       即時數據化關聯圖表
@@ -615,8 +619,13 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
                     </span>
                   </div>
 
-                  {/* Visual container block */}
-                  <div className="h-[210px] w-full shrink-0">
+                  {/* Visual container block. Decorative for SR users — the metric
+                      table below is the accessible data alternative. */}
+                  <div
+                    role="img"
+                    aria-label={`${currentSlide.title} — ${currentSlide.chartType.toUpperCase()} 圖表。完整數值見下方「數據指標明細」表格。`}
+                    className="h-[210px] w-full shrink-0"
+                  >
                     {renderSlideChart(currentSlide)}
                   </div>
 
@@ -646,22 +655,28 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
                   type="button"
                   disabled={activeSlideIndex === 0}
                   onClick={() => handleSlideSelect(activeSlideIndex - 1)}
-                  className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400"
+                  className="inline-flex min-h-[44px] items-center gap-1 rounded-lg px-2 text-xs text-slate-400 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/60"
                 >
                   <ChevronLeft className="h-4 w-4" />
                   上一頁投影片
                 </button>
 
-                <div className="flex gap-1.5">
+                <div className="flex gap-0.5">
                   {deckData.slides.map((_, idx) => (
                     <button
                       key={idx}
                       onClick={() => handleSlideSelect(idx)}
-                      className={`h-1.5 rounded-full transition-all duration-300 ${
-                        activeSlideIndex === idx ? "w-6 bg-brand-cyan" : "w-1.5 bg-slate-700 hover:bg-slate-500"
-                      }`}
+                      className="inline-flex h-11 min-w-[28px] items-center justify-center rounded-full px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/60"
                       aria-label={`切換至投影片 ${idx + 1}`}
-                    />
+                      aria-current={activeSlideIndex === idx ? "true" : undefined}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={`block h-1.5 rounded-full transition-all duration-300 ${
+                          activeSlideIndex === idx ? "w-6 bg-brand-cyan" : "w-1.5 bg-slate-700 hover:bg-slate-500"
+                        }`}
+                      />
+                    </button>
                   ))}
                 </div>
 
@@ -669,7 +684,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
                   type="button"
                   disabled={activeSlideIndex === deckData.slides.length - 1}
                   onClick={() => handleSlideSelect(activeSlideIndex + 1)}
-                  className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400"
+                  className="inline-flex min-h-[44px] items-center gap-1 rounded-lg px-2 text-xs text-slate-400 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/60"
                 >
                   下一頁投影片
                   <ChevronRight className="h-4 w-4" />
@@ -681,7 +696,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
             {/* Speaking Talktracks / Speaker Notes for C-level Reporting */}
             <div className="rounded-2xl border border-white/[0.06] bg-slate-950 p-5">
               <div className="flex items-center gap-2 mb-3 border-b border-white/[0.06] pb-2">
-                <div className="rounded p-1 bg-[#152e1f] text-[#05FFC4]">
+                <div className="rounded p-1 bg-brand-green/10 text-brand-green">
                   <Monitor className="h-4 w-4" />
                 </div>
                 <h3 className="text-sm font-semibold text-white">
@@ -704,7 +719,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
             </div>
 
             {/* Mobile Adaptive Data View (Always displayed nicely for extra dense mobile grids) */}
-            <div className="rounded-2xl border border-white/[0.06] p-5 bg-[#091124]/30 block md:hidden">
+            <div className="rounded-2xl border border-white/10 p-5 bg-white/[0.03] block md:hidden">
               <div className="flex items-center gap-2 mb-3">
                 <Smartphone className="h-4 w-4 text-brand-cyan" />
                 <h3 className="text-xs font-semibold text-white uppercase tracking-wider">
@@ -720,9 +735,17 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
                   <div key={s.slideId} className="border-b border-white/[0.06] pb-3 last:border-b-0 space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-white">{s.slideId}. {s.title}</span>
-                      <span className={`h-1.5 w-1.5 rounded-full ${
-                        s.healthStatus === "red" ? "bg-red-500" : s.healthStatus === "yellow" ? "bg-amber-400" : "bg-emerald-400"
-                      }`} />
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">
+                          {s.healthStatus === "red" ? "高" : s.healthStatus === "yellow" ? "中" : "低"}
+                        </span>
+                        <span
+                          aria-hidden="true"
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            s.healthStatus === "red" ? "bg-red-500" : s.healthStatus === "yellow" ? "bg-amber-400" : "bg-emerald-400"
+                          }`}
+                        />
+                      </span>
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-[10px]">
                       {s.metrics.map((m, mIdx) => (
@@ -740,7 +763,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
           </div>
         </div>
         ) : (
-          <div className="flex flex-col items-center flex-1 justify-center rounded-2xl border border-white/[0.06] bg-[#0c1328]/35 p-12 text-center">
+          <div className="flex flex-col items-center flex-1 justify-center rounded-2xl border border-white/10 bg-white/[0.04] p-12 text-center">
             <Monitor className="mb-4 h-12 w-12 text-slate-500 opacity-50" />
             <h3 className="text-lg font-semibold text-white">尚未生成簡報</h3>
             <p className="mt-2 text-sm text-slate-400 max-w-md">
@@ -750,6 +773,6 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
         )}
 
       </div>
-    </div>
+    </main>
   );
 }

@@ -885,7 +885,8 @@
     "response": "Response:",
     "unknownError": "Unknown error",
     "standardEngine": "Standard engine",
-    "refreshHistory": "Refresh history"
+    "refreshHistory": "Refresh history",
+    "close": "Close report"
   },
   "admin": {
     "title": "Admin Dashboard",

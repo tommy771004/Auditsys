@@ -180,7 +180,7 @@ export default function CoreWebVitalsCard({ targetUrl, active }: CoreWebVitalsCa
 
       <div className="mt-5">
         {phase === "idle" ? (
-          <p className="rounded-2xl border border-dashed border-white/10 px-4 py-6 text-center text-sm text-white/50">
+          <p className="rounded-2xl border border-dashed border-white/10 px-4 py-6 text-center text-sm text-white/60">
             {t("liveAudit.vitals.pending")}
           </p>
         ) : phase === "error" ? (
@@ -218,7 +218,7 @@ export default function CoreWebVitalsCard({ targetUrl, active }: CoreWebVitalsCa
                 </div>
               ))}
             </div>
-            <p className="text-[10px] text-white/45">
+            <p className="text-[10px] text-white/60">
               {crux.collectionPeriod
                 ? t("liveAudit.vitals.fieldFooterWithPeriod", {
                     scope: t(`liveAudit.vitals.scope.${crux.scope ?? "origin"}`),

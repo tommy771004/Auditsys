@@ -74,7 +74,7 @@ export default function Footer({ currentRoute, onNavigate }: FooterProps) {
                   </button>
                 ))}
               </div>
-              <p className="text-xs uppercase tracking-[0.24em] text-white/45">{t("footer.rights", { year: new Date().getFullYear() })}</p>
+              <p className="text-xs uppercase tracking-[0.24em] text-white/60">{t("footer.rights", { year: new Date().getFullYear() })}</p>
             </div>
           </div>
         </div>

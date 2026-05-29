@@ -891,7 +891,8 @@
     "response": "回應：",
     "unknownError": "未知錯誤",
     "standardEngine": "標準引擎",
-    "refreshHistory": "重新整理歷史紀錄"
+    "refreshHistory": "重新整理歷史紀錄",
+    "close": "關閉報告"
   },
   "admin": {
     "title": "管理員主控台",
