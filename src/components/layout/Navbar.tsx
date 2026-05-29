@@ -32,6 +32,11 @@ const navigationItems: NavLinkItem[] = [
     labelKey: "navbar.console",
   },
   {
+    id: "live",
+    route: "live",
+    labelKey: "navbar.live",
+  },
+  {
     id: "pricing",
     route: "pricing",
     labelKey: "navbar.pricing",
