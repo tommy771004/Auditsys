@@ -13,6 +13,9 @@ import {
 } from "./src/Server/Services/liveScanCollector";
 import { collectDeterministicEvidence } from "./src/Server/Services/deterministicCollector";
 import { fetchCruxReport } from "./src/Server/Services/cruxCollector";
+import { collectNetworkProbe } from "./src/Server/Services/networkProbeCollector";
+import { analyzeNetworkBottlenecks } from "./src/Server/Services/networkBottleneckAnalyzer";
+import { formatBottleneckReport } from "./src/Server/Services/networkReportFormatter";
 import { fetchOpenRouterWithFallback } from "./src/Server/Services/openrouterHelper";
 import type { LiveScanSummary } from "./src/types/liveAudit.types";
 import type { PresentationMeasuredEvidence } from "./src/types/presentation";
@@ -604,6 +607,31 @@ async function startServer() {
       } else {
         sendLog("warn", `${domIssueCount} DOM defect(s) estimated — details available after stream.`);
       }
+
+      // ── Network Bottleneck Deep-Dive (fetch probe) ─────────────────────
+      sendLog("info", "Running network bottleneck deep-dive…");
+      try {
+        const htmlResponse = await fetch(finalUrl, { headers: { Accept: "text/html" } });
+        const html = (htmlResponse.headers.get("content-type") ?? "").includes("text/html")
+          ? await htmlResponse.text()
+          : "";
+        if (html) {
+          const networkEvidence = await collectNetworkProbe(html, finalUrl);
+          const findings = analyzeNetworkBottlenecks(networkEvidence);
+          for (const line of formatBottleneckReport(findings)) {
+            if (closed) return res.end();
+            sendLog(line.level, line.message);
+          }
+          if (networkEvidence.truncated) {
+            sendLog("info", "資源數超過上限，僅分析前 40 個。");
+          }
+        } else {
+          sendLog("warn", "無法取得 HTML 內容，略過網路瓶頸分析。");
+        }
+      } catch {
+        sendLog("warn", "網路瓶頸分析失敗，串流繼續。");
+      }
+      if (closed) return res.end();
 
       // ── Phase 2: analyzing ────────────────────────────────────────────
       // Transition triggers the client-side Google PageSpeed fetch in parallel.
