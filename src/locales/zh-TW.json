@@ -9,6 +9,7 @@
     "report": "AuditLens | 範例報告",
     "intake": "AuditLens | 客戶引導表單",
     "console": "AuditLens | 任務控制台",
+    "live": "AuditLens | 即時執行引擎",
     "campaign": "AuditLens | 行銷素材庫"
   },
   "navbar": {
@@ -16,6 +17,7 @@
     "features": "服務亮點",
     "sampleReport": "範例報告",
     "console": "任務控制台",
+    "live": "即時引擎",
     "pricing": "定價",
     "intake": "引導表單",
     "campaign": "行銷素材",
@@ -836,6 +838,212 @@
         "title": "第三封：重新喚醒 (第 14 天)",
         "subject": "你修復了那 3 個漏洞了嗎？",
         "body": "我們注意到你兩週前執行了一次稽核。網頁標準變動很快。執行一次全新的掃描，確保你最近的部署無懈可擊。[立即重新掃描 ->]"
+      }
+    },
+    "subj": "主旨："
+  },
+  "history": {
+    "title": "稽核歷史",
+    "subtitle": "您過去的分析紀錄",
+    "loading": "載入紀錄中...",
+    "reportTitle": "歷史分析報告",
+    "deterministicEvidence": "確定性證據",
+    "httpStatus": "HTTP 狀態：",
+    "resolvedUrl": "解析網址：",
+    "pageTitle": "頁面標題：",
+    "warnings": "警告：",
+    "browserEvidence": "瀏覽器證據",
+    "status": "狀態：",
+    "reason": "原因：",
+    "empty": "找不到系統自動生成的稽核紀錄。請在上方提交您的第一個測試網址來開始追蹤您的效能。",
+    "provider": "預測服務提供者：",
+    "model": "模型：",
+    "response": "回應：",
+    "unknownError": "未知錯誤",
+    "standardEngine": "標準引擎",
+    "refreshHistory": "重新整理歷史紀錄"
+  },
+  "admin": {
+    "title": "管理員主控台",
+    "subtitle": "管理使用者及系統資料",
+    "signOut": "登出",
+    "tabs": {
+      "overview": "總覽",
+      "reports": "報告",
+      "users": "使用者",
+      "settings": "設定",
+      "leads": "潛在客戶"
+    },
+    "overview": {
+      "title": "系統總覽",
+      "totalUsers": "總使用者人數",
+      "totalAudits": "總稽核次數",
+      "completed": "已完成",
+      "pending": "待處理",
+      "loading": "載入統計資料中..."
+    },
+    "reports": {
+      "viewReport": "查看報告",
+      "empty": "找不到稽核紀錄。",
+      "noReport": "此稽核紀錄沒有報告內容。",
+      "auditFailed": "稽核失敗："
+    },
+    "users": {
+      "joined": "加入於",
+      "freePlan": "新手版",
+      "proPlan": "專業版",
+      "enterprise": "企業版",
+      "userRole": "使用者",
+      "adminRole": "管理員",
+      "empty": "找不到使用者。"
+    },
+    "settings": {
+      "title": "方案設定",
+      "planTitle": " 方案",
+      "openRouterKey": "OpenRouter API 金鑰",
+      "enterApiKey": "輸入 API 金鑰",
+      "planPrice": "方案價格",
+      "eGPrice": "例如 $29",
+      "allowedModels": "允許使用的模型",
+      "eGModel": "例如 anthropic/claude-3.5-sonnet",
+      "save": "儲存設定",
+      "empty": "找不到方案設定。"
+    },
+    "leads": {
+      "title": "潛在客戶管理",
+      "targetUrl": "目標網址",
+      "teamSize": "團隊規模",
+      "techStack": "技術棧",
+      "goals": "目標",
+      "additionalNotes": "其他備註",
+      "collectedOn": "收集於",
+      "empty": "目前還沒有收集到任何潛在客戶。"
+    },
+    "confirm": {
+      "title": "確認操作",
+      "deleteLead": "確定要刪除這位潛在客戶嗎？",
+      "deleteAudit": "確定要刪除這筆稽核紀錄嗎？",
+      "cancel": "取消",
+      "delete": "刪除"
+    }
+  },
+  "misc": {
+    "provides": "提供模型: {{model}}",
+    "upgrading": "升級中...",
+    "activePlan": "使用中方案 - 前往主控台"
+  },
+  "liveAudit": {
+    "badge": "即時執行引擎",
+    "title": "即時 SEO 稽核",
+    "description": "透過 Server-Sent Events 串流真實掃描、從 Google PageSpeed 取得即時 Core Web Vitals，並檢視後端解析出的真實 DOM 缺陷。",
+    "missionEyebrow": "即時目標",
+    "missionTitle": "執行即時掃描",
+    "inputLabel": "目標網址",
+    "inputPlaceholder": "https://example.com",
+    "phaseLabel": "階段：{{value}}",
+    "status": {
+      "idle": "待命",
+      "connecting": "連線中",
+      "scanning": "掃描中",
+      "analyzing": "分析中（Lighthouse）",
+      "complete": "已完成",
+      "error": "發生錯誤"
+    },
+    "actions": {
+      "start": "開始即時掃描",
+      "cancel": "取消",
+      "retry": "重新掃描",
+      "rescan": "再次執行"
+    },
+    "idleState": {
+      "title": "隨時可以開始",
+      "description": "輸入目標網址並開始掃描，即可開啟即時 Server-Sent Events 串流。"
+    },
+    "errorState": {
+      "title": "即時連線失敗",
+      "description": "串流已中斷或伺服器回傳錯誤。請確認目標網址與後端是否可連線後再重試。"
+    },
+    "terminal": {
+      "title": "即時串流",
+      "idle": "// 等待掃描開始…",
+      "awaiting": "等待伺服器回應…"
+    },
+    "vitals": {
+      "title": "Core Web Vitals",
+      "subtitle": "來自 Google PageSpeed Insights 的即時數據",
+      "pending": "掃描進入 Lighthouse 階段後即會顯示指標。",
+      "error": "無法載入此目標的 PageSpeed 資料。",
+      "score": "效能分數",
+      "fcp": "FCP",
+      "lcp": "LCP",
+      "inp": "INP",
+      "cls": "CLS",
+      "fieldSubtitle": "真實使用者欄位資料（Chrome UX Report）",
+      "fieldBadge": "真實資料",
+      "labBadge": "實驗室",
+      "rating": {
+        "good": "良好",
+        "needs-improvement": "需改善",
+        "poor": "不佳"
+      },
+      "scope": {
+        "url": "此頁面",
+        "origin": "整個網站"
+      },
+      "fieldFooter": "{{scope}} · 近 28 天真實使用者資料",
+      "fieldFooterWithPeriod": "{{scope}} · {{period}}",
+      "labFallbackNote": "此目標無欄位資料 — 改以 Lighthouse 實驗室估算值顯示。"
+    },
+    "dom": {
+      "title": "DOM 問題檢視器",
+      "subtitle": "由後端從即時 HTML 解析出的缺陷",
+      "empty": "未偵測到嚴重的 DOM 問題。",
+      "types": {
+        "missing_alt": "缺少 alt 文字",
+        "multiple_h1": "多個 H1",
+        "invalid_canonical": "canonical 無效"
+      }
+    },
+    "report": {
+      "title": "掃描完成",
+      "description": "即時串流已結束並完成 DOM 問題收集。檢視完整範例報告以取得修復指引。",
+      "openSample": "開啟範例報告"
+    },
+    "summary": {
+      "title": "掃描總覽",
+      "subtitle": "由即時靜態收集與爬蟲檢測彙整出的評分與證據",
+      "scores": {
+        "overall": "綜合",
+        "performance": "效能",
+        "seo": "SEO",
+        "architecture": "架構"
+      },
+      "meta": {
+        "status": "HTTP {{value}}",
+        "responseTime": "{{value}} 毫秒"
+      },
+      "assets": {
+        "title": "資產組成",
+        "scripts": "Script",
+        "stylesheets": "樣式表",
+        "images": "圖片",
+        "missingAlt": "缺少 alt 的圖片"
+      },
+      "seo": {
+        "title": "SEO 訊號",
+        "titleTag": "Title 標籤",
+        "metaDescription": "Meta description",
+        "canonical": "Canonical 連結",
+        "viewport": "Viewport meta",
+        "h1": "H1 標題 ×{{count}}",
+        "structuredData": "結構化資料 ×{{count}}",
+        "openGraph": "Open Graph ×{{count}}"
+      },
+      "routes": {
+        "title": "已爬取路由（{{count}}）"
+      },
+      "warnings": {
+        "title": "警告（{{count}}）"
       }
     }
   }
