@@ -105,7 +105,7 @@ export default function Campaign({ onNavigate }: CampaignProps) {
                 <GlassContainer key={emailKey} accent="violet" className="flex flex-col p-5 sm:p-6 transition-transform hover:-translate-y-1">
                   <div className="mb-4 border-b border-white/10 pb-4">
                     <p className="text-xs font-bold uppercase tracking-wider text-white/60 mb-2">{t(`campaign.emailSequence.${emailKey}.title`)}</p>
-                    <p className="text-sm font-medium text-white"><span className="text-white/60">Subj: </span>{t(`campaign.emailSequence.${emailKey}.subject`)}</p>
+                    <p className="text-sm font-medium text-white"><span className="text-white/60">{t("campaign.emailSequence.subj")}</span>{t(`campaign.emailSequence.${emailKey}.subject`)}</p>
                   </div>
                   <p className="text-sm leading-relaxed text-white/80 flex-1 whitespace-pre-wrap">
                     {t(`campaign.emailSequence.${emailKey}.body`)}
