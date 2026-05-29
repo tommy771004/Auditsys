@@ -40,6 +40,10 @@ function isValidEmail(value: string): boolean {
 }
 
 function validateStep(step: number, formState: IntakeFormState): string | null {
+  if (step >= 1 && !formState.companyName.trim()) {
+    return "validation.requiredCompany";
+  }
+
   if (!formState.url.trim()) {
     return "validation.requiredUrl";
   }
@@ -54,10 +58,6 @@ function validateStep(step: number, formState: IntakeFormState): string | null {
 
   if (step >= 2 && formState.stack.length === 0) {
     return "validation.requiredStack";
-  }
-
-  if (step >= 3 && !formState.companyName.trim()) {
-    return "validation.requiredCompany";
   }
 
   if (step >= 3 && !formState.contactEmail.trim()) {
