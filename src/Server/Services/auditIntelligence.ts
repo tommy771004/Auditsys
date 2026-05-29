@@ -5,7 +5,7 @@ import type { AuditIntelligenceResult } from "./auditPipelineTypes";
 import { normalizeAuditRequestPayload } from "./auditPipelineTypes";
 import { assertSafeAuditTargetUrl } from "./securityPolicies";
 
-export async function generateAuditIntelligence(payload: unknown, config?: { apiKey?: string, allowedModels?: string[] }): Promise<AuditIntelligenceResult> {
+export async function generateAuditIntelligence(payload: unknown, config?: { openRouterApiKey?: string, apiKey?: string, allowedModels?: string[] }): Promise<AuditIntelligenceResult> {
   const normalizedPayload = normalizeAuditRequestPayload(payload);
 
   if (!normalizedPayload.url) {
