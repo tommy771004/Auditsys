@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import type { BrowserCollectorTimelineStep } from "../Server/Services/auditPipelineTypes";
 import PageContainer from "../components/layout/PageContainer";
 import GlassContainer from "../components/ui/GlassContainer";
+import { ReportRenderer } from "../components/ui/ReportRenderer";
 import GlowingButton from "../components/ui/GlowingButton";
 import MemorySyncBadge from "../components/ui/MemorySyncBadge";
 import SubagentCard from "../components/ui/SubagentCard";
@@ -306,123 +307,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                   </div>
                 );
               }
-              try {
-                const parsed = JSON.parse(streamedReport);
-                
-                const SeverityBadge = ({ severity }: { severity?: string }) => {
-                  if (!severity) return null;
-                  const s = severity.toLowerCase();
-                  if (s === "high") return <span className="rounded-md bg-semantic-danger/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-danger border border-semantic-danger/30">High Impact</span>;
-                  if (s === "medium") return <span className="rounded-md bg-semantic-warning/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-warning border border-semantic-warning/30">Medium</span>;
-                  return <span className="rounded-md bg-semantic-success/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-success border border-semantic-success/30">Low</span>;
-                };
-
-                return (
-                  <div className="mt-6 flex flex-col gap-6">
-                    {/* Hero Card for Executive Summary */}
-                    <div className="relative overflow-hidden rounded-[32px] border border-brand-cyan/30 bg-gradient-to-br from-brand-cyan/10 via-slate-900/50 to-slate-950/80 p-5 sm:p-8 shadow-2xl shadow-brand-cyan/5">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-cyan/20 text-brand-cyan shadow-inner">
-                          <LayoutDashboard className="h-6 w-6" />
-                        </div>
-                        <h3 className="text-xl font-bold tracking-tight text-white">Executive Summary</h3>
-                      </div>
-                      <p className="text-base leading-relaxed text-white/90">{parsed.executiveSummary}</p>
-                    </div>
-
-                    <div className="grid gap-6 md:grid-cols-2">
-                      {/* Findings */}
-                      {parsed.deterministicFindings?.length > 0 && (
-                        <div className="rounded-[28px] border border-brand-purple/20 bg-slate-950/40 p-5 sm:p-6 shadow-lg shadow-black/20">
-                          <div className="flex items-center gap-3 mb-5 border-b border-white/5 pb-4">
-                            <Zap className="h-5 w-5 text-brand-purple" />
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-white/90">Technical Findings</h3>
-                          </div>
-                          <div className="space-y-4">
-                            {parsed.deterministicFindings.map((item: any, i: number) => (
-                              <div key={i} className="rounded-2xl bg-white/[0.02] p-4 border border-white/[0.05] hover:bg-white/[0.04] transition-colors">
-                                <div className="flex justify-between items-start mb-2 gap-2">
-                                  <p className="text-sm font-semibold text-white leading-snug">{item.issue}</p>
-                                  <SeverityBadge severity={item.severity} />
-                                </div>
-                                <p className="text-xs text-white/60 leading-relaxed">{item.impact}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Gaps */}
-                      {parsed.browserFlowGaps?.length > 0 && (
-                        <div className="rounded-[28px] border border-semantic-success/20 bg-slate-950/40 p-5 sm:p-6 shadow-lg shadow-black/20">
-                          <div className="flex items-center gap-3 mb-5 border-b border-white/5 pb-4">
-                            <Target className="h-5 w-5 text-semantic-success" />
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-white/90">Flow Verification</h3>
-                          </div>
-                          <div className="space-y-4">
-                            {parsed.browserFlowGaps.map((item: any, i: number) => (
-                              <div key={i} className="rounded-2xl bg-white/[0.02] p-4 border border-white/[0.05] hover:bg-white/[0.04] transition-colors">
-                                <div className="flex justify-between items-start mb-2 gap-2">
-                                  <p className="text-sm font-semibold text-white leading-snug">{item.issue}</p>
-                                  <SeverityBadge severity={item.severity} />
-                                </div>
-                                <p className="text-xs text-white/60 leading-relaxed">{item.impact}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Architecture Risks */}
-                      {parsed.architectureRisks?.length > 0 && (
-                        <div className="rounded-[28px] border border-semantic-danger/20 bg-slate-950/40 p-5 sm:p-6 shadow-lg shadow-black/20 md:col-span-2">
-                          <div className="flex items-center gap-3 mb-5 border-b border-white/5 pb-4">
-                            <ShieldAlert className="h-5 w-5 text-semantic-danger" />
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-white/90">Architecture Risks</h3>
-                          </div>
-                          <div className="grid gap-4 md:grid-cols-2">
-                            {parsed.architectureRisks.map((item: any, i: number) => (
-                              <div key={i} className="rounded-2xl bg-white/[0.02] p-4 border border-white/[0.05] hover:bg-white/[0.04] transition-colors">
-                                <div className="flex justify-between items-start mb-2 gap-2">
-                                  <p className="text-sm font-semibold text-white leading-snug">{item.issue}</p>
-                                  <SeverityBadge severity={item.severity} />
-                                </div>
-                                <p className="text-xs text-white/60 leading-relaxed">{item.impact}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Next Actions */}
-                      {parsed.nextActions?.length > 0 && (
-                        <div className="rounded-[28px] border border-semantic-warning/20 bg-slate-950/40 p-5 sm:p-6 shadow-lg shadow-black/20 md:col-span-2">
-                          <div className="flex items-center gap-3 mb-5 border-b border-white/5 pb-4">
-                            <Flag className="h-5 w-5 text-semantic-warning" />
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-white/90">Strategic Next Steps</h3>
-                          </div>
-                          <div className="grid gap-4 md:grid-cols-2">
-                            {parsed.nextActions.map((item: any, i: number) => (
-                              <div key={i} className="flex gap-4 rounded-2xl bg-white/[0.02] p-4 border border-semantic-warning/10 hover:bg-white/[0.04] transition-colors">
-                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-semantic-warning/20 text-semantic-warning font-bold text-sm">
-                                  {i + 1}
-                                </div>
-                                <div>
-                                  <p className="text-sm font-semibold text-white leading-snug">{item.action}</p>
-                                  <p className="mt-1 text-xs text-white/60 leading-relaxed">{item.impact}</p>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              } catch {
-                // Fallback to raw text if not JSON
-                return <pre className="mt-5 min-h-[20rem] whitespace-pre-wrap rounded-[24px] border border-white/10 bg-white/[0.03] p-4 font-mono text-[13px] leading-7 text-white/86">{streamedReport}</pre>;
-              }
+              return <ReportRenderer reportText={streamedReport} />;
             })()}
             </div>
           </div>
@@ -724,23 +609,23 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
           <GlassContainer accent="purple" className="space-y-4 animate-fade-in">
               <div className="flex items-center justify-between gap-3">
                 <div className="space-y-1">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-100/80">Audit History</p>
-                  <p className="text-lg font-semibold text-white">Your Past Analysis Runs</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-100/80">{t("history.title")}</p>
+                  <p className="text-lg font-semibold text-white">{t("history.subtitle")}</p>
                 </div>
                 <button 
                   type="button"
                   onClick={fetchHistory}
                   disabled={isLoadingHistory}
                   className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-white/5 hover:bg-white/10 p-2 text-white/70 hover:text-white transition disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none"
-                  aria-label="Refresh history"
-                  title="Refresh history"
+                  aria-label={t("history.refreshHistory")}
+                  title={t("history.refreshHistory")}
                 >
                   <RefreshCcw className={`h-5 w-5 ${isLoadingHistory ? "animate-spin" : ""}`} />
                 </button>
               </div>
 
               {isLoadingHistory ? (
-                <div className="py-6 text-center text-sm text-white/60">Loading runs...</div>
+                <div className="py-6 text-center text-sm text-white/60">{t("history.loading")}</div>
               ) : historyItems.length > 0 ? (
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 max-h-[22rem] overflow-y-auto pr-1">
                   {historyItems.map((item) => {
@@ -780,7 +665,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                         </div>
                         <div className="flex items-center justify-between gap-2 text-xs w-full">
                           <span className="text-white/60 truncate">
-                            {item.result?.model || "Standard engine"}
+                            {item.result?.model || t("history.standardEngine")}
                           </span>
                           <span className={[
                             "rounded-full px-2 py-0.5 text-[10px] font-medium tracking-wide uppercase",
@@ -797,7 +682,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 </div>
               ) : (
                 <div className="rounded-[18px] border border-dashed border-white/8 px-4 py-5 text-center text-sm leading-6 text-white/60">
-                  No automated audit history found. Submit your first analysis URL above to start tracking performance runs.
+                  {t("history.empty")}
                 </div>
               )}
           </GlassContainer>
@@ -824,7 +709,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-white/10 bg-white/5 px-6 py-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-white">Historical Analysis Report</h3>
+                    <h3 className="text-lg font-semibold text-white">{t("history.reportTitle")}</h3>
                     <p className="text-sm text-brand-muted">{selectedHistoryAudit.url}</p>
                   </div>
                   <button
@@ -850,11 +735,11 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                       {selectedHistoryAudit.status?.toUpperCase()}
                     </span>
                     <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium text-white/70">
-                      Provider: {selectedHistoryAudit.result?.provider || "unknown"}
+                      {t("history.provider")} {selectedHistoryAudit.result?.provider || "unknown"}
                     </span>
                     {selectedHistoryAudit.result?.model && (
                       <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium text-white/70">
-                        Model: {selectedHistoryAudit.result.model}
+                        {t("history.model")} {selectedHistoryAudit.result.model}
                       </span>
                     )}
                     <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium text-white/70">
@@ -862,39 +747,37 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                     </span>
                     {typeof selectedHistoryAudit.result?.evidence?.deterministic?.responseTimeMs === 'number' && (
                       <span className="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-xs font-medium text-cyan-300">
-                        Response: {selectedHistoryAudit.result.evidence.deterministic.responseTimeMs} ms
+                        {t("history.response")} {selectedHistoryAudit.result.evidence.deterministic.responseTimeMs} ms
                       </span>
                     )}
                   </div>
 
                   {/* LLM Report Summary */}
-                  <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45 mb-3">Analysis Report</p>
-                    <pre className="whitespace-pre-wrap font-mono text-[13px] leading-7 text-white/86">
-                      {selectedHistoryAudit.result?.summary
-                        || selectedHistoryAudit.result?.reason
-                        || (selectedHistoryAudit.status === 'failed' ? `Audit failed: ${selectedHistoryAudit.result?.error || 'Unknown error'}` : "No report content. This audit may still be processing.")
-                      }
-                    </pre>
-                  </div>
+                  <ReportRenderer 
+                    reportText={
+                      selectedHistoryAudit.result?.summary ||
+                      selectedHistoryAudit.result?.reason ||
+                      (selectedHistoryAudit.status === 'failed' ? `${t("admin.reports.auditFailed")}${selectedHistoryAudit.result?.error || t("history.unknownError")}` : null)
+                    } 
+                  />
 
                   {/* Deterministic Evidence */}
                   {selectedHistoryAudit.result?.evidence?.deterministic && (
                     <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45 mb-3">Deterministic Evidence</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45 mb-3">{t("history.deterministicEvidence")}</p>
                       <div className="space-y-2 text-sm text-white/75">
                         {selectedHistoryAudit.result.evidence.deterministic.statusCode && (
-                          <div><span className="text-white/45">HTTP Status:</span> {selectedHistoryAudit.result.evidence.deterministic.statusCode}</div>
+                          <div><span className="text-white/45">{t("history.httpStatus")}</span> {selectedHistoryAudit.result.evidence.deterministic.statusCode}</div>
                         )}
                         {selectedHistoryAudit.result.evidence.deterministic.finalUrl && (
-                          <div className="truncate"><span className="text-white/45">Resolved URL:</span> {selectedHistoryAudit.result.evidence.deterministic.finalUrl}</div>
+                          <div className="truncate"><span className="text-white/45">{t("history.resolvedUrl")}</span> {selectedHistoryAudit.result.evidence.deterministic.finalUrl}</div>
                         )}
                         {selectedHistoryAudit.result.evidence.deterministic.document?.title && (
-                          <div><span className="text-white/45">Page Title:</span> {selectedHistoryAudit.result.evidence.deterministic.document.title}</div>
+                          <div><span className="text-white/45">{t("history.pageTitle")}</span> {selectedHistoryAudit.result.evidence.deterministic.document.title}</div>
                         )}
                         {selectedHistoryAudit.result.evidence.deterministic.warnings?.length > 0 && (
                           <div>
-                            <span className="text-white/45">Warnings ({selectedHistoryAudit.result.evidence.deterministic.warnings.length}):</span>
+                            <span className="text-white/45">{t("history.warnings")} ({selectedHistoryAudit.result.evidence.deterministic.warnings.length}):</span>
                             <ul className="mt-1 ml-4 list-disc text-amber-300/80 text-xs">
                               {selectedHistoryAudit.result.evidence.deterministic.warnings.map((w: string, i: number) => (
                                 <li key={i}>{w}</li>
@@ -909,15 +792,15 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                   {/* Browser Evidence */}
                   {selectedHistoryAudit.result?.evidence?.browser && (
                     <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45 mb-3">Browser Evidence</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45 mb-3">{t("history.browserEvidence")}</p>
                       <div className="space-y-2 text-sm text-white/75">
-                        <div><span className="text-white/45">Status:</span> {selectedHistoryAudit.result.evidence.browser.status} ({selectedHistoryAudit.result.evidence.browser.mode})</div>
+                        <div><span className="text-white/45">{t("history.status")}</span> {selectedHistoryAudit.result.evidence.browser.status} ({selectedHistoryAudit.result.evidence.browser.mode})</div>
                         {selectedHistoryAudit.result.evidence.browser.reason && (
-                          <div><span className="text-white/45">Reason:</span> {selectedHistoryAudit.result.evidence.browser.reason}</div>
+                          <div><span className="text-white/45">{t("history.reason")}</span> {selectedHistoryAudit.result.evidence.browser.reason}</div>
                         )}
                         {selectedHistoryAudit.result.evidence.browser.warnings?.length > 0 && (
                           <div>
-                            <span className="text-white/45">Warnings:</span>
+                            <span className="text-white/45">{t("history.warnings")}</span>
                             <ul className="mt-1 ml-4 list-disc text-amber-300/80 text-xs">
                               {selectedHistoryAudit.result.evidence.browser.warnings.map((w: string, i: number) => (
                                 <li key={i}>{w}</li>
