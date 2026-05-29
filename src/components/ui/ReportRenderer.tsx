@@ -1,14 +1,27 @@
 import React, { useState } from "react";
-import { LayoutDashboard, Zap, Target, ShieldAlert, Flag, ChevronDown } from "lucide-react";
+import { LayoutDashboard, Zap, Target, ShieldAlert, Flag, ChevronDown, Gauge } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 
+interface RichFinding {
+  // Rich schema (new):
+  severity?: string;
+  finding?: string;
+  rootCause?: string;
+  businessImpact?: string;
+  actionableFix?: string;
+  // Legacy schema (old stored audits):
+  issue?: string;
+  impact?: string;
+}
+
 interface ParsedReport {
   executiveSummary?: string;
-  deterministicFindings?: { issue: string; impact: string; severity?: string }[];
-  browserFlowGaps?: { issue: string; impact: string; severity?: string }[];
-  architectureRisks?: { issue: string; impact: string; severity?: string }[];
-  nextActions?: { action: string; impact: string }[];
+  performanceFindings?: RichFinding[];
+  deterministicFindings?: RichFinding[];
+  browserFlowGaps?: RichFinding[];
+  architectureRisks?: RichFinding[];
+  nextActions?: { action: string; impact?: string; actionableFix?: string }[];
 }
 
 const CollapsibleCard: React.FC<{ 
@@ -73,9 +86,33 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
   const SeverityBadge = ({ severity }: { severity?: string }) => {
     if (!severity) return null;
     const s = severity.toLowerCase();
-    if (s === "high") return <span className="rounded-md bg-semantic-danger/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-danger border border-semantic-danger/30">{isZh ? "高影響" : "High Impact"}</span>;
-    if (s === "medium") return <span className="rounded-md bg-semantic-warning/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-warning border border-semantic-warning/30">{isZh ? "中等" : "Medium"}</span>;
-    return <span className="rounded-md bg-semantic-success/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-success border border-semantic-success/30">{isZh ? "低" : "Low"}</span>;
+    if (s === "critical" || s === "high") return <span className="rounded-md bg-semantic-danger/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-danger border border-semantic-danger/30">{isZh ? "嚴重" : "Critical"}</span>;
+    if (s === "warning" || s === "medium") return <span className="rounded-md bg-semantic-warning/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-warning border border-semantic-warning/30">{isZh ? "警告" : "Warning"}</span>;
+    return <span className="rounded-md bg-semantic-success/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-success border border-semantic-success/30">{isZh ? "資訊" : "Info"}</span>;
+  };
+
+  const FindingCard = ({ item }: { item: RichFinding }) => {
+    const title = item.finding ?? item.issue ?? "";
+    const impact = item.businessImpact ?? item.impact ?? "";
+    return (
+      <div className="rounded-2xl bg-white/[0.02] p-4 border border-white/[0.05] hover:bg-white/[0.04] transition-colors">
+        <div className="flex justify-between items-start mb-2 gap-2">
+          <p className="text-sm font-semibold text-white leading-snug">{title}</p>
+          <SeverityBadge severity={item.severity} />
+        </div>
+        {item.rootCause && (
+          <p className="text-xs text-white/50 leading-relaxed mb-1">
+            <span className="font-semibold text-white/70">{isZh ? "根因：" : "Root cause: "}</span>{item.rootCause}
+          </p>
+        )}
+        {impact && <p className="text-xs text-white/60 leading-relaxed">{impact}</p>}
+        {item.actionableFix && (
+          <p className="mt-2 text-xs text-brand-cyan/80 leading-relaxed">
+            <span className="font-semibold">{isZh ? "建議解法：" : "Fix: "}</span>{item.actionableFix}
+          </p>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -93,6 +130,20 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
       )}
 
       <div className="flex flex-col gap-6">
+        {parsed.performanceFindings && parsed.performanceFindings.length > 0 && (
+          <CollapsibleCard
+            title={isZh ? "效能與核心網頁指標" : "Performance & Core Web Vitals"}
+            icon={<Gauge className="h-5 w-5 text-brand-cyan" />}
+            colorClass="text-brand-cyan"
+            borderColorClass="border-brand-cyan/20"
+            defaultOpen={true}
+          >
+            <div className="grid gap-4 md:grid-cols-2">
+              {parsed.performanceFindings.map((item, i) => <FindingCard key={i} item={item} />)}
+            </div>
+          </CollapsibleCard>
+        )}
+
         {parsed.deterministicFindings && parsed.deterministicFindings.length > 0 && (
           <CollapsibleCard
             title={isZh ? "技術發現" : "Technical Findings"}
@@ -102,15 +153,7 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
             defaultOpen={true}
           >
             <div className="grid gap-4 md:grid-cols-2">
-              {parsed.deterministicFindings.map((item, i) => (
-                <div key={i} className="rounded-2xl bg-white/[0.02] p-4 border border-white/[0.05] hover:bg-white/[0.04] transition-colors">
-                  <div className="flex justify-between items-start mb-2 gap-2">
-                    <p className="text-sm font-semibold text-white leading-snug">{item.issue}</p>
-                    <SeverityBadge severity={item.severity} />
-                  </div>
-                  <p className="text-xs text-white/60 leading-relaxed">{item.impact}</p>
-                </div>
-              ))}
+              {parsed.deterministicFindings.map((item, i) => <FindingCard key={i} item={item} />)}
             </div>
           </CollapsibleCard>
         )}
@@ -124,15 +167,7 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
             defaultOpen={true}
           >
             <div className="grid gap-4 md:grid-cols-2">
-              {parsed.browserFlowGaps.map((item, i) => (
-                <div key={i} className="rounded-2xl bg-white/[0.02] p-4 border border-white/[0.05] hover:bg-white/[0.04] transition-colors">
-                  <div className="flex justify-between items-start mb-2 gap-2">
-                    <p className="text-sm font-semibold text-white leading-snug">{item.issue}</p>
-                    <SeverityBadge severity={item.severity} />
-                  </div>
-                  <p className="text-xs text-white/60 leading-relaxed">{item.impact}</p>
-                </div>
-              ))}
+              {parsed.browserFlowGaps.map((item, i) => <FindingCard key={i} item={item} />)}
             </div>
           </CollapsibleCard>
         )}
@@ -146,15 +181,7 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
             defaultOpen={true}
           >
             <div className="grid gap-4 md:grid-cols-2">
-              {parsed.architectureRisks.map((item, i) => (
-                <div key={i} className="rounded-2xl bg-white/[0.02] p-4 border border-white/[0.05] hover:bg-white/[0.04] transition-colors">
-                  <div className="flex justify-between items-start mb-2 gap-2">
-                    <p className="text-sm font-semibold text-white leading-snug">{item.issue}</p>
-                    <SeverityBadge severity={item.severity} />
-                  </div>
-                  <p className="text-xs text-white/60 leading-relaxed">{item.impact}</p>
-                </div>
-              ))}
+              {parsed.architectureRisks.map((item, i) => <FindingCard key={i} item={item} />)}
             </div>
           </CollapsibleCard>
         )}
@@ -175,7 +202,10 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-white leading-snug">{item.action}</p>
-                    <p className="mt-1 text-xs text-white/60 leading-relaxed">{item.impact}</p>
+                    {item.impact && <p className="mt-1 text-xs text-white/60 leading-relaxed">{item.impact}</p>}
+                    {item.actionableFix && item.actionableFix !== item.action && (
+                      <p className="mt-1 text-xs text-brand-cyan/80 leading-relaxed">{item.actionableFix}</p>
+                    )}
                   </div>
                 </div>
               ))}
