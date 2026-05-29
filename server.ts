@@ -20,6 +20,7 @@ import { fetchOpenRouterWithFallback } from "./src/Server/Services/openrouterHel
 import type { LiveScanSummary } from "./src/types/liveAudit.types";
 import type { PresentationMeasuredEvidence } from "./src/types/presentation";
 import { assertSafeAuditTargetUrl, AUDIT_TARGET_REDIRECT_LIMIT_ERROR, canSelfServePlanChange, getRequiredJwtSecret, parseSubscriptionPlan, UNSAFE_AUDIT_TARGET_ERROR } from "./src/Server/Services/securityPolicies";
+import { collectSecurityPosture, formatSecurityPostureLog } from "./src/Server/Services/securityPostureCollector";
 import { initDb, getDb } from "./src/db/index";
 import { users, audits, planSettings, intakeLeads } from "./src/db/schema";
 import { eq, desc, and } from "drizzle-orm";
@@ -643,6 +644,30 @@ async function startServer() {
       }
       if (closed) return res.end();
 
+      // ── Security Header Audit ────────────────────────────────────────────
+      sendLog("info", "🔒 Running security header audit…");
+      try {
+        const htmlRes = await fetch(finalUrl, { headers: { Accept: "text/html" }, redirect: "follow" });
+        const secPosture = collectSecurityPosture(htmlRes.headers);
+        for (const finding of secPosture.findings) {
+          const icon = finding.severity === "pass" ? "✓" : "⚠";
+          const label = finding.header
+            .replace("Content-Security-Policy", "CSP")
+            .replace("Strict-Transport-Security", "HSTS");
+          const detail = finding.present
+            ? (finding.misconfiguration ? `misconfigured — ${finding.misconfiguration.split("；")[0]}` : "ok")
+            : "MISSING";
+          sendLog(finding.severity === "pass" ? "success" : "warn", `${icon} ${label}: ${detail}`);
+        }
+        sendLog(
+          secPosture.score >= 75 ? "success" : "warn",
+          formatSecurityPostureLog(secPosture),
+        );
+      } catch {
+        sendLog("warn", "Security header audit failed, stream continues.");
+      }
+      if (closed) return res.end();
+
       // ── Phase 2: analyzing ────────────────────────────────────────────
       // Transition triggers the client-side Google PageSpeed fetch in parallel.
       sendPhase("analyzing");
@@ -704,6 +729,39 @@ async function startServer() {
     }
     const result = await fetchCruxReport(url);
     res.json(result);
+  });
+
+  /**
+   * GET /api/scan/security?url=<target>
+   *
+   * Returns the full SecurityPostureResult for the target URL, including:
+   *  - score (0-100) and grade (A-F)
+   *  - per-header findings with severity and remediation hints
+   *  - detected platform stack (vercel / nginx / aspnet / cloudflare / unknown)
+   *  - platform-specific remediation code snippets (Vercel JSON, Nginx conf, ASP.NET C#)
+   *
+   * This endpoint is intentionally separate from the SSE stream so the client can
+   * display the full remediation panel on-demand after the stream completes.
+   */
+  app.get("/api/scan/security", authenticateToken, async (req, res) => {
+    const url = typeof req.query.url === "string" ? req.query.url : "";
+    if (!url) {
+      return res.status(400).json({ error: "missing_url" });
+    }
+
+    try {
+      await assertSafeAuditTargetUrl(url);
+
+      // Follow redirects manually to get the final response headers
+      const response = await fetch(url, { redirect: "follow", headers: { Accept: "text/html" } });
+      const result = collectSecurityPosture(response.headers);
+
+      res.json(result);
+    } catch (error: any) {
+      const message = error?.message;
+      const isClientError = message === UNSAFE_AUDIT_TARGET_ERROR || message === AUDIT_TARGET_REDIRECT_LIMIT_ERROR;
+      res.status(isClientError ? 400 : 502).json({ error: message || "security_scan_failed" });
+    }
   });
 
   // Audit Presentation Slide Deck Auditor - AI driven or offline fallback

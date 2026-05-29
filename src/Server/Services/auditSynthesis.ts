@@ -28,6 +28,17 @@ function buildCruxLines(crux?: CruxResult): string[] {
 }
 
 function buildEvidenceLines(payload: AuditRequestPayload, deterministic: DeterministicCollectorResult): string[] {
+  const securityPosture = deterministic.securityPosture;
+  const securityLines: string[] = securityPosture
+    ? [
+        `Security posture grade: ${securityPosture.grade} (${securityPosture.score}/100, stack: ${securityPosture.detectedStack})`,
+        ...securityPosture.findings.map(
+          (f) =>
+            `  ${f.header}: ${f.present ? `present${f.misconfiguration ? ` — MISCONFIGURED: ${f.misconfiguration}` : " (ok)"}` : "MISSING"} [severity=${f.severity}]`,
+        ),
+      ]
+    : ["Security posture: not evaluated (securityPostureCollector did not run)"];
+
   const lines = [
     `Target URL: ${payload.url}`,
     payload.companyName ? `Company name: ${payload.companyName}` : null,
@@ -47,6 +58,7 @@ function buildEvidenceLines(payload: AuditRequestPayload, deterministic: Determi
     deterministic.document ? `Asset counts: scripts=${deterministic.document.counts.scripts}, stylesheets=${deterministic.document.counts.stylesheets}, images=${deterministic.document.counts.images}, missingAlt=${deterministic.document.counts.imagesMissingAlt}, structuredData=${deterministic.document.counts.structuredDataBlocks}` : null,
     deterministic.warnings.length > 0 ? `Detected warnings: ${deterministic.warnings.join(" | ")}` : null,
     deterministic.notes.length > 0 ? `Collector notes: ${deterministic.notes.join(" | ")}` : null,
+    ...securityLines,
   ].filter((item): item is string => Boolean(item));
 
   return lines;
@@ -82,6 +94,7 @@ export function buildAuditPrompt(payload: AuditRequestPayload, evidence: AuditEv
     '  "deterministicFindings": [{ "severity": "critical|warning|info", "finding": "...", "rootCause": "...", "businessImpact": "...", "actionableFix": "..." }],',
     '  "browserFlowGaps": [{ "severity": "critical|warning|info", "finding": "...", "rootCause": "...", "businessImpact": "...", "actionableFix": "..." }],',
     '  "architectureRisks": [{ "severity": "critical|warning|info", "finding": "...", "rootCause": "...", "businessImpact": "...", "actionableFix": "..." }],',
+    '  "securityFindings": [{ "severity": "critical|warning|info", "finding": "...", "rootCause": "...", "businessImpact": "...", "actionableFix": "..." }],',
     '  "nextActions": [{ "action": "Clear actionable step", "impact": "Expected improvement", "actionableFix": "Precise developer instruction" }]',
     "}",
     "ANALYSIS RULES:",
@@ -89,6 +102,7 @@ export function buildAuditPrompt(payload: AuditRequestPayload, evidence: AuditEv
     "- Infer LCP/INP root cause ONLY from the MODELED inputs supplied (server response time/TTFB, render-blocking stylesheet/script counts, crawled route timings). You have NO per-request waterfall and NO LCP-element attribution — never claim a specific element or HTTP request caused a vital.",
     "- Tag every modeled or estimated figure explicitly (zh-TW: 估算 or 模型推估; en: 'estimated').",
     "- Use performanceFindings for Core Web Vitals / latency; keep deterministicFindings, browserFlowGaps, architectureRisks for their respective concerns.",
+    "- Use securityFindings for ALL security header issues (CSP, HSTS, X-Frame-Options, X-Content-Type-Options). Base these strictly on the Security posture evidence lines provided. Do NOT invent security findings not supported by the evidence.",
     "Keep the tone consultative, professional, and actionable. Frame technical issues in terms of business impact.",
     buildEvidenceLines(payload, evidence.deterministic).join("\n"),
     buildCruxLines(evidence.crux).join("\n"),
@@ -327,6 +341,28 @@ export function buildFallbackSummary(payload: AuditRequestPayload, evidence: Aud
 
   const performanceFindings = buildPerformanceFindings(evidence, isZh);
 
+  // Build security findings from securityPosture (available even in fallback mode)
+  const securityPosture = evidence.deterministic.securityPosture;
+  const securityFindings = securityPosture
+    ? securityPosture.findings
+        .filter((f) => f.severity !== "pass")
+        .map((f) => ({
+          severity: (f.severity === "critical" ? "critical" : f.severity === "high" ? "critical" : "warning") as "critical" | "warning" | "info",
+          finding: isZh
+            ? `${f.header}：${f.present ? `已設定但有誤設（${f.misconfiguration ?? "配置需審查"}）` : "完全缺失"}`
+            : `${f.header}: ${f.present ? `present but misconfigured (${f.misconfiguration ?? "configuration needs review"})` : "completely missing"}`,
+          rootCause: isZh
+            ? f.remediationHint
+            : f.remediationHint,
+          businessImpact: isZh
+            ? "資安防禦缺口可能使攻擊者執行 XSS、Clickjacking 或 SSL 降級攻擊，影響使用者資料安全與品牌信任度。"
+            : "Security gaps may enable XSS, Clickjacking, or SSL downgrade attacks, jeopardizing user data and brand trust.",
+          actionableFix: isZh
+            ? `依偵測到的平台（${securityPosture.detectedStack}）套用對應的安全 header 設定，詳細設定請參考 /api/scan/security 端點。`
+            : `Apply the recommended security header configuration for the detected platform (${securityPosture.detectedStack}). See /api/scan/security endpoint for exact snippets.`,
+        }))
+    : [];
+
   return JSON.stringify({
     executiveSummary,
     performanceFindings,
@@ -341,6 +377,7 @@ export function buildFallbackSummary(payload: AuditRequestPayload, evidence: Aud
     })),
     browserFlowGaps,
     architectureRisks,
+    securityFindings,
     nextActions: nextActions.map((a) => ({
       action: a,
       impact: isZh ? "提升整體管道的可見度與穩定度。" : "Improves overall pipeline visibility and stability.",

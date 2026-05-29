@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Bot, BrainCircuit, Cpu, Database, RefreshCcw, Sparkles, Terminal, Workflow, History, X, ShieldAlert, Shield, ShieldCheck, Target, Zap, LayoutDashboard, Flag } from "lucide-react";
+import { ArrowRight, Bot, BrainCircuit, Cpu, Database, RefreshCcw, Sparkles, Terminal, Workflow, History, X, ShieldAlert, Shield, ShieldCheck, Target, Zap, LayoutDashboard, Flag, Camera } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { BrowserCollectorTimelineStep } from "../Server/Services/auditPipelineTypes";
 import PageContainer from "../components/layout/PageContainer";
 import ConsoleTabs from "../components/ui/ConsoleTabs";
 import GlassContainer from "../components/ui/GlassContainer";
 import { ReportRenderer } from "../components/ui/ReportRenderer";
+import ShimmerText from "../components/ui/ShimmerText";
 import GlowingButton from "../components/ui/GlowingButton";
 import MemorySyncBadge from "../components/ui/MemorySyncBadge";
+import PermissionGate from "../components/ui/PermissionGate";
 import SubagentCard from "../components/ui/SubagentCard";
 import { useAuditAgent, buildLiveMemoryUpdates, buildLiveReportContent } from "../hooks/useAuditAgent";
 import type { AgentReportMetric } from "../types/agent.types";
@@ -33,6 +35,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
   const [selectedHistoryAudit, setSelectedHistoryAudit] = useState<any | null>(null);
   const modalCloseRef = useRef<HTMLButtonElement>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
+  const [isScannerModalOpen, setIsScannerModalOpen] = useState<boolean>(false);
 
   const {
     phase,
@@ -326,7 +329,9 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                       <div className="relative h-1 w-full overflow-hidden rounded-full bg-white/10">
                         <div className="absolute left-0 top-0 h-full w-1/3 rounded-full bg-brand-cyan shadow-[0_0_10px_rgba(34,211,238,0.6)] animate-pulse" />
                       </div>
-                      <p className="text-center text-sm font-medium text-white/60 animate-pulse">{t("auditConsole.sections.reportWaiting")}</p>
+                      <div className="flex justify-center mt-6">
+                        <ShimmerText text={t("auditConsole.sections.reportWaiting", "正在分析並輸出報告...")} className="text-sm" />
+                      </div>
                     </div>
                   </div>
                 );
@@ -520,6 +525,15 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                           }
                         }}
                       />
+                      <button
+                        type="button"
+                        onClick={() => setIsScannerModalOpen(true)}
+                        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-white/60 hover:bg-white/10 hover:text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan"
+                        title="掃描實體架構圖"
+                        aria-label="打開相機掃描實體文件"
+                      >
+                        <Camera className="h-4.5 w-4.5" />
+                      </button>
                     </div>
                     <div className="flex gap-2">
                       {isRunning ? (
@@ -713,6 +727,42 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
           </GlassContainer>
 
         </div>
+
+        {/* Scanner Permission Modal */}
+        <AnimatePresence>
+          {isScannerModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+                onClick={() => setIsScannerModalOpen(false)}
+              />
+              <div className="relative z-10 w-full max-w-md">
+                <PermissionGate
+                  icon={Camera}
+                  title="需要相機權限"
+                  description="我們需要存取相機來掃描實體架構圖或紙本資安報告，以便 AI Agent 進行即時視覺分析。您的影像將在處理完畢後立即銷毀。"
+                  buttonLabel="允許存取相機"
+                  onRequestPermission={async () => {
+                    try {
+                      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                      // Simulate scanning transition
+                      setTimeout(() => {
+                        stream.getTracks().forEach(track => track.stop());
+                        setIsScannerModalOpen(false);
+                      }, 1500);
+                    } catch (err) {
+                      console.error("Permission denied or not available", err);
+                      setIsScannerModalOpen(false);
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          )}
+        </AnimatePresence>
 
         {/* History Modal */}
         <AnimatePresence>

@@ -85,6 +85,23 @@ export interface LiveScanSeoSignals {
 }
 
 /**
+ * Lightweight security posture snapshot carried on the `done` SSE frame.
+ * Full remediation snippets are fetched separately via /api/scan/security.
+ */
+export interface SecurityPostureSummary {
+  score: number;
+  grade: "A" | "B" | "C" | "D" | "F";
+  /** 各 header 的簡明狀態 */
+  findings: Array<{
+    header: string;
+    present: boolean;
+    severity: "critical" | "high" | "medium" | "low" | "pass";
+    remediationHint: string;
+  }>;
+  detectedStack: "vercel" | "nginx" | "aspnet" | "cloudflare" | "unknown";
+}
+
+/**
  * Structured payload delivered on the `done` SSE frame. Powers the charts and
  * detailed copy rendered after a live scan completes.
  */
@@ -102,6 +119,8 @@ export interface LiveScanSummary {
   warnings: string[];
   browserStatus: string;
   browserMode: string;
+  /** 安全防禦態勢摘要（由 securityPostureCollector 產生） */
+  security?: SecurityPostureSummary;
 }
 
 /** Core Web Vitals "good / needs improvement / poor" bucket. */
@@ -146,6 +165,23 @@ export interface CruxResult {
     inp: CruxHistorySeries;
     cls: CruxHistorySeries;
   };
+}
+
+export type LabFieldDiscrepancyLevel = "none" | "moderate" | "severe";
+
+export interface LabFieldGapAnalysis {
+  discrepancyLevel: LabFieldDiscrepancyLevel;
+  blindSpotIdentified: string;
+  strategicRecommendation: string;
+}
+
+export type PerformanceTrendStatus = "improving" | "stable" | "regressing";
+
+export interface PerformanceTrendAlertReport {
+  trendStatus: PerformanceTrendStatus;
+  trendSummary: string;
+  keyRegressions: string[];
+  hypothesizedRootCause: string;
 }
 
 export type ExecutionStatus =

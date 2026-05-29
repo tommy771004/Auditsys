@@ -3,7 +3,7 @@ import { collectDeterministicEvidence } from "./deterministicCollector";
 import { collectBrowserEvidence } from "./browserCollector";
 import { buildDomIssuePatch } from "./domIssuePatches";
 import type { BrowserCollectorResult, DeterministicCollectorResult } from "./auditPipelineTypes";
-import type { DOMIssueType, LiveDOMIssue, LiveScanRoute, LiveScanScores, LiveScanSummary } from "../../types/liveAudit.types";
+import type { DOMIssueType, LiveDOMIssue, LiveScanRoute, LiveScanScores, LiveScanSummary, SecurityPostureSummary } from "../../types/liveAudit.types";
 
 /** Mirrors the client-side `SSELog` log levels. */
 export type SSELogLevel = "info" | "warn" | "error" | "success";
@@ -327,6 +327,21 @@ function foldLiveScanSummary(
     : null;
   const document = deterministic.document;
 
+  // Build lightweight security posture summary (omit large remediation snippets)
+  const security: SecurityPostureSummary | undefined = deterministic.securityPosture
+    ? {
+        score: deterministic.securityPosture.score,
+        grade: deterministic.securityPosture.grade,
+        detectedStack: deterministic.securityPosture.detectedStack,
+        findings: deterministic.securityPosture.findings.map((f) => ({
+          header: f.header,
+          present: f.present,
+          severity: f.severity,
+          remediationHint: f.remediationHint,
+        })),
+      }
+    : undefined;
+
   return {
     finalUrl: deterministic.finalUrl ?? deterministic.targetUrl,
     statusCode: deterministic.statusCode ?? null,
@@ -354,6 +369,7 @@ function foldLiveScanSummary(
     warnings: [...deterministic.warnings, ...browser.warnings].slice(0, 8),
     browserStatus: browser.status,
     browserMode: browser.mode,
+    security,
   };
 }
 

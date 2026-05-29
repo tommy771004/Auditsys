@@ -22,6 +22,7 @@ import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import Campaign from "./pages/Campaign";
 import AuditPresentation from "./pages/AuditPresentation";
+import InteractiveStatesDemo from "./pages/InteractiveStatesDemo";
 import type { AppRoute } from "./types/home";
 
 export default function App() {
@@ -65,6 +66,8 @@ export default function App() {
         return <Campaign onNavigate={navigate} />;
       case "presentation":
         return <AuditPresentation onNavigate={navigate} />;
+      case "interactive-demo":
+        return <InteractiveStatesDemo />;
       case "home":
       default:
         return <Home activeSection={section} onNavigate={navigate} />;

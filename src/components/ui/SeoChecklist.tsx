@@ -79,17 +79,31 @@ export default function SeoChecklist({ documentEvidence }: SeoChecklistProps) {
   return (
     <div className="space-y-4">
       <h4 className="text-sm font-semibold uppercase tracking-widest text-brand-cyan">SEO Signals Checklist</h4>
-      <div className="grid gap-3">
-        {checklistItems.map((item) => {
-          const Icon = item.icon;
-          const isExpanded = expandedId === item.id;
-          const isPass = item.status === "pass";
+      <motion.div 
+        className="grid gap-3"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          visible: { transition: { staggerChildren: 0.05 } }
+        }}
+      >
+        <AnimatePresence initial={false}>
+          {checklistItems.map((item) => {
+            const Icon = item.icon;
+            const isExpanded = expandedId === item.id;
+            const isPass = item.status === "pass";
 
-          return (
-            <div 
-              key={item.id} 
-              className={`rounded-[16px] border ${isPass ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-rose-500/20 bg-rose-500/5'} overflow-hidden transition-colors`}
-            >
+            return (
+              <motion.div 
+                key={item.id} 
+                layout
+                variants={{
+                  hidden: { opacity: 0, y: 8 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } }
+                }}
+                exit={{ opacity: 0, height: 0, overflow: "hidden", transition: { duration: 0.2 } }}
+                className={`rounded-[16px] border ${isPass ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-rose-500/20 bg-rose-500/5'} overflow-hidden transition-colors`}
+              >
               <button
                 type="button"
                 onClick={() => setExpandedId(isExpanded ? null : item.id)}
@@ -121,10 +135,10 @@ export default function SeoChecklist({ documentEvidence }: SeoChecklistProps) {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
 }

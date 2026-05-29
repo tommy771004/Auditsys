@@ -16,7 +16,15 @@ function baseEvidence(overrides: Partial<AuditEvidenceBundle> = {}): AuditEviden
       finalUrl: "https://example.com/",
       statusCode: 200,
       responseTimeMs: 1200,
-      headers: { cacheControl: null, server: "nginx", poweredBy: null },
+      headers: {
+        cacheControl: null,
+        server: "nginx",
+        poweredBy: null,
+        contentSecurityPolicy: null,
+        strictTransportSecurity: null,
+        xFrameOptions: null,
+        xContentTypeOptions: null,
+      },
       document: {
         title: "Example",
         metaDescription: "desc",

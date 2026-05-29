@@ -13,6 +13,21 @@
     -moz-osx-font-smoothing: grayscale;
     touch-action: manipulation;
   }
+
+  /*
+   * Global focus-visible reset.
+   * Removes every browser's default outline so components can draw their own
+   * focus ring via Tailwind's `focus-visible:ring-*` utilities (WCAG 2.4.7).
+   * The :focus-visible pseudo-class ensures the ring only appears on keyboard
+   * navigation — mouse users never see stray focus rings.
+   */
+  :focus {
+    outline: none;
+  }
+
+  :focus-visible {
+    outline: none; /* each component draws its own ring */
+  }
 }
 
 @layer components {

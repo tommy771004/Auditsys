@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Activity, Boxes, Gauge, ListChecks, Network, ServerCog, TriangleAlert } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { LiveScanSummary } from "../../types/liveAudit.types";
@@ -149,22 +149,37 @@ export default function ScanSummaryPanel({ summary }: ScanSummaryPanelProps) {
             <ListChecks className="h-4 w-4 text-emerald-200" />
             {t("liveAudit.summary.seo.title")}
           </div>
-          <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {seoSignals.map((signal) => (
-              <li
-                key={signal.id}
-                className={[
-                  "flex items-center gap-2 rounded-xl border px-3 py-2 text-xs",
-                  signal.ok
-                    ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-100"
-                    : "border-rose-400/20 bg-rose-400/10 text-rose-100",
-                ].join(" ")}
-              >
-                <span className="text-sm">{signal.ok ? "✓" : "✕"}</span>
-                <span>{signal.label}</span>
-              </li>
-            ))}
-          </ul>
+          <motion.ul 
+            className="grid grid-cols-1 gap-2 sm:grid-cols-2"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: { transition: { staggerChildren: 0.04 } }
+            }}
+          >
+            <AnimatePresence initial={false}>
+              {seoSignals.map((signal) => (
+                <motion.li
+                  key={signal.id}
+                  layout
+                  variants={{
+                    hidden: { opacity: 0, y: 6 },
+                    visible: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } }
+                  }}
+                  exit={{ opacity: 0, height: 0, overflow: "hidden", transition: { duration: 0.2 } }}
+                  className={[
+                    "flex items-center gap-2 rounded-xl border px-3 py-2 text-xs",
+                    signal.ok
+                      ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-100"
+                      : "border-rose-400/20 bg-rose-400/10 text-rose-100",
+                  ].join(" ")}
+                >
+                  <span className="text-sm">{signal.ok ? "✓" : "✕"}</span>
+                  <span>{signal.label}</span>
+                </motion.li>
+              ))}
+            </AnimatePresence>
+          </motion.ul>
         </div>
       </div>
 
@@ -208,14 +223,32 @@ export default function ScanSummaryPanel({ summary }: ScanSummaryPanelProps) {
             <TriangleAlert className="h-4 w-4" />
             {t("liveAudit.summary.warnings.title", { count: summary.warnings.length })}
           </div>
-          <ul className="space-y-1.5">
-            {summary.warnings.map((warning, index) => (
-              <li key={index} className="flex gap-2 text-xs leading-6 text-amber-50/90">
-                <span className="text-amber-300">•</span>
-                <span>{warning}</span>
-              </li>
-            ))}
-          </ul>
+          <motion.ul 
+            className="space-y-1.5"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: { transition: { staggerChildren: 0.04 } }
+            }}
+          >
+            <AnimatePresence initial={false}>
+              {summary.warnings.map((warning, index) => (
+                <motion.li 
+                  key={`${warning}-${index}`}
+                  layout
+                  variants={{
+                    hidden: { opacity: 0, y: 6 },
+                    visible: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } }
+                  }}
+                  exit={{ opacity: 0, height: 0, overflow: "hidden", transition: { duration: 0.2 } }}
+                  className="flex gap-2 text-xs leading-6 text-amber-50/90"
+                >
+                  <span className="text-amber-300">•</span>
+                  <span>{warning}</span>
+                </motion.li>
+              ))}
+            </AnimatePresence>
+          </motion.ul>
         </div>
       ) : null}
     </GlassSection>
