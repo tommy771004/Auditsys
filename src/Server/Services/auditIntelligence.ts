@@ -1,6 +1,7 @@
 import { synthesizeAudit } from "./auditSynthesis";
 import { collectBrowserEvidence } from "./browserCollector";
 import { collectDeterministicEvidence } from "./deterministicCollector";
+import { fetchCruxReport } from "./cruxCollector";
 import type { AuditIntelligenceResult } from "./auditPipelineTypes";
 import { normalizeAuditRequestPayload } from "./auditPipelineTypes";
 import { assertSafeAuditTargetUrl } from "./securityPolicies";
@@ -15,10 +16,16 @@ export async function generateAuditIntelligence(payload: unknown, config?: { ope
   await assertSafeAuditTargetUrl(normalizedPayload.url);
 
   const deterministic = await collectDeterministicEvidence(normalizedPayload);
-  const browser = await collectBrowserEvidence(normalizedPayload, deterministic);
+  // fetchCruxReport never throws (returns hasData:false on failure), so it is
+  // safe to run in parallel with the browser collector without a try/catch.
+  const [browser, crux] = await Promise.all([
+    collectBrowserEvidence(normalizedPayload, deterministic),
+    fetchCruxReport(normalizedPayload.url),
+  ]);
   const synthesis = await synthesizeAudit(normalizedPayload, {
     deterministic,
     browser,
+    crux,
   }, config);
 
   return {
@@ -28,6 +35,7 @@ export async function generateAuditIntelligence(payload: unknown, config?: { ope
     evidence: {
       deterministic,
       browser,
+      crux,
     },
   };
 }
