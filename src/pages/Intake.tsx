@@ -47,7 +47,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
   const isGoalsError = errorKey === "validation.requiredGoal";
   const isStackError = errorKey === "validation.requiredStack";
   const isEmailError = errorKey === "validation.requiredEmail" || errorKey === "validation.invalidEmail";
-  const showSubmitError = errorKey === "validation.intakeSubmitFailed";
+  const showSubmitError = errorKey === "validation.submitFailed";
 
   const stepItems: StepItem[] = [
     {
