@@ -11,6 +11,7 @@ import Navbar from "./components/layout/Navbar";
 import MeshBackground from "./components/ui/MeshBackground";
 import { useHashRoute } from "./hooks/useHashRoute";
 import AuditConsole from "./pages/AuditConsole";
+import RealAuditDashboard from "./pages/RealAuditDashboard";
 import Home from "./pages/Home";
 import Intake from "./pages/Intake";
 import Pricing from "./pages/Pricing";
@@ -45,6 +46,8 @@ export default function App() {
     switch (route) {
       case "console":
         return <AuditConsole onNavigate={navigate} />;
+      case "live":
+        return <RealAuditDashboard onNavigate={navigate} />;
       case "pricing":
         return <Pricing onNavigate={navigate} />;
       case "report":
@@ -65,7 +68,7 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-brand-slate text-brand-text">
-      <MeshBackground variant={route === "console" ? "console" : "default"} />
+      <MeshBackground variant={route === "console" || route === "live" ? "console" : "default"} />
       <Navbar currentRoute={route} currentSection={section} onNavigate={navigate} />
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
