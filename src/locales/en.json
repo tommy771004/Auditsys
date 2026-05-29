@@ -9,6 +9,7 @@
     "report": "AuditLens | Sample Report",
     "intake": "AuditLens | Intake",
     "console": "AuditLens | Agent Mission Control",
+    "live": "AuditLens | Live Execution Engine",
     "campaign": "AuditLens | Marketing Campaigns"
   },
   "navbar": {
@@ -16,6 +17,7 @@
     "features": "Features",
     "sampleReport": "Sample Report",
     "console": "Mission Control",
+    "live": "Live Engine",
     "pricing": "Pricing",
     "intake": "Intake",
     "campaign": "Campaigns",
@@ -830,6 +832,212 @@
         "title": "Email 3: Re-engagement (Day 14)",
         "subject": "Did you fix those 3 vulnerabilities?",
         "body": "We noticed you ran an audit two weeks ago. Web standards change fast. Run a fresh scan to ensure your recent deploys are bulletproof. [Re-scan now ->]"
+      }
+    },
+    "subj": "Subj: "
+  },
+  "history": {
+    "title": "Audit History",
+    "subtitle": "Your Past Analysis Runs",
+    "loading": "Loading runs...",
+    "reportTitle": "Historical Analysis Report",
+    "deterministicEvidence": "Deterministic Evidence",
+    "httpStatus": "HTTP Status:",
+    "resolvedUrl": "Resolved URL:",
+    "pageTitle": "Page Title:",
+    "warnings": "Warnings:",
+    "browserEvidence": "Browser Evidence",
+    "status": "Status:",
+    "reason": "Reason:",
+    "empty": "No automated audit history found. Submit your first analysis URL above to start tracking performance runs.",
+    "provider": "Provider:",
+    "model": "Model:",
+    "response": "Response:",
+    "unknownError": "Unknown error",
+    "standardEngine": "Standard engine",
+    "refreshHistory": "Refresh history"
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "subtitle": "Manage users and system data",
+    "signOut": "Sign Out",
+    "tabs": {
+      "overview": "Overview",
+      "reports": "Reports",
+      "users": "Users",
+      "settings": "Settings",
+      "leads": "Leads"
+    },
+    "overview": {
+      "title": "System Overview",
+      "totalUsers": "Total Users",
+      "totalAudits": "Total Audits",
+      "completed": "Completed",
+      "pending": "Pending",
+      "loading": "Loading stats..."
+    },
+    "reports": {
+      "viewReport": "View Report",
+      "empty": "No audit records found.",
+      "noReport": "No report content available for this audit record.",
+      "auditFailed": "Audit failed: "
+    },
+    "users": {
+      "joined": "Joined",
+      "freePlan": "Free Plan",
+      "proPlan": "Pro Plan",
+      "enterprise": "Enterprise",
+      "userRole": "USER",
+      "adminRole": "ADMIN",
+      "empty": "No users found."
+    },
+    "settings": {
+      "title": "Plan Settings",
+      "planTitle": " Plan",
+      "openRouterKey": "OpenRouter API Key",
+      "enterApiKey": "Enter API Key",
+      "planPrice": "Plan Price",
+      "eGPrice": "e.g. $29",
+      "allowedModels": "Allowed Models",
+      "eGModel": "e.g. anthropic/claude-3.5-sonnet",
+      "save": "Save Settings",
+      "empty": "No plan settings found."
+    },
+    "leads": {
+      "title": "Leads Management",
+      "targetUrl": "Target URL",
+      "teamSize": "Team Size",
+      "techStack": "Tech Stack",
+      "goals": "Goals",
+      "additionalNotes": "Additional Notes",
+      "collectedOn": "Collected on",
+      "empty": "No leads have been collected yet."
+    },
+    "confirm": {
+      "title": "Confirm Action",
+      "deleteLead": "Are you sure you want to delete this lead?",
+      "deleteAudit": "Are you sure you want to delete this audit?",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    }
+  },
+  "misc": {
+    "provides": "Provides: {{model}}",
+    "upgrading": "Upgrading...",
+    "activePlan": "Active - Go to Console"
+  },
+  "liveAudit": {
+    "badge": "Live Execution Engine",
+    "title": "Real-Time SEO Audit",
+    "description": "Stream a real scan over Server-Sent Events, pull live Core Web Vitals from Google PageSpeed, and inspect actual DOM defects parsed by the backend.",
+    "missionEyebrow": "Live Target",
+    "missionTitle": "Run a Live Scan",
+    "inputLabel": "Target URL",
+    "inputPlaceholder": "https://example.com",
+    "phaseLabel": "Phase: {{value}}",
+    "status": {
+      "idle": "Idle",
+      "connecting": "Connecting",
+      "scanning": "Scanning",
+      "analyzing": "Analyzing (Lighthouse)",
+      "complete": "Complete",
+      "error": "Error"
+    },
+    "actions": {
+      "start": "Start Live Scan",
+      "cancel": "Cancel",
+      "retry": "Retry Scan",
+      "rescan": "Run Again"
+    },
+    "idleState": {
+      "title": "Ready when you are",
+      "description": "Enter a target URL and start the scan to open a live Server-Sent Events stream."
+    },
+    "errorState": {
+      "title": "Live connection failed",
+      "description": "The stream disconnected or the server returned an error. Check the target URL and that the backend is reachable, then retry."
+    },
+    "terminal": {
+      "title": "Live Stream",
+      "idle": "// Awaiting scan start…",
+      "awaiting": "Awaiting server response…"
+    },
+    "vitals": {
+      "title": "Core Web Vitals",
+      "subtitle": "Live from Google PageSpeed Insights",
+      "pending": "Vitals appear once the scan reaches the Lighthouse stage.",
+      "error": "Could not load PageSpeed data for this target.",
+      "score": "Performance",
+      "fcp": "FCP",
+      "lcp": "LCP",
+      "inp": "INP",
+      "cls": "CLS",
+      "fieldSubtitle": "Real-user field data (Chrome UX Report)",
+      "fieldBadge": "Field",
+      "labBadge": "Lab",
+      "rating": {
+        "good": "Good",
+        "needs-improvement": "Needs improvement",
+        "poor": "Poor"
+      },
+      "scope": {
+        "url": "This page",
+        "origin": "Whole site"
+      },
+      "fieldFooter": "{{scope}} · 28-day real-user data",
+      "fieldFooterWithPeriod": "{{scope}} · {{period}}",
+      "labFallbackNote": "No field data for this target — showing a Lighthouse lab estimate."
+    },
+    "dom": {
+      "title": "DOM Issue Inspector",
+      "subtitle": "Defects parsed from the live HTML by the backend",
+      "empty": "No critical DOM issues detected.",
+      "types": {
+        "missing_alt": "Missing alt text",
+        "multiple_h1": "Multiple H1",
+        "invalid_canonical": "Invalid canonical"
+      }
+    },
+    "report": {
+      "title": "Scan complete",
+      "description": "The live stream finished and DOM issues were collected. View the full sample report for the remediation playbook.",
+      "openSample": "Open Sample Report"
+    },
+    "summary": {
+      "title": "Scan Summary",
+      "subtitle": "Scores and evidence folded from the live deterministic + crawler pass",
+      "scores": {
+        "overall": "Overall",
+        "performance": "Performance",
+        "seo": "SEO",
+        "architecture": "Architecture"
+      },
+      "meta": {
+        "status": "HTTP {{value}}",
+        "responseTime": "{{value}} ms"
+      },
+      "assets": {
+        "title": "Asset Breakdown",
+        "scripts": "Scripts",
+        "stylesheets": "Stylesheets",
+        "images": "Images",
+        "missingAlt": "Images missing alt"
+      },
+      "seo": {
+        "title": "SEO Signals",
+        "titleTag": "Title tag",
+        "metaDescription": "Meta description",
+        "canonical": "Canonical link",
+        "viewport": "Viewport meta",
+        "h1": "H1 headings ×{{count}}",
+        "structuredData": "Structured data ×{{count}}",
+        "openGraph": "Open Graph ×{{count}}"
+      },
+      "routes": {
+        "title": "Crawled Routes ({{count}})"
+      },
+      "warnings": {
+        "title": "Warnings ({{count}})"
       }
     }
   }
