@@ -1,3 +1,5 @@
+import type { CruxResult } from "../../types/liveAudit.types";
+
 export interface AuditRequestPayload {
   url: string;
   companyName?: string;
@@ -112,6 +114,8 @@ export interface BrowserCollectorResult {
 export interface AuditEvidenceBundle {
   deterministic: DeterministicCollectorResult;
   browser: BrowserCollectorResult;
+  /** Real-user Core Web Vitals (Chrome UX Report). Absent/`hasData:false` when unavailable. */
+  crux?: CruxResult;
 }
 
 export interface AuditSynthesisResult {
