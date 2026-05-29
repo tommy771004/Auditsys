@@ -624,6 +624,250 @@ function buildWebwrightResult(payload: AuditRequestPayload, deterministic: Deter
   };
 }
 
+interface CrawledRoute {
+  url: string;
+  status: number | null;
+  ok: boolean;
+  responseTimeMs: number | null;
+  title?: string;
+  error?: string;
+}
+
+function extractTitle(html: string): string | undefined {
+  const match = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  return match?.[1] ? match[1].replace(/\s+/g, " ").trim() : undefined;
+}
+
+function extractInternalLinks(html: string, baseHref: string): string[] {
+  let baseUrl: URL;
+
+  try {
+    baseUrl = new URL(baseHref);
+  } catch {
+    return [];
+  }
+
+  const hrefMatches = [...html.matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>/gi)];
+  const internalLinks = new Set<string>();
+
+  for (const match of hrefMatches) {
+    const href = match[1]?.trim();
+
+    if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:") || href.startsWith("javascript:")) {
+      continue;
+    }
+
+    try {
+      const resolved = new URL(href, baseUrl);
+      resolved.hash = "";
+
+      if (resolved.origin === baseUrl.origin && resolved.href !== baseUrl.href) {
+        internalLinks.add(resolved.href);
+      }
+    } catch {
+      /* ignore invalid URLs */
+    }
+  }
+
+  return [...internalLinks];
+}
+
+async function probeRoute(url: string): Promise<CrawledRoute> {
+  const startedTime = Date.now();
+
+  try {
+    const response = await fetch(url, {
+      headers: { "User-Agent": "AuditLens/1.0 (Lightweight Crawler)" },
+      signal: AbortSignal.timeout(5000),
+    });
+
+    const responseTimeMs = Date.now() - startedTime;
+    const contentType = response.headers.get("content-type");
+    const title = contentType?.includes("text/html") ? extractTitle(await response.text()) : undefined;
+
+    return {
+      url,
+      status: response.status,
+      ok: response.ok,
+      responseTimeMs,
+      title,
+    };
+  } catch (error: any) {
+    return {
+      url,
+      status: null,
+      ok: false,
+      responseTimeMs: null,
+      error: error?.message ?? "fetch_failed",
+    };
+  }
+}
+
+/**
+ * Lightweight, dependency-free browser-collector substitute. It performs a real
+ * multi-route crawl with `fetch` (no Playwright binary required) and shapes the
+ * output to the same `BrowserCollectorResult` contract a real browser run would
+ * produce: per-route pages, navigation flows, a step timeline, and timing stats.
+ */
+async function buildCrawlerResult(payload: AuditRequestPayload, deterministic: DeterministicCollectorResult): Promise<BrowserCollectorResult> {
+  const startedAt = new Date().toISOString();
+  const finalUrl = deterministic.finalUrl ?? payload.url;
+  const timeline: BrowserCollectorTimelineStep[] = [];
+  const observations: string[] = [];
+  const warnings: string[] = [];
+  const crawledRoutes: CrawledRoute[] = [];
+  let primaryRoute: CrawledRoute | null = null;
+  let internalLinkCount = 0;
+
+  timeline.push({ id: "step-init", label: "Initialize Lightweight Crawler", status: "completed", detail: "Prepared fetch-based traversal engine." });
+
+  try {
+    primaryRoute = await probeRoute(finalUrl);
+    crawledRoutes.push(primaryRoute);
+
+    if (!primaryRoute.ok) {
+      throw new Error(`Primary document returned HTTP ${primaryRoute.status ?? "no response"}`);
+    }
+
+    timeline.push({
+      id: "step-primary",
+      label: "Fetch Primary Document",
+      status: "completed",
+      detail: `${finalUrl} → HTTP ${primaryRoute.status} in ${primaryRoute.responseTimeMs} ms`,
+    });
+
+    const primaryResponse = await fetch(finalUrl, {
+      headers: { "User-Agent": "AuditLens/1.0 (Lightweight Crawler)" },
+      signal: AbortSignal.timeout(5000),
+    });
+    const html = primaryResponse.ok ? await primaryResponse.text() : "";
+    const internalLinks = extractInternalLinks(html, finalUrl);
+    internalLinkCount = internalLinks.length;
+
+    timeline.push({
+      id: "step-extract",
+      label: "Extract DOM & Links",
+      status: "completed",
+      detail: `Discovered ${internalLinkCount} internal navigation links.`,
+    });
+    observations.push(`Crawler discovered ${internalLinkCount} internal navigation links.`);
+
+    const routesToTest = internalLinks.slice(0, 3);
+
+    if (routesToTest.length > 0) {
+      for (const [index, link] of routesToTest.entries()) {
+        const route = await probeRoute(link);
+        crawledRoutes.push(route);
+        timeline.push({
+          id: `step-route-${index + 1}`,
+          label: `Navigate Route ${index + 1}`,
+          status: route.ok ? "completed" : "blocked",
+          detail: route.ok
+            ? `${link} → HTTP ${route.status} in ${route.responseTimeMs} ms`
+            : `Failed to load ${link}${route.error ? ` (${route.error})` : ""}`,
+        });
+      }
+    } else {
+      timeline.push({ id: "step-route-none", label: "Navigate Routes", status: "not_run", detail: "No distinct internal links found to traverse." });
+    }
+  } catch (error: any) {
+    timeline.push({ id: "step-error", label: "Crawler Execution", status: "blocked", detail: error?.message ?? "Unexpected crawler error" });
+    observations.push(`Lightweight crawler encountered an error: ${error?.message ?? "unknown"}`);
+  }
+
+  const successfulRoutes = crawledRoutes.filter((route) => route.ok);
+  const failedRoutes = crawledRoutes.filter((route) => !route.ok);
+  const timings = successfulRoutes.map((route) => route.responseTimeMs).filter((value): value is number => typeof value === "number");
+  const averageResponseMs = timings.length > 0 ? Math.round(timings.reduce((total, value) => total + value, 0) / timings.length) : null;
+  const slowestRoute = successfulRoutes.reduce<CrawledRoute | null>((slowest, route) => {
+    if (route.responseTimeMs === null) {
+      return slowest;
+    }
+    if (!slowest || (slowest.responseTimeMs ?? 0) < route.responseTimeMs) {
+      return route;
+    }
+    return slowest;
+  }, null);
+
+  if (averageResponseMs !== null) {
+    observations.push(`Average route response time across ${successfulRoutes.length} route(s): ${averageResponseMs} ms.`);
+  }
+  if (slowestRoute?.responseTimeMs && slowestRoute.responseTimeMs > 1500) {
+    warnings.push(`Slowest crawled route responded in ${slowestRoute.responseTimeMs} ms (${slowestRoute.url}).`);
+  }
+  if (failedRoutes.length > 0) {
+    warnings.push(`${failedRoutes.length} crawled route(s) failed to load.`);
+  }
+
+  const hasBlockedStep = timeline.some((step) => step.status === "blocked");
+  const status: BrowserCollectorResult["status"] = !primaryRoute?.ok ? "failed" : hasBlockedStep ? "partial" : "completed";
+
+  const pages: BrowserCollectedPage[] = crawledRoutes.map((route, index) => ({
+    url: route.url,
+    title: route.title ?? (index === 0 ? deterministic.document?.title ?? undefined : undefined),
+    notes: [
+      route.ok ? `Responded with HTTP ${route.status} in ${route.responseTimeMs} ms.` : `Failed to load${route.error ? ` (${route.error})` : ""}.`,
+      index === 0 ? "Primary landing document captured by the lightweight crawler." : "Internal route traversed during flow validation.",
+    ],
+  }));
+
+  const flows: BrowserCollectorFlow[] = [
+    {
+      id: "landing-page-load",
+      label: "Landing Page Content & Navigation",
+      status: primaryRoute?.ok ? "completed" : "blocked",
+      summary: primaryRoute?.ok
+        ? `Crawler loaded the landing document in ${primaryRoute.responseTimeMs} ms and extracted ${internalLinkCount} internal links.`
+        : "The crawler could not load the landing document.",
+      steps: ["Fetch primary document", "Extract <a> tags and internal links", "Verify document accessibility"],
+    },
+    {
+      id: "internal-routing",
+      label: "Internal Routing Validation",
+      status: successfulRoutes.length > 1 ? "completed" : crawledRoutes.length > 1 ? "partial" : "not_run",
+      summary: crawledRoutes.length > 1
+        ? `Traversed ${crawledRoutes.length - 1} internal route(s); ${successfulRoutes.length - (primaryRoute?.ok ? 1 : 0)} responded successfully.`
+        : "No internal routes were available to traverse.",
+      steps: ["Extract internal paths", "Issue GET requests to internal routes", "Verify 2xx responses and capture timing"],
+    },
+    {
+      id: "performance-probe",
+      label: "Response Timing Probe",
+      status: averageResponseMs !== null ? (averageResponseMs > 1500 ? "partial" : "completed") : "not_run",
+      summary: averageResponseMs !== null
+        ? `Average response time ${averageResponseMs} ms across ${successfulRoutes.length} route(s).`
+        : "No successful responses were available to measure timing.",
+      steps: ["Measure per-route latency", "Aggregate average response time", "Flag routes slower than 1500 ms"],
+    },
+  ];
+
+  return {
+    stage: "browser",
+    status,
+    mode: "playwright",
+    startedAt,
+    completedAt: new Date().toISOString(),
+    runtime: {
+      runner: "playwright",
+      instruction: `Inspect ${payload.url} using a lightweight multi-route fetch crawler for flow and timing validation.`,
+      startUrl: payload.url,
+      finalUrl,
+      taskId: "lightweight-crawler-task",
+      workspaceDir: "outputs/playwright",
+    },
+    pages,
+    flows,
+    timeline,
+    observations,
+    warnings,
+    screenshots: [],
+    artifacts: {
+      screenshotPaths: [],
+      logPaths: [],
+    },
+  };
+}
+
 export async function collectBrowserEvidence(payload: AuditRequestPayload, deterministic: DeterministicCollectorResult): Promise<BrowserCollectorResult> {
   const mode = getBrowserMode();
 
@@ -632,116 +876,7 @@ export async function collectBrowserEvidence(payload: AuditRequestPayload, deter
   }
 
   if (mode === "playwright") {
-    const startedAt = new Date().toISOString();
-    const finalUrl = deterministic.finalUrl ?? payload.url;
-    const timeline: BrowserCollectorTimelineStep[] = [];
-    const observations: string[] = [];
-    let internalLinksTested = 0;
-    
-    timeline.push({ id: "step-1", label: "Initialize Lightweight Crawler", status: "completed", detail: "Prepared fetch-based traversal engine." });
-
-    try {
-      timeline.push({ id: "step-2", label: "Fetch Primary Document", status: "completed", detail: finalUrl });
-      
-      const response = await fetch(finalUrl, {
-        headers: { "User-Agent": "AuditLens/1.0 (Lightweight Crawler)" },
-        signal: AbortSignal.timeout(5000)
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Primary document returned HTTP ${response.status}`);
-      }
-
-      const html = await response.text();
-      timeline.push({ id: "step-3", label: "Extract DOM & Links", status: "completed", detail: "Parsed HTML for navigation paths." });
-      
-      // Extract internal links using regex
-      const baseUrl = new URL(finalUrl);
-      const hrefMatches = [...html.matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>/gi)];
-      const internalLinks = new Set<string>();
-      
-      for (const match of hrefMatches) {
-        const href = match[1]?.trim();
-        if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) continue;
-        try {
-          const resolved = new URL(href, baseUrl);
-          if (resolved.origin === baseUrl.origin && resolved.href !== baseUrl.href) {
-            internalLinks.add(resolved.href);
-          }
-        } catch { /* ignore invalid URLs */ }
-      }
-
-      observations.push(`Crawler discovered ${internalLinks.size} internal navigation links.`);
-      
-      // Test up to 2 internal links to simulate user flow
-      const linksToTest = Array.from(internalLinks).slice(0, 2);
-      if (linksToTest.length > 0) {
-        for (const link of linksToTest) {
-          try {
-             const subRes = await fetch(link, { method: "HEAD", signal: AbortSignal.timeout(3000) });
-             timeline.push({ id: `step-test-${internalLinksTested}`, label: "Navigate Flow", status: subRes.ok ? "completed" : "partial", detail: `Tested internal route: ${link}` });
-             if (subRes.ok) internalLinksTested++;
-          } catch {
-             timeline.push({ id: `step-test-${internalLinksTested}`, label: "Navigate Flow", status: "blocked", detail: `Failed to load internal route: ${link}` });
-          }
-        }
-      } else {
-        timeline.push({ id: "step-4", label: "Navigate Flow", status: "not_run", detail: "No distinct internal links found to test." });
-      }
-
-    } catch (error: any) {
-      timeline.push({ id: "step-error", label: "Crawler Execution", status: "blocked", detail: error.message });
-      observations.push(`Lightweight crawler encountered an error: ${error.message}`);
-    }
-
-    const isSuccess = timeline.every(t => t.status !== "blocked");
-
-    return {
-      stage: "browser",
-      status: isSuccess ? "completed" : "partial",
-      mode: "playwright",
-      startedAt,
-      completedAt: new Date().toISOString(),
-      runtime: {
-        runner: "playwright",
-        instruction: `Inspect ${payload.url} using lightweight fetch crawler for flow validation.`,
-        startUrl: payload.url,
-        finalUrl: deterministic.finalUrl ?? payload.url,
-        taskId: "lightweight-crawler-task",
-        workspaceDir: "outputs/playwright",
-      },
-      pages: [
-        {
-          url: deterministic.finalUrl ?? payload.url,
-          title: deterministic.document?.title ?? "Simulated Browser Page",
-          notes: ["Analyzed DOM using lightweight fetch crawler.", `Tested ${internalLinksTested} internal routes for availability.`],
-        },
-      ],
-      flows: [
-        {
-          id: "landing-page-load",
-          label: "Landing Page Content & Navigation",
-          status: isSuccess ? "completed" : "partial",
-          summary: "Lightweight crawler navigated to the target URL and extracted navigation paths.",
-          steps: ["Fetch primary document", "Extract <a> tags and internal links", "Verify document accessibility"],
-        },
-        {
-          id: "interaction-flow",
-          label: "Internal Routing Validation",
-          status: internalLinksTested > 0 ? "completed" : "not_run",
-          summary: "Verified key interactive internal links to ensure site routing is healthy.",
-          steps: ["Extract internal paths", "Perform HEAD requests to internal routes", "Verify 200 OK responses"],
-        }
-      ],
-      timeline,
-      observations,
-      warnings: isSuccess ? [] : ["Crawler encountered blocked or partial steps during flow validation."],
-      screenshots: [],
-      artifacts: {
-        screenshotPaths: [],
-        logPaths: [],
-      },
-    };
+    return buildCrawlerResult(payload, deterministic);
   }
 
   return buildBaseResult(
