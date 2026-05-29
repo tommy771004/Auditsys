@@ -20,3 +20,19 @@
     @apply border border-white/10 bg-surface-background/85 shadow-glass backdrop-blur-2xl;
   }
 }
+
+/* Respect prefers-reduced-motion for CSS-driven animations (Tailwind animate-*,
+   shimmer, smooth scroll). Framer-motion is handled via <MotionConfig reducedMotion="user">. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

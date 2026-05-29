@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Bot, BrainCircuit, Cpu, Database, RefreshCcw, Sparkles, Terminal, Workflow, History, X, ShieldAlert, Shield, ShieldCheck, Target, Zap, LayoutDashboard, Flag } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -31,6 +31,8 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
   const [historyItems, setHistoryItems] = useState<any[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState<boolean>(false);
   const [selectedHistoryAudit, setSelectedHistoryAudit] = useState<any | null>(null);
+  const modalCloseRef = useRef<HTMLButtonElement>(null);
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
   const {
     phase,
@@ -87,6 +89,27 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
       onNavigate("login");
     }
   }, [onNavigate]);
+
+  // History modal: Escape-to-close + focus move-in / return-on-close.
+  useEffect(() => {
+    if (!selectedHistoryAudit) {
+      return;
+    }
+    previouslyFocusedRef.current = document.activeElement as HTMLElement | null;
+    modalCloseRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedHistoryAudit(null);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      previouslyFocusedRef.current?.focus();
+    };
+  }, [selectedHistoryAudit]);
 
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
@@ -500,9 +523,9 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                     </div>
                     <div className="flex gap-2">
                       {isRunning ? (
-                        <GlowingButton className="justify-center text-rose-300" variant="ghost" onClick={reset}>
+                        <GlowingButton className="justify-center text-rose-300" variant="ghost" loadingLabel="" onClick={reset}>
                           <X className="h-4 w-4" />
-                          t('auditConsole.actions.cancel')
+                          {t("auditConsole.actions.cancel")}
                         </GlowingButton>
                       ) : (
                         <>
@@ -608,7 +631,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
           </div>
 
           {/* Layer 5: Audit History */}
-          <GlassContainer accent="purple" className="space-y-4 animate-fade-in">
+          <GlassContainer accent="violet" className="space-y-4 animate-fade-in">
               <div className="flex items-center justify-between gap-3">
                 <div className="space-y-1">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-100/80">{t("history.title")}</p>
@@ -703,6 +726,9 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 onClick={() => setSelectedHistoryAudit(null)}
               />
               <motion.div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="history-modal-title"
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -711,12 +737,14 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-white/10 bg-white/5 px-6 py-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-white">{t("history.reportTitle")}</h3>
+                    <h3 id="history-modal-title" className="text-lg font-semibold text-white">{t("history.reportTitle")}</h3>
                     <p className="text-sm text-brand-muted">{selectedHistoryAudit.url}</p>
                   </div>
                   <button
+                    ref={modalCloseRef}
                     type="button"
                     onClick={() => setSelectedHistoryAudit(null)}
+                    aria-label={t("history.close")}
                     className="rounded-full p-2 text-white/60 hover:bg-white/10 hover:text-white transition focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
                   >
                     <X className="h-5 w-5" />
