@@ -228,7 +228,7 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
                       return models.map((model: string) => (
                         <div key={model} className="flex items-start gap-3 text-sm text-brand-purple">
                           <Cpu className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" />
-                          <span>Provides: {model}</span>
+                          <span>{t("misc.provides", { model })}</span>
                         </div>
                       ));
                     })()}
@@ -246,7 +246,7 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
                       <GlowingButton
                         className="mt-auto w-full justify-center min-h-[44px] transition-transform active:scale-[0.98]"
                         isLoading={upgradingPlan === plan.planIdMap}
-                        loadingLabel="Upgrading..."
+                        loadingLabel={t("misc.upgrading")}
                         variant={isCurrentPlan ? "ghost" : "default"}
                         onClick={() => {
                           if (isCurrentPlan) {
@@ -256,7 +256,7 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
                           }
                         }}
                       >
-                        {isCurrentPlan ? "Active - Go to Console" : t(plan.ctaKey)}
+                        {isCurrentPlan ? t("misc.activePlan") : t(plan.ctaKey)}
                       </GlowingButton>
                     );
                   })()}
