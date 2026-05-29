@@ -120,6 +120,119 @@ export function buildAuditPrompt(payload: AuditRequestPayload, evidence: AuditEv
     .join("\n\n");
 }
 
+interface RichFinding {
+  severity: "critical" | "warning" | "info";
+  finding: string;
+  rootCause: string;
+  businessImpact: string;
+  actionableFix: string;
+}
+
+function severityFromRating(rating: CruxResult["metrics"]["lcp"]["rating"]): "critical" | "warning" | "info" {
+  if (rating === "poor") return "critical";
+  if (rating === "needs-improvement") return "warning";
+  return "info";
+}
+
+function buildPerformanceFindings(evidence: AuditEvidenceBundle, isZh: boolean): RichFinding[] {
+  const crux = evidence.crux;
+  const det = evidence.deterministic;
+
+  if (!crux || !crux.hasData) {
+    return [
+      {
+        severity: "info",
+        finding: isZh
+          ? "無真實使用者欄位資料 (CrUX)，本次未量測核心網頁指標 (Core Web Vitals)。"
+          : "No real-user field data (CrUX) available; Core Web Vitals were not measured this run.",
+        rootCause: isZh
+          ? "目標流量不足或 CRUX_API_KEY 未設定，Chrome UX Report 無資料可回傳。"
+          : "Target lacks sufficient traffic or CRUX_API_KEY is unset, so the Chrome UX Report returned no field data.",
+        businessImpact: isZh
+          ? "無法以實測數據佐證效能對轉換率的影響。"
+          : "Performance-to-conversion impact cannot be evidenced with measured data.",
+        actionableFix: isZh
+          ? "設定 CRUX_API_KEY，或改用實驗室量測（PageSpeed/Lighthouse）取得效能數據。"
+          : "Configure CRUX_API_KEY, or use a lab measurement (PageSpeed/Lighthouse) to obtain performance data.",
+      },
+    ];
+  }
+
+  const ttfb = det.responseTimeMs ?? null;
+  const stylesheets = det.document?.counts.stylesheets ?? 0;
+  const scripts = det.document?.counts.scripts ?? 0;
+  const modeledZh = `（根因為模型推估，非逐項量測）`;
+  const modeledEn = `(root cause is modeled, not per-asset measured)`;
+
+  const configs: Array<{
+    key: "lcp" | "inp" | "cls";
+    unit: string;
+    nameZh: string;
+    nameEn: string;
+    rootZh: string;
+    rootEn: string;
+    fixZh: string;
+    fixEn: string;
+    bizZh: string;
+    bizEn: string;
+  }> = [
+    {
+      key: "lcp",
+      unit: "ms",
+      nameZh: "最大內容繪製 (LCP)",
+      nameEn: "Largest Contentful Paint (LCP)",
+      rootZh: `初始 HTML 回應時間 ${ttfb ?? "未知"}ms 與 ${stylesheets} 個樣式表、${scripts} 個指令碼為可能的渲染阻塞來源 ${modeledZh}。`,
+      rootEn: `Server response time ${ttfb ?? "unknown"}ms plus ${stylesheets} stylesheets / ${scripts} scripts are likely render-blocking contributors ${modeledEn}.`,
+      fixZh: "壓縮並預先載入 (preload) 首屏圖片、為渲染阻塞樣式表內聯關鍵 CSS、延後非關鍵指令碼。",
+      fixEn: "Compress and preload the hero image, inline critical CSS for render-blocking stylesheets, and defer non-critical scripts.",
+      bizZh: "LCP 偏高會降低首屏體驗與轉換率（影響程度為估算）。",
+      bizEn: "High LCP degrades above-the-fold experience and conversion (impact is estimated).",
+    },
+    {
+      key: "inp",
+      unit: "ms",
+      nameZh: "互動到下次繪製 (INP)",
+      nameEn: "Interaction to Next Paint (INP)",
+      rootZh: `主執行緒上的 JavaScript 執行量偏高（${scripts} 個指令碼）可能延遲互動回應 ${modeledZh}。`,
+      rootEn: `Heavy main-thread JavaScript (${scripts} scripts) likely delays interaction responsiveness ${modeledEn}.`,
+      fixZh: "拆分長任務、延後第三方指令碼、減少 hydration 成本。",
+      fixEn: "Break up long tasks, defer third-party scripts, and reduce hydration cost.",
+      bizZh: "INP 偏高會讓互動感覺遲鈍，降低使用者完成關鍵動作的比率（影響程度為估算）。",
+      bizEn: "High INP makes interactions feel sluggish, lowering completion of key actions (impact is estimated).",
+    },
+    {
+      key: "cls",
+      unit: "",
+      nameZh: "累計版面位移 (CLS)",
+      nameEn: "Cumulative Layout Shift (CLS)",
+      rootZh: `無尺寸保留的圖片或晚載入字型可能造成版面位移 ${modeledZh}。`,
+      rootEn: `Images without reserved dimensions or late-loading fonts can cause layout shift ${modeledEn}.`,
+      fixZh: "為圖片與廣告容器設定明確尺寸、使用 font-display: optional/swap 並預先載入字型。",
+      fixEn: "Set explicit dimensions on images/ad slots and use font-display: optional/swap with preloaded fonts.",
+      bizZh: "CLS 偏高會造成誤點與挫折感，傷害信任與轉換（影響程度為估算）。",
+      bizEn: "High CLS causes misclicks and frustration, harming trust and conversion (impact is estimated).",
+    },
+  ];
+
+  const findings: RichFinding[] = [];
+  for (const config of configs) {
+    const metric = crux.metrics[config.key];
+    if (metric.p75 === null) {
+      continue;
+    }
+    findings.push({
+      severity: severityFromRating(metric.rating),
+      finding: isZh
+        ? `${config.nameZh} 實測 p75 為 ${metric.p75}${config.unit}（評級：${metric.rating ?? "無資料"}）。`
+        : `${config.nameEn} measured p75 is ${metric.p75}${config.unit} (rating: ${metric.rating ?? "no data"}).`,
+      rootCause: isZh ? config.rootZh : config.rootEn,
+      businessImpact: isZh ? config.bizZh : config.bizEn,
+      actionableFix: isZh ? config.fixZh : config.fixEn,
+    });
+  }
+  return findings;
+}
+
 export function buildFallbackSummary(payload: AuditRequestPayload, evidence: AuditEvidenceBundle, reason: string): string {
   const deterministic = evidence.deterministic;
   const primaryRuntimeGate = getPrimaryRuntimeGate(evidence);
@@ -212,12 +325,27 @@ export function buildFallbackSummary(payload: AuditRequestPayload, evidence: Aud
     }
   ];
 
+  const performanceFindings = buildPerformanceFindings(evidence, isZh);
+
   return JSON.stringify({
     executiveSummary,
-    deterministicFindings: findings.map(f => ({ issue: f, impact: isZh ? "需要進一步調查" : "Requires further investigation", severity: "medium" })),
+    performanceFindings,
+    deterministicFindings: findings.map((f) => ({
+      severity: "warning" as const,
+      finding: f,
+      rootCause: isZh ? "由靜態收集證據推得，尚未經瀏覽器執行驗證。" : "Derived from deterministic evidence; not yet verified by browser execution.",
+      businessImpact: isZh ? "需進一步調查以量化影響。" : "Requires further investigation to quantify impact.",
+      actionableFix: isZh ? "啟用瀏覽器收集器以取得執行期證據後再行確認。" : "Enable the browser collector to confirm with runtime evidence.",
+      issue: f,
+      impact: isZh ? "需要進一步調查" : "Requires further investigation",
+    })),
     browserFlowGaps,
     architectureRisks,
-    nextActions: nextActions.map(a => ({ action: a, impact: isZh ? "提升整體管道的可見度與穩定度。" : "Improves overall pipeline visibility and stability." })),
+    nextActions: nextActions.map((a) => ({
+      action: a,
+      impact: isZh ? "提升整體管道的可見度與穩定度。" : "Improves overall pipeline visibility and stability.",
+      actionableFix: a,
+    })),
   });
 }
 
