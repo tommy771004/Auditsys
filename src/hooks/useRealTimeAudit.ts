@@ -63,7 +63,17 @@ function isLiveDOMIssueArray(value: unknown): value is LiveDOMIssue[] {
         return false;
       }
       const candidate = item as Record<string, unknown>;
-      return typeof candidate.element === "string" && typeof candidate.snippet === "string";
+      return (
+        typeof candidate.elementId === "string" &&
+        typeof candidate.description === "string" &&
+        typeof candidate.originalSnippet === "string" &&
+        typeof candidate.fixedSnippet === "string" &&
+        typeof candidate.diffExplanation === "string" &&
+        (candidate.issueType === "missing_alt" ||
+          candidate.issueType === "multiple_h1" ||
+          candidate.issueType === "invalid_canonical" ||
+          candidate.issueType === "render_blocking")
+      );
     })
   );
 }

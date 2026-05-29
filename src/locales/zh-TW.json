@@ -1032,8 +1032,12 @@
       "types": {
         "missing_alt": "缺少 alt 文字",
         "multiple_h1": "多個 H1",
-        "invalid_canonical": "canonical 無效"
-      }
+        "invalid_canonical": "canonical 無效",
+        "render_blocking": "阻塞渲染資源"
+      },
+      "original": "原始片段",
+      "fixed": "修正片段",
+      "diff": "修正說明："
     },
     "report": {
       "title": "掃描完成",

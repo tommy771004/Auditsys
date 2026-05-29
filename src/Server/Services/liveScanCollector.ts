@@ -1,21 +1,12 @@
 import { AUDIT_TARGET_REDIRECT_LIMIT_ERROR, assertSafeAuditTargetUrl } from "./securityPolicies";
 import { collectDeterministicEvidence } from "./deterministicCollector";
 import { collectBrowserEvidence } from "./browserCollector";
+import { buildDomIssuePatch } from "./domIssuePatches";
 import type { BrowserCollectorResult, DeterministicCollectorResult } from "./auditPipelineTypes";
-import type { LiveScanRoute, LiveScanScores, LiveScanSummary } from "../../types/liveAudit.types";
+import type { DOMIssueType, LiveDOMIssue, LiveScanRoute, LiveScanScores, LiveScanSummary } from "../../types/liveAudit.types";
 
 /** Mirrors the client-side `SSELog` log levels. */
 export type SSELogLevel = "info" | "warn" | "error" | "success";
-
-/** Mirrors the client-side `LiveDOMIssue` contract. */
-export type DOMIssueType = "missing_alt" | "multiple_h1" | "invalid_canonical";
-
-export interface LiveDOMIssue {
-  element: string;
-  issueType: DOMIssueType;
-  snippet: string;
-  highlightLine?: number;
-}
 
 export interface FetchedTarget {
   html: string;
@@ -32,6 +23,12 @@ const REQUEST_HEADERS = {
 const MAX_ISSUES_PER_TYPE = 8;
 const MAX_LINE_LENGTH = 200;
 const INLINE_WINDOW = 160;
+
+interface RawDOMIssue {
+  elementId: string;
+  issueType: DOMIssueType;
+  originalSnippet: string;
+}
 
 function isRedirectStatus(status: number): boolean {
   return status === 301 || status === 302 || status === 303 || status === 307 || status === 308;
@@ -103,8 +100,8 @@ function buildSnippet(html: string, lines: string[], matchIndex: number, matchTe
   return { snippet: windowLines.join("\n"), highlightLine: lineNo - windowStart };
 }
 
-function findImagesMissingAlt(html: string, lines: string[]): LiveDOMIssue[] {
-  const issues: LiveDOMIssue[] = [];
+function findImagesMissingAlt(html: string, lines: string[]): RawDOMIssue[] {
+  const issues: RawDOMIssue[] = [];
   const pattern = /<img\b[^>]*>/gi;
   let match: RegExpExecArray | null;
 
@@ -114,14 +111,14 @@ function findImagesMissingAlt(html: string, lines: string[]): LiveDOMIssue[] {
     if (/\balt\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/i.test(tag) && !/\balt\s*=\s*("\s*"|'\s*')/i.test(tag)) {
       continue;
     }
-    const { snippet, highlightLine } = buildSnippet(html, lines, match.index, tag);
-    issues.push({ element: "img", issueType: "missing_alt", snippet, highlightLine });
+    const { snippet } = buildSnippet(html, lines, match.index, tag);
+    issues.push({ elementId: "img", issueType: "missing_alt", originalSnippet: snippet });
   }
 
   return issues;
 }
 
-function findMultipleH1(html: string, lines: string[]): LiveDOMIssue[] {
+function findMultipleH1(html: string, lines: string[]): RawDOMIssue[] {
   const pattern = /<h1\b[^>]*>/gi;
   const matches = [...html.matchAll(pattern)];
 
@@ -131,18 +128,17 @@ function findMultipleH1(html: string, lines: string[]): LiveDOMIssue[] {
 
   // Emit a single issue, highlighting the second (duplicate) H1.
   const second = matches[1];
-  const { snippet, highlightLine } = buildSnippet(html, lines, second.index ?? 0, second[0]);
+  const { snippet } = buildSnippet(html, lines, second.index ?? 0, second[0]);
   return [
     {
-      element: `h1 (${matches.length} found)`,
+      elementId: `h1 (${matches.length} found)`,
       issueType: "multiple_h1",
-      snippet,
-      highlightLine,
+      originalSnippet: snippet,
     },
   ];
 }
 
-function findInvalidCanonical(html: string, lines: string[], finalUrl: string): LiveDOMIssue[] {
+function findInvalidCanonical(html: string, lines: string[], finalUrl: string): RawDOMIssue[] {
   const pattern = /<link\b[^>]*rel\s*=\s*["']canonical["'][^>]*>/gi;
   const matches = [...html.matchAll(pattern)];
 
@@ -150,7 +146,7 @@ function findInvalidCanonical(html: string, lines: string[], finalUrl: string): 
     return [];
   }
 
-  const issues: LiveDOMIssue[] = [];
+  const issues: RawDOMIssue[] = [];
 
   matches.forEach((match, index) => {
     if (issues.length >= MAX_ISSUES_PER_TYPE) {
@@ -177,15 +173,35 @@ function findInvalidCanonical(html: string, lines: string[], finalUrl: string): 
     }
 
     if (invalid) {
-      const { snippet, highlightLine } = buildSnippet(html, lines, match.index ?? 0, tag);
+      const { snippet } = buildSnippet(html, lines, match.index ?? 0, tag);
       issues.push({
-        element: matches.length > 1 ? `link[rel=canonical] (${matches.length} found)` : "link[rel=canonical]",
+        elementId: matches.length > 1 ? `link[rel=canonical] (${matches.length} found)` : "link[rel=canonical]",
         issueType: "invalid_canonical",
-        snippet,
-        highlightLine,
+        originalSnippet: snippet,
       });
     }
   });
+
+  return issues;
+}
+
+function findRenderBlockingResources(html: string, lines: string[]): RawDOMIssue[] {
+  const headEndIndex = html.search(/<\/head\s*>/i);
+  const searchableHtml = headEndIndex >= 0 ? html.slice(0, headEndIndex) : html;
+  const issues: RawDOMIssue[] = [];
+  const scriptPattern = /<script\b[^>]*\bsrc\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)[^>]*>/gi;
+  let match: RegExpExecArray | null;
+
+  while ((match = scriptPattern.exec(searchableHtml)) !== null && issues.length < MAX_ISSUES_PER_TYPE) {
+    const tag = match[0];
+    const hasNonBlockingAttribute = /\b(?:async|defer)\b/i.test(tag) || /\btype\s*=\s*["']module["']/i.test(tag);
+    if (hasNonBlockingAttribute) {
+      continue;
+    }
+
+    const { snippet } = buildSnippet(html, lines, match.index, tag);
+    issues.push({ elementId: "script[src]", issueType: "render_blocking", originalSnippet: snippet });
+  }
 
   return issues;
 }
@@ -196,11 +212,14 @@ export function analyzeDomIssues(html: string, finalUrl: string): LiveDOMIssue[]
     return [];
   }
   const lines = html.replace(/\r\n/g, "\n").split("\n");
-  return [
+  const rawIssues = [
     ...findImagesMissingAlt(html, lines),
     ...findMultipleH1(html, lines),
     ...findInvalidCanonical(html, lines, finalUrl),
+    ...findRenderBlockingResources(html, lines),
   ];
+
+  return rawIssues.map((issue) => buildDomIssuePatch({ ...issue, finalUrl }));
 }
 
 /** Convenience: fetch + analyze in one call for the DOM-issues endpoint. */

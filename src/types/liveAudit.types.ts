@@ -21,20 +21,21 @@ export interface PageSpeedResult {
 }
 
 /** A single SEO/accessibility defect located by the backend HTML parser. */
-export type DOMIssueType = "missing_alt" | "multiple_h1" | "invalid_canonical";
+export type DOMIssueType = "missing_alt" | "multiple_h1" | "invalid_canonical" | "render_blocking";
 
 export interface LiveDOMIssue {
-  /** The offending element selector / tag (e.g. "img", "h1#hero"). */
-  element: string;
+  /** The offending element selector / tag (e.g. "img.hero", "h1#hero"). */
+  elementId: string;
   /** Category of the detected problem. */
   issueType: DOMIssueType;
-  /** Raw HTML snippet returned by the backend, rendered verbatim in the UI. */
-  snippet: string;
-  /**
-   * Optional zero-based line index inside `snippet` that triggered the issue.
-   * Used to paint the `bg-red-500/20` overlay on the exact offending line.
-   */
-  highlightLine?: number;
+  /** Professional zh-TW explanation of why this issue matters. */
+  description: string;
+  /** The problematic HTML captured from the target page. */
+  originalSnippet: string;
+  /** Production-ready remediation snippet that can be copy-pasted. */
+  fixedSnippet: string;
+  /** Concise explanation of the exact code change. */
+  diffExplanation: string;
 }
 
 export type SSELogLevel = "info" | "warn" | "error" | "success";

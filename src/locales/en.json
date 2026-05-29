@@ -1026,8 +1026,12 @@
       "types": {
         "missing_alt": "Missing alt text",
         "multiple_h1": "Multiple H1",
-        "invalid_canonical": "Invalid canonical"
-      }
+        "invalid_canonical": "Invalid canonical",
+        "render_blocking": "Render-blocking resource"
+      },
+      "original": "Original snippet",
+      "fixed": "Fixed snippet",
+      "diff": "Fix:"
     },
     "report": {
       "title": "Scan complete",
