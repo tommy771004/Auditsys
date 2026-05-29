@@ -105,6 +105,7 @@ function extractDocumentEvidence(html: string, finalUrl: string): DeterministicD
     canonical: matchAttribute(/<link\b[^>]*rel=["']canonical["'][^>]*href=["']([^"']*)["'][^>]*>/i, html),
     robots: matchAttribute(/<meta\b[^>]*name=["']robots["'][^>]*content=["']([^"']*)["'][^>]*>/i, html),
     lang: matchAttribute(/<html\b[^>]*lang=["']([^"']*)["'][^>]*>/i, html),
+    viewport: matchAttribute(/<meta\b[^>]*name=["']viewport["'][^>]*content=["']([^"']*)["'][^>]*>/i, html),
     counts: {
       scripts: countMatches(/<script\b/gi, html),
       stylesheets: countMatches(/<link\b[^>]*rel=["'][^"']*stylesheet[^"']*["'][^>]*>/gi, html),
@@ -112,8 +113,11 @@ function extractDocumentEvidence(html: string, finalUrl: string): DeterministicD
       imagesMissingAlt: countMatches(/<img\b(?![^>]*\balt=)[^>]*>/gi, html),
       structuredDataBlocks: countMatches(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>/gi, html),
       headings: countMatches(/<h[1-6]\b/gi, html),
+      h1: countMatches(/<h1\b/gi, html),
       internalLinks: linkCounts.internalLinks,
       externalLinks: linkCounts.externalLinks,
+      openGraphTags: countMatches(/<meta\b[^>]*property=["']og:[^"']*["'][^>]*>/gi, html),
+      preconnectHints: countMatches(/<link\b[^>]*rel=["'](?:preconnect|dns-prefetch)["'][^>]*>/gi, html),
     },
   };
 }
@@ -143,6 +147,24 @@ function buildWarnings(document: DeterministicDocumentEvidence, responseTimeMs: 
 
   if (document.counts.structuredDataBlocks === 0) {
     warnings.push("No structured data blocks were detected.");
+  }
+
+  if (document.counts.h1 === 0) {
+    warnings.push("No H1 heading was found in the initial HTML.");
+  } else if (document.counts.h1 > 1) {
+    warnings.push(`Multiple H1 headings were found (${document.counts.h1}), which dilutes heading semantics.`);
+  }
+
+  if (!document.viewport) {
+    warnings.push("No responsive viewport meta tag was detected.");
+  }
+
+  if (document.counts.openGraphTags === 0) {
+    warnings.push("No Open Graph tags were found, weakening social sharing previews.");
+  }
+
+  if (document.counts.scripts > 0 && document.counts.preconnectHints === 0) {
+    warnings.push("No preconnect/dns-prefetch hints were found despite external scripts.");
   }
 
   if (responseTimeMs > 1800) {
