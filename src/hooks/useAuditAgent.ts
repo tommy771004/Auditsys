@@ -136,16 +136,6 @@ function buildLiveMemoryUpdate(report: AuditIntelligenceResult, t: TFunction): M
     };
   }
 
-  if (typeof report.evidence.deterministic.responseTimeMs === "number") {
-    return {
-      key: "deterministic-response-time",
-      fact: t("auditConsole.live.memory.responseTime", {
-        value: report.evidence.deterministic.responseTimeMs,
-      }),
-      type: "bottleneck",
-    };
-  }
-
   return buildMemoryUpdate(t);
 }
 
@@ -158,16 +148,6 @@ export function buildLiveMemoryUpdates(report: AuditIntelligenceResult, t: TFunc
 
   if (primaryRuntimeGateUpdate.fact !== buildMemoryUpdate(t).fact || primaryRuntimeGateUpdate.key !== buildMemoryUpdate(t).key) {
     updates.push(primaryRuntimeGateUpdate);
-  }
-
-  if (typeof report.evidence.deterministic.responseTimeMs === "number") {
-    updates.push({
-      key: "deterministic-response-time",
-      fact: t("auditConsole.live.memory.responseTime", {
-        value: report.evidence.deterministic.responseTimeMs,
-      }),
-      type: "bottleneck",
-    });
   }
 
   updates.push({
@@ -268,42 +248,8 @@ function mergeToolCallsWithLiveLogs(toolCalls: ToolCall[], report: AuditIntellig
 }
 
 export function buildLiveReportContent(report: AuditIntelligenceResult, t: TFunction): string {
-  const deterministic = report.evidence.deterministic;
-  const browser = report.evidence.browser;
-  const primaryRuntimeGate = getPrimaryRuntimeGate(report);
-  const providerLabel = report.model ? `${report.provider} / ${report.model}` : report.provider;
-  const warningCount = deterministic.warnings.length + browser.warnings.length;
-
-  return [
-    t("auditConsole.live.report.title"),
-    "",
-    t("auditConsole.live.report.provider", { value: providerLabel }),
-    t("auditConsole.live.report.target", { value: report.request.url }),
-    t("auditConsole.live.report.browserStatus", {
-      status: t(`report.runtime.status.${browser.status}`),
-      mode: t(`report.runtime.modes.${browser.mode}`),
-    }),
-    typeof deterministic.responseTimeMs === "number"
-      ? t("auditConsole.live.report.responseTime", { value: deterministic.responseTimeMs })
-      : t("auditConsole.live.report.responseTimeMissing"),
-    primaryRuntimeGate
-      ? primaryRuntimeGate.detail
-        ? t("auditConsole.live.report.runtimeGateWithDetail", {
-            step: primaryRuntimeGate.label,
-            status: t(`report.runtime.status.${primaryRuntimeGate.status}`),
-            detail: primaryRuntimeGate.detail,
-          })
-        : t("auditConsole.live.report.runtimeGate", {
-            step: primaryRuntimeGate.label,
-            status: t(`report.runtime.status.${primaryRuntimeGate.status}`),
-          })
-      : t("auditConsole.live.report.runtimeGateMissing"),
-    t("auditConsole.live.report.warningCount", { count: warningCount }),
-    "",
-    report.summary?.trim() || t("auditConsole.live.report.summaryMissing"),
-    "",
-    t("auditConsole.live.report.storeSynced"),
-  ].join("\n");
+  // Return pure JSON so the console can parse and render the beautiful UI
+  return report.summary?.trim() || "{}";
 }
 
 function buildReportContent(targetUrl: string, t: TFunction): string {
@@ -356,7 +302,7 @@ async function* createAgentWorkflow(targetUrl: string, t: TFunction): AsyncGener
 }
 
 export function useAuditAgent(): UseAgentResult {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [phase, setPhase] = useState<AgentPhase>("idle");
   const [targetUrl, setTargetUrl] = useState<string>("");
   const [isRunning, setIsRunning] = useState<boolean>(false);
@@ -501,29 +447,8 @@ export function useAuditAgent(): UseAgentResult {
   };
 
   const streamReport = async (content: string, token: number): Promise<void> => {
-    setStreamedReport("");
-
-    await new Promise<void>((resolve) => {
-      let index = 0;
-      const intervalId = window.setInterval(() => {
-        if (token !== runTokenRef.current) {
-          window.clearInterval(intervalId);
-          resolve();
-          return;
-        }
-
-        index += 3;
-        setStreamedReport(content.slice(0, index));
-
-        if (index >= content.length) {
-          window.clearInterval(intervalId);
-          intervalIdsRef.current = intervalIdsRef.current.filter((registeredId) => registeredId !== intervalId);
-          resolve();
-        }
-      }, 28);
-
-      intervalIdsRef.current.push(intervalId);
-    });
+    setStreamedReport(content);
+    return Promise.resolve();
   };
 
   const startAudit = async (url: string, intakeData?: any) => {
@@ -539,10 +464,11 @@ export function useAuditAgent(): UseAgentResult {
 
     const liveAuditPromise = (async (): Promise<AuditIntelligenceResult | null> => {
       try {
+        const lang = i18n.resolvedLanguage || i18n.language;
         // Build the correct payload depending on mode
         const auditPayload = intakeData
-          ? { ...intakeData, url: normalizedUrl }  // Ensure url is always the normalized URL
-          : { url: normalizedUrl };
+          ? { ...intakeData, url: normalizedUrl, language: lang }  // Ensure url is always the normalized URL
+          : { url: normalizedUrl, language: lang };
 
         const responseData = await postAuditRequest({
           endpoint: intakeData ? import.meta.env.VITE_INTAKE_ENDPOINT : import.meta.env.VITE_AUDIT_ENDPOINT,
