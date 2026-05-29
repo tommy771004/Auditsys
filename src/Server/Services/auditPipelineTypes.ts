@@ -6,6 +6,7 @@ export interface AuditRequestPayload {
   stack?: string[];
   teamSize?: string;
   notes?: string;
+  language?: string;
 }
 
 export interface DeterministicDocumentEvidence {
@@ -14,6 +15,7 @@ export interface DeterministicDocumentEvidence {
   canonical: string | null;
   robots: string | null;
   lang: string | null;
+  viewport: string | null;
   counts: {
     scripts: number;
     stylesheets: number;
@@ -21,8 +23,11 @@ export interface DeterministicDocumentEvidence {
     imagesMissingAlt: number;
     structuredDataBlocks: number;
     headings: number;
+    h1: number;
     internalLinks: number;
     externalLinks: number;
+    openGraphTags: number;
+    preconnectHints: number;
   };
 }
 
@@ -157,5 +162,6 @@ export function normalizeAuditRequestPayload(payload: unknown): AuditRequestPayl
     stack: toStringArray(payload.stack),
     teamSize: toTrimmedString(payload.teamSize) || undefined,
     notes: toTrimmedString(payload.notes) || undefined,
+    language: toTrimmedString(payload.language) || undefined,
   };
 }
