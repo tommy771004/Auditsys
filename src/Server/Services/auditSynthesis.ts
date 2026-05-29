@@ -1,5 +1,31 @@
 import type { AuditEvidenceBundle, AuditRequestPayload, AuditSynthesisResult, BrowserCollectorTimelineStep, DeterministicCollectorResult } from "./auditPipelineTypes";
+import type { CruxMetric, CruxResult } from "../../types/liveAudit.types";
 import { fetchOpenRouterWithFallback } from "./openrouterHelper";
+
+function formatCruxMetric(label: string, metric: CruxMetric, unit: "ms" | ""): string | null {
+  if (metric.p75 === null) {
+    return null;
+  }
+  return `${label}: p75=${metric.p75}${unit} rating=${metric.rating ?? "unrated"} [MEASURED, real users]`;
+}
+
+function buildCruxLines(crux?: CruxResult): string[] {
+  if (!crux || !crux.hasData) {
+    return [
+      "Measured field data (CrUX, real users): NONE AVAILABLE.",
+      "No real-user Core Web Vitals field data exists for this target. Do NOT invent or estimate numeric LCP/INP/CLS/FCP values; explicitly state that field data is unavailable.",
+    ];
+  }
+  const scopeText = crux.scope === "origin" ? "site-wide origin" : "this page URL";
+  const header = `Measured field data (CrUX, real users) — scope: ${scopeText}${crux.collectionPeriod ? `, collection period: ${crux.collectionPeriod}` : ""}. Treat these as MEASURED ground truth:`;
+  return [
+    header,
+    formatCruxMetric("LCP (largest contentful paint)", crux.metrics.lcp, "ms"),
+    formatCruxMetric("INP (interaction to next paint)", crux.metrics.inp, "ms"),
+    formatCruxMetric("CLS (cumulative layout shift)", crux.metrics.cls, ""),
+    formatCruxMetric("FCP (first contentful paint)", crux.metrics.fcp, "ms"),
+  ].filter((line): line is string => Boolean(line));
+}
 
 function buildEvidenceLines(payload: AuditRequestPayload, deterministic: DeterministicCollectorResult): string[] {
   const lines = [
@@ -35,7 +61,7 @@ function formatRuntimeGate(step: BrowserCollectorTimelineStep): string {
   return `${step.label} [${step.status}]${step.detail ? ` ${step.detail}` : ""}`;
 }
 
-function buildAuditPrompt(payload: AuditRequestPayload, evidence: AuditEvidenceBundle): string {
+export function buildAuditPrompt(payload: AuditRequestPayload, evidence: AuditEvidenceBundle): string {
   const primaryRuntimeGate = getPrimaryRuntimeGate(evidence);
 
   const languageInstruction = payload.language === "zh-TW" 
@@ -49,15 +75,27 @@ function buildAuditPrompt(payload: AuditRequestPayload, evidence: AuditEvidenceB
     "If a browser runtime gate is blocked or incomplete, explicitly name that gate in both the Executive Summary and Browser Flow Gaps sections.",
     languageInstruction,
     "You MUST output your response as a valid JSON object matching the following structure EXACTLY. DO NOT wrap the output in markdown code blocks (e.g., no ```json). Output ONLY the raw JSON object.",
+    "Every finding object MUST include: severity ('critical' | 'warning' | 'info'), finding (one professional sentence), rootCause (technical why), businessImpact (e.g. effect on conversion/retention), actionableFix (precise step-by-step developer instruction).",
     "{",
-    `  "executiveSummary": "A concise, professional overview of the site's health and readiness. Focus on business impact, user experience, and technical readiness. Write this for C-level executives and stakeholders.",`,
-    '  "deterministicFindings": [{ "issue": "The technical issue found", "impact": "The business or UX impact", "severity": "high|medium|low" }],',
-    '  "browserFlowGaps": [{ "issue": "The flow gap or blocked gate", "impact": "How this affects user conversion or traversal", "severity": "high|medium|low" }],',
-    '  "architectureRisks": [{ "issue": "The architecture or scaling concern", "impact": "Long-term business or operational impact", "severity": "high|medium|low" }],',
-    '  "nextActions": [{ "action": "Clear, actionable step", "impact": "The expected improvement" }]',
+    `  "executiveSummary": "A concise, professional overview of the site's health and readiness for C-level stakeholders.",`,
+    '  "performanceFindings": [{ "severity": "critical|warning|info", "finding": "...", "rootCause": "...", "businessImpact": "...", "actionableFix": "..." }],',
+    '  "deterministicFindings": [{ "severity": "critical|warning|info", "finding": "...", "rootCause": "...", "businessImpact": "...", "actionableFix": "..." }],',
+    '  "browserFlowGaps": [{ "severity": "critical|warning|info", "finding": "...", "rootCause": "...", "businessImpact": "...", "actionableFix": "..." }],',
+    '  "architectureRisks": [{ "severity": "critical|warning|info", "finding": "...", "rootCause": "...", "businessImpact": "...", "actionableFix": "..." }],',
+    '  "nextActions": [{ "action": "Clear actionable step", "impact": "Expected improvement", "actionableFix": "Precise developer instruction" }]',
     "}",
+    "ANALYSIS RULES:",
+    "- Treat CrUX values as measured ground truth. When no field data is available, say so and do NOT output numeric Core Web Vitals.",
+    "- Infer LCP/INP root cause ONLY from the MODELED inputs supplied (server response time/TTFB, render-blocking stylesheet/script counts, crawled route timings). You have NO per-request waterfall and NO LCP-element attribution — never claim a specific element or HTTP request caused a vital.",
+    "- Tag every modeled or estimated figure explicitly (zh-TW: 估算 or 模型推估; en: 'estimated').",
+    "- Use performanceFindings for Core Web Vitals / latency; keep deterministicFindings, browserFlowGaps, architectureRisks for their respective concerns.",
     "Keep the tone consultative, professional, and actionable. Frame technical issues in terms of business impact.",
     buildEvidenceLines(payload, evidence.deterministic).join("\n"),
+    buildCruxLines(evidence.crux).join("\n"),
+    `MODELED inputs for performance root-cause (not per-asset measurements): TTFB=${evidence.deterministic.responseTimeMs ?? "unknown"}ms, stylesheets=${evidence.deterministic.document?.counts.stylesheets ?? 0}, scripts=${evidence.deterministic.document?.counts.scripts ?? 0}, preconnectHints=${evidence.deterministic.document?.counts.preconnectHints ?? 0}.`,
+    evidence.browser.pages.length > 0
+      ? `Crawled route timings: ${evidence.browser.pages.map((page) => `${page.url} — ${page.notes.join("; ")}`).join(" | ")}`
+      : null,
     `Browser collector status: ${evidence.browser.status}`,
     `Browser collector mode: ${evidence.browser.mode}`,
     `Browser runtime instruction: ${evidence.browser.runtime.instruction}`,
@@ -82,7 +120,7 @@ function buildAuditPrompt(payload: AuditRequestPayload, evidence: AuditEvidenceB
     .join("\n\n");
 }
 
-function buildFallbackSummary(payload: AuditRequestPayload, evidence: AuditEvidenceBundle, reason: string): string {
+export function buildFallbackSummary(payload: AuditRequestPayload, evidence: AuditEvidenceBundle, reason: string): string {
   const deterministic = evidence.deterministic;
   const primaryRuntimeGate = getPrimaryRuntimeGate(evidence);
   const findings: string[] = [];
