@@ -1,6 +1,5 @@
 import type { AuditRequestPayload, DeterministicCollectorResult, DeterministicDocumentEvidence } from "./auditPipelineTypes";
 import { AUDIT_TARGET_REDIRECT_LIMIT_ERROR, assertSafeAuditTargetUrl } from "./securityPolicies";
-import { collectSecurityPosture } from "./securityPostureCollector";
 
 const REQUEST_HEADERS = {
   Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
@@ -210,7 +209,6 @@ export async function collectDeterministicEvidence(payload: AuditRequestPayload)
     const html = contentType?.includes("text/html") ? await response.text() : "";
     const finalUrl = response.url || payload.url;
     const document = html ? extractDocumentEvidence(html, finalUrl) : undefined;
-    const securityPosture = collectSecurityPosture(response.headers);
 
     return {
       stage: "deterministic",
@@ -226,12 +224,7 @@ export async function collectDeterministicEvidence(payload: AuditRequestPayload)
         cacheControl: response.headers.get("cache-control"),
         server: response.headers.get("server"),
         poweredBy: response.headers.get("x-powered-by"),
-        contentSecurityPolicy: response.headers.get("content-security-policy"),
-        strictTransportSecurity: response.headers.get("strict-transport-security"),
-        xFrameOptions: response.headers.get("x-frame-options"),
-        xContentTypeOptions: response.headers.get("x-content-type-options"),
       },
-      securityPosture,
       document,
       notes: buildNotes(payload, finalUrl, contentType),
       warnings: document ? buildWarnings(document, responseTimeMs, response.status) : ["Target did not return HTML content for deterministic parsing."],

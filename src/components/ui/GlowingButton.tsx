@@ -1,16 +1,13 @@
-import type { ReactNode } from "react";
-import { motion, type HTMLMotionProps } from "framer-motion";
-import ShimmerText from "./ShimmerText";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 
-interface GlowingButtonProps extends Omit<HTMLMotionProps<"button">, "ref"> {
+interface GlowingButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   loadingLabel: string;
   isLoading?: boolean;
   variant?: "primary" | "ghost";
 }
-
-const HOVER_SPRING = { type: "spring", stiffness: 260, damping: 22 };
-const TAP_SPRING = { type: "spring", stiffness: 500, damping: 30 };
 
 export default function GlowingButton({
   children,
@@ -30,8 +27,8 @@ export default function GlowingButton({
   return (
     <motion.button
       type={type ?? "button"}
-      whileHover={disabled || isLoading ? {} : { y: -2, scale: variant === "ghost" ? 1.02 : 1.015, transition: HOVER_SPRING }}
-      whileTap={disabled || isLoading ? {} : { scale: 0.97, y: -1, transition: TAP_SPRING }}
+      whileHover={{ y: -2, scale: variant === "ghost" ? 1.02 : 1.01 }}
+      whileTap={{ scale: 0.96 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className={[
         "inline-flex items-center justify-center gap-2 rounded-full px-4 py-3 min-h-[44px] text-sm font-semibold transition duration-300 outline-none",
@@ -46,7 +43,8 @@ export default function GlowingButton({
       aria-busy={isLoading}
       {...props}
     >
-      {isLoading ? <ShimmerText text={loadingLabel} /> : <span>{children}</span>}
+      {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+      <span>{isLoading ? loadingLabel : children}</span>
     </motion.button>
   );
 }

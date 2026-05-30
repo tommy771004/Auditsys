@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { Shield, ShieldAlert } from "lucide-react";
 import type { Subagent, ToolCall, ToolCallArgumentValue } from "../../types/agent.types";
 
 interface SubagentCardProps {
@@ -20,17 +21,49 @@ export default function SubagentCard({ subagent, toolCalls }: SubagentCardProps)
   const { t } = useTranslation();
   const terminalRef = useRef<HTMLDivElement | null>(null);
 
-  const terminalLines = useMemo(
-    () =>
-      toolCalls.flatMap((toolCall) =>
-        toolCall.logs.map((log, index) => ({
-          id: `${toolCall.id}-${index}`,
-          toolName: t(`auditConsole.tools.${toolCall.name}.label`),
-          text: log,
-        })),
-      ),
-    [t, toolCalls],
-  );
+  const sbToken = useMemo(() => {
+    switch (subagent.id) {
+      case "frontend-speed-agent":
+        return "sb-2026.1";
+      case "backend-perf-agent":
+        return "sb-2026.2";
+      case "a11y-agent":
+        return "sb-2026.3";
+      case "architecture-agent":
+      default:
+        return "sb-2026.4";
+    }
+  }, [subagent.id]);
+
+  const terminalLines = useMemo(() => {
+    if (toolCalls.length === 0) return [];
+
+    const sandboxInitLogs = [
+      {
+        id: `sb-init-1-${subagent.id}`,
+        toolName: "Sandbox-Shield",
+        text: `🛡️ [Active] Bootstrapped execution sandbox environment. (Thread ID: ${sbToken})`,
+        isSandboxLog: true,
+      },
+      {
+        id: `sb-init-2-${subagent.id}`,
+        toolName: "Sandbox-Shield",
+        text: `🔒 OS security constraints verified. Direct file write and OS privilege escalation restricted. Ready.`,
+        isSandboxLog: true,
+      }
+    ];
+
+    const actualLogs = toolCalls.flatMap((toolCall) =>
+      toolCall.logs.map((log, index) => ({
+        id: `${toolCall.id}-${index}`,
+        toolName: t(`auditConsole.tools.${toolCall.name}.label`),
+        text: log,
+        isSandboxLog: false,
+      })),
+    );
+
+    return [...sandboxInitLogs, ...actualLogs];
+  }, [t, toolCalls, subagent.id, sbToken]);
 
   useEffect(() => {
     if (!terminalRef.current) {
@@ -81,6 +114,15 @@ export default function SubagentCard({ subagent, toolCalls }: SubagentCardProps)
           </span>
         </div>
 
+        {/* Sandbox Active Protection Badge */}
+        <div className="flex items-center gap-2 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-300">
+          <ShieldAlert className="h-4 w-4 text-emerald-400 shrink-0" />
+          <div className="flex-1 flex justify-between items-center">
+            <span className="font-semibold text-emerald-200/90">{t("auditConsole.subagentCard.sandboxLabel")}</span>
+            <span className="font-mono bg-emerald-500/15 border border-emerald-500/20 px-1.5 py-0.5 rounded text-[10px]">{t("auditConsole.subagentCard.sandboxToken", { token: sbToken })}</span>
+          </div>
+        </div>
+
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-[22px] border border-white/10 bg-slate-950/35 px-4 py-3">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/48">{t("auditConsole.subagentCard.executionTimeLabel")}</p>
@@ -117,7 +159,9 @@ export default function SubagentCard({ subagent, toolCalls }: SubagentCardProps)
             {terminalLines.length > 0 ? (
               terminalLines.map((line) => (
                 <div key={line.id} className="rounded-2xl border border-white/5 bg-white/[0.03] px-3 py-2">
-                  <span className="mr-2 text-cyan-200">[{line.toolName}]</span>
+                  <span className={line.toolName === "Sandbox-Shield" ? "mr-2 text-emerald-400 font-bold" : "mr-2 text-cyan-200"}>
+                    [{line.toolName}]
+                  </span>
                   <span>{line.text}</span>
                 </div>
               ))

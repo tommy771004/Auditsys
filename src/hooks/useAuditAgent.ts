@@ -311,11 +311,16 @@ async function* createAgentWorkflow(targetUrl: string, t: TFunction): AsyncGener
   yield { type: "phase", phase: "parallel_execution" };
   await delay(120);
 
+  yield { type: "phase", phase: "context_pruning" };
+  await delay(1900);
+
   yield { type: "phase", phase: "synthesizing_memory" };
   await delay(260);
 
   yield { type: "memory", update: buildMemoryUpdate(t) };
   await delay(760);
+
+  yield { type: "phase", phase: "quality_gate" };
 
   yield { type: "phase", phase: "streaming_report" };
   await delay(160);
@@ -343,6 +348,7 @@ export function useAuditAgent(): UseAgentResult {
   const intervalIdsRef = useRef<number[]>([]);
   const memoryBadgeTimeoutRef = useRef<number | null>(null);
   const runTokenRef = useRef<number>(0);
+  const qualityGateResolverRef = useRef<(() => void) | null>(null);
 
   const clearRuntimeHandles = () => {
     intervalIdsRef.current.forEach((intervalId) => {
@@ -353,6 +359,11 @@ export function useAuditAgent(): UseAgentResult {
     if (memoryBadgeTimeoutRef.current !== null) {
       window.clearTimeout(memoryBadgeTimeoutRef.current);
       memoryBadgeTimeoutRef.current = null;
+    }
+
+    if (qualityGateResolverRef.current !== null) {
+      qualityGateResolverRef.current();
+      qualityGateResolverRef.current = null;
     }
   };
 
@@ -557,6 +568,12 @@ export function useAuditAgent(): UseAgentResult {
           }
         }
 
+        if (event.phase === "quality_gate") {
+          await new Promise<void>((resolve) => {
+            qualityGateResolverRef.current = resolve;
+          });
+        }
+
         continue;
       }
 
@@ -598,6 +615,13 @@ export function useAuditAgent(): UseAgentResult {
     }
   };
 
+  const approveQualityGate = () => {
+    if (qualityGateResolverRef.current) {
+      qualityGateResolverRef.current();
+      qualityGateResolverRef.current = null;
+    }
+  };
+
   const reset = () => {
     runTokenRef.current += 1;
     clearRuntimeHandles();
@@ -624,6 +648,7 @@ export function useAuditAgent(): UseAgentResult {
     reportSource,
     errorKey,
     startAudit,
+    approveQualityGate,
     reset,
   };
 }

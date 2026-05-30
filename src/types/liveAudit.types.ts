@@ -21,21 +21,20 @@ export interface PageSpeedResult {
 }
 
 /** A single SEO/accessibility defect located by the backend HTML parser. */
-export type DOMIssueType = "missing_alt" | "multiple_h1" | "invalid_canonical" | "render_blocking";
+export type DOMIssueType = "missing_alt" | "multiple_h1" | "invalid_canonical";
 
 export interface LiveDOMIssue {
-  /** The offending element selector / tag (e.g. "img.hero", "h1#hero"). */
-  elementId: string;
+  /** The offending element selector / tag (e.g. "img", "h1#hero"). */
+  element: string;
   /** Category of the detected problem. */
   issueType: DOMIssueType;
-  /** Professional zh-TW explanation of why this issue matters. */
-  description: string;
-  /** The problematic HTML captured from the target page. */
-  originalSnippet: string;
-  /** Production-ready remediation snippet that can be copy-pasted. */
-  fixedSnippet: string;
-  /** Concise explanation of the exact code change. */
-  diffExplanation: string;
+  /** Raw HTML snippet returned by the backend, rendered verbatim in the UI. */
+  snippet: string;
+  /**
+   * Optional zero-based line index inside `snippet` that triggered the issue.
+   * Used to paint the `bg-red-500/20` overlay on the exact offending line.
+   */
+  highlightLine?: number;
 }
 
 export type SSELogLevel = "info" | "warn" | "error" | "success";
@@ -84,21 +83,19 @@ export interface LiveScanSeoSignals {
   openGraphTags: number;
 }
 
-/**
- * Lightweight security posture snapshot carried on the `done` SSE frame.
- * Full remediation snippets are fetched separately via /api/scan/security.
- */
-export interface SecurityPostureSummary {
-  score: number;
-  grade: "A" | "B" | "C" | "D" | "F";
-  /** 各 header 的簡明狀態 */
-  findings: Array<{
-    header: string;
-    present: boolean;
-    severity: "critical" | "high" | "medium" | "low" | "pass";
-    remediationHint: string;
-  }>;
-  detectedStack: "vercel" | "nginx" | "aspnet" | "cloudflare" | "unknown";
+export interface AgentFinding {
+  finding: string;
+  rootCause: string;
+  businessImpact: string;
+  actionableFix: string;
+  severity: "critical" | "warning" | "info";
+}
+
+export interface SubagentsResults {
+  cruxPerformance: AgentFinding[];
+  devSecOps: AgentFinding[];
+  seoAndDom: AgentFinding[];
+  networkDetective: AgentFinding[];
 }
 
 /**
@@ -119,8 +116,7 @@ export interface LiveScanSummary {
   warnings: string[];
   browserStatus: string;
   browserMode: string;
-  /** 安全防禦態勢摘要（由 securityPostureCollector 產生） */
-  security?: SecurityPostureSummary;
+  agentResults?: SubagentsResults;
 }
 
 /** Core Web Vitals "good / needs improvement / poor" bucket. */
@@ -165,23 +161,6 @@ export interface CruxResult {
     inp: CruxHistorySeries;
     cls: CruxHistorySeries;
   };
-}
-
-export type LabFieldDiscrepancyLevel = "none" | "moderate" | "severe";
-
-export interface LabFieldGapAnalysis {
-  discrepancyLevel: LabFieldDiscrepancyLevel;
-  blindSpotIdentified: string;
-  strategicRecommendation: string;
-}
-
-export type PerformanceTrendStatus = "improving" | "stable" | "regressing";
-
-export interface PerformanceTrendAlertReport {
-  trendStatus: PerformanceTrendStatus;
-  trendSummary: string;
-  keyRegressions: string[];
-  hypothesizedRootCause: string;
 }
 
 export type ExecutionStatus =

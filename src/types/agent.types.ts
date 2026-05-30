@@ -1,6 +1,6 @@
 import type { AuditIntelligenceResult } from "../Server/Services/auditPipelineTypes";
 
-export type AgentPhase = "idle" | "analyzing_context" | "spawning_subagents" | "parallel_execution" | "synthesizing_memory" | "streaming_report" | "complete";
+export type AgentPhase = "idle" | "analyzing_context" | "spawning_subagents" | "parallel_execution" | "context_pruning" | "synthesizing_memory" | "quality_gate" | "streaming_report" | "complete";
 
 export type AgentReportSource = "live" | "mock";
 
@@ -56,5 +56,6 @@ export interface UseAgentResult {
   reportSource: AgentReportSource | null;
   errorKey: string | null;
   startAudit: (url: string, intakeData?: any) => Promise<void>;
+  approveQualityGate?: () => void;
   reset: () => void;
 }

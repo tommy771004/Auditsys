@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type {
   ExecutionState,
   ExecutionStatus,
@@ -63,17 +64,7 @@ function isLiveDOMIssueArray(value: unknown): value is LiveDOMIssue[] {
         return false;
       }
       const candidate = item as Record<string, unknown>;
-      return (
-        typeof candidate.elementId === "string" &&
-        typeof candidate.description === "string" &&
-        typeof candidate.originalSnippet === "string" &&
-        typeof candidate.fixedSnippet === "string" &&
-        typeof candidate.diffExplanation === "string" &&
-        (candidate.issueType === "missing_alt" ||
-          candidate.issueType === "multiple_h1" ||
-          candidate.issueType === "invalid_canonical" ||
-          candidate.issueType === "render_blocking")
-      );
+      return typeof candidate.element === "string" && typeof candidate.snippet === "string";
     })
   );
 }
@@ -88,6 +79,7 @@ function isLiveDOMIssueArray(value: unknown): value is LiveDOMIssue[] {
  * all motion in the UI is driven by genuine server events.
  */
 export function useRealTimeAudit(): UseRealTimeAuditResult {
+  const { i18n } = useTranslation();
   const [state, setState] = useState<ExecutionState>({ status: "idle", targetUrl: "" });
   const [logs, setLogs] = useState<SSELog[]>([]);
   const [domIssues, setDomIssues] = useState<LiveDOMIssue[]>([]);
@@ -164,9 +156,11 @@ export function useRealTimeAudit(): UseRealTimeAuditResult {
       setState({ status: "connecting", targetUrl: normalizedUrl });
 
       const authToken = localStorage.getItem("auth_token");
+      const currentLanguage = i18n.resolvedLanguage || i18n.language || "en";
       // EventSource cannot set headers, so the token rides as a query parameter.
       const streamUrl =
         `${API_BASE}/api/scan/stream?url=${encodeURIComponent(normalizedUrl)}` +
+        `&language=${encodeURIComponent(currentLanguage)}` +
         (authToken ? `&token=${encodeURIComponent(authToken)}` : "");
 
       const source = new EventSource(streamUrl);

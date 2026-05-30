@@ -7,6 +7,3 @@ coverage/
 .env*
 !.env.example
 .claude/*
-test/performanceTrendAnalyzer.test.ts
-test/deterministicArchitectureSynthesizer.test.ts
-test/labFieldGapAnalyzer.test.ts

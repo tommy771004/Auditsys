@@ -1,39 +1,5 @@
 import type { CruxResult } from "../../types/liveAudit.types";
 
-// ── Security Posture Types ────────────────────────────────────────────────────
-
-export type SecurityHeaderSeverity = "critical" | "high" | "medium" | "low" | "pass";
-
-export interface SecurityHeaderFinding {
-  header: string;
-  present: boolean;
-  value: string | null;
-  severity: SecurityHeaderSeverity;
-  /** 若 value 存在但設定有誤，此欄位說明誤設原因 */
-  misconfiguration?: string;
-  /** 修補建議摘要（簡短說明） */
-  remediationHint: string;
-}
-
-export interface SecurityRemediationSnippets {
-  vercel: string;
-  nginx: string;
-  aspnet: string;
-}
-
-export type DetectedStack = "vercel" | "nginx" | "aspnet" | "cloudflare" | "unknown";
-
-export interface SecurityPostureResult {
-  /** 綜合評分 0-100，依嚴重性加權扣分 */
-  score: number;
-  /** A=90+, B=75+, C=55+, D=35+, F=0+ */
-  grade: "A" | "B" | "C" | "D" | "F";
-  findings: SecurityHeaderFinding[];
-  detectedStack: DetectedStack;
-  /** 平台專屬的修補程式碼片段 */
-  remediationSnippets: SecurityRemediationSnippets;
-}
-
 export interface AuditRequestPayload {
   url: string;
   companyName?: string;
@@ -81,14 +47,7 @@ export interface DeterministicCollectorResult {
     cacheControl: string | null;
     server: string | null;
     poweredBy: string | null;
-    // Security-critical response headers
-    contentSecurityPolicy: string | null;
-    strictTransportSecurity: string | null;
-    xFrameOptions: string | null;
-    xContentTypeOptions: string | null;
   };
-  /** 安全防禦態勢評估結果（由 securityPostureCollector 產生） */
-  securityPosture?: SecurityPostureResult;
   document?: DeterministicDocumentEvidence;
   notes: string[];
   warnings: string[];
@@ -155,7 +114,6 @@ export interface BrowserCollectorResult {
 export interface AuditEvidenceBundle {
   deterministic: DeterministicCollectorResult;
   browser: BrowserCollectorResult;
-  /** Real-user Core Web Vitals (Chrome UX Report). Absent/`hasData:false` when unavailable. */
   crux?: CruxResult;
 }
 
@@ -190,6 +148,29 @@ function toStringArray(value: unknown): string[] {
     .filter((item): item is string => typeof item === "string")
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+export interface AgentLogEvent {
+  agent: string;
+  timestamp: string;
+  status: "running" | "completed" | "failed";
+  level: "info" | "warn" | "error" | "success";
+  message: string;
+}
+
+export interface AgentFinding {
+  finding: string;
+  rootCause: string;
+  businessImpact: string;
+  actionableFix: string;
+  severity: "critical" | "warning" | "info";
+}
+
+export interface SubagentsResults {
+  cruxPerformance: AgentFinding[];
+  devSecOps: AgentFinding[];
+  seoAndDom: AgentFinding[];
+  networkDetective: AgentFinding[];
 }
 
 export function normalizeAuditRequestPayload(payload: unknown): AuditRequestPayload {

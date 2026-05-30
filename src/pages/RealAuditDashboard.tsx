@@ -10,9 +10,7 @@ import CoreWebVitalsCard from "../components/live/CoreWebVitalsCard";
 import DOMIssueHighlighter from "../components/live/DOMIssueHighlighter";
 import ExecutionTerminal from "../components/live/ExecutionTerminal";
 import ScanSummaryPanel from "../components/live/ScanSummaryPanel";
-import SecurityPosturePanel from "../components/live/SecurityPosturePanel";
 import AnalyticsChartsPanel from "../components/ui/AnalyticsChartsPanel";
-import AuditOutcomeHero from "../components/live/AuditOutcomeHero";
 import { useRealTimeAudit } from "../hooks/useRealTimeAudit";
 import type { ExecutionStatus } from "../types/liveAudit.types";
 import type { NavigateTo } from "../types/home";
@@ -229,19 +227,8 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
               >
                 {showReport && summary ? (
                   <div className="space-y-6">
-                    <AuditOutcomeHero
-                      summary={summary}
-                      onOpenReport={() => onNavigate("report")}
-                      onRescan={() => startScan(state.targetUrl)}
-                    />
-                    <AnalyticsChartsPanel summary={summary} />
+                    <AnalyticsChartsPanel />
                     <ScanSummaryPanel summary={summary} />
-                    {summary.security ? (
-                      <SecurityPosturePanel
-                        summary={summary.security}
-                        targetUrl={state.targetUrl}
-                      />
-                    ) : null}
                   </div>
                 ) : null}
 
@@ -273,6 +260,21 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
 
                 <div className="space-y-6">
                   <CoreWebVitalsCard targetUrl={state.targetUrl} active={lighthouseActive} />
+
+                  {showReport ? (
+                    <GlassContainer accent="violet" className="space-y-3">
+                      <p className="text-sm font-semibold text-white">{t("liveAudit.report.title")}</p>
+                      <p className="text-sm leading-7 text-brand-muted">{t("liveAudit.report.description")}</p>
+                      <GlowingButton className="w-full justify-center" loadingLabel="" onClick={() => onNavigate("report")}>
+                        <ArrowRight className="h-4 w-4" />
+                        {t("liveAudit.report.openSample")}
+                      </GlowingButton>
+                      <GlowingButton className="w-full justify-center" variant="ghost" loadingLabel="" onClick={() => startScan(state.targetUrl)}>
+                        <RefreshCcw className="h-4 w-4" />
+                        {t("liveAudit.actions.rescan")}
+                      </GlowingButton>
+                    </GlassContainer>
+                  ) : null}
                 </div>
                 </div>
               </motion.div>

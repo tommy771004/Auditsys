@@ -13,41 +13,10 @@
     -moz-osx-font-smoothing: grayscale;
     touch-action: manipulation;
   }
-
-  /*
-   * Global focus-visible reset.
-   * Removes every browser's default outline so components can draw their own
-   * focus ring via Tailwind's `focus-visible:ring-*` utilities (WCAG 2.4.7).
-   * The :focus-visible pseudo-class ensures the ring only appears on keyboard
-   * navigation — mouse users never see stray focus rings.
-   */
-  :focus {
-    outline: none;
-  }
-
-  :focus-visible {
-    outline: none; /* each component draws its own ring */
-  }
 }
 
 @layer components {
   .glass-panel {
     @apply border border-white/10 bg-surface-background/85 shadow-glass backdrop-blur-2xl;
-  }
-}
-
-/* Respect prefers-reduced-motion for CSS-driven animations (Tailwind animate-*,
-   shimmer, smooth scroll). Framer-motion is handled via <MotionConfig reducedMotion="user">. */
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
   }
 }

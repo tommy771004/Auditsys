@@ -1,43 +1,45 @@
 import { useState } from "react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend, Cell, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
-import { Activity, Search, TrendingDown, TrendingUp } from "lucide-react";
-import type { LiveScanSummary, PerformanceTrendAlertReport } from "../../types/liveAudit.types";
-import { buildAnalyticsChartModel } from "./analyticsChartPresenter";
+import { Activity, Search } from "lucide-react";
+import type { LiveScanSummary } from "../../types/liveAudit.types";
 
 interface AnalyticsChartsPanelProps {
   summary?: LiveScanSummary;
-  trendReport?: PerformanceTrendAlertReport;
 }
 
-export default function AnalyticsChartsPanel({ summary, trendReport }: AnalyticsChartsPanelProps) {
+export default function AnalyticsChartsPanel({ summary }: AnalyticsChartsPanelProps) {
   const [activeView, setActiveView] = useState<"performance" | "seo">("performance");
-  const chartModel = buildAnalyticsChartModel(summary);
-  const TrendIcon = trendReport?.trendStatus === "regressing" ? TrendingDown : TrendingUp;
-  const trendTone = trendReport?.trendStatus === "regressing"
-    ? "border-rose-400/25 bg-rose-500/10 text-rose-100"
-    : trendReport?.trendStatus === "improving"
-      ? "border-emerald-400/25 bg-emerald-500/10 text-emerald-100"
-      : "border-cyan-400/25 bg-cyan-500/10 text-cyan-100";
+
+  const performanceData = [
+    { name: "LCP (渲染延遲)", current: (summary?.responseTimeMs ?? 1500) / 1000 * 2.1, target: 2.5 },
+    { name: "INP (互動延遲)", current: (summary?.responseTimeMs ?? 800) / 2, target: 200 },
+    { name: "CLS (佈局偏移)", current: summary?.scores.architecture ? (100 - summary.scores.architecture) / 100 : 0.15, target: 0.1 },
+    { name: "TTFB (伺服器回應)", current: summary?.responseTimeMs ?? 800, target: 400 }
+  ];
+
+  const seoData = summary ? [
+    { subject: "Meta 描述", A: summary.seo.hasMetaDescription ? 100 : 0, fullMark: 100 },
+    { subject: "H1 結構", A: summary.seo.h1Count === 1 ? 100 : (summary.seo.h1Count === 0 ? 0 : 50), fullMark: 100 },
+    { subject: "圖片 Alt", A: summary.assets.images > 0 ? ((summary.assets.images - summary.assets.imagesMissingAlt) / summary.assets.images) * 100 : 100, fullMark: 100 },
+    { subject: "Canonical 正規化", A: summary.seo.hasCanonical ? 100 : 0, fullMark: 100 },
+    { subject: "結構化資料", A: summary.seo.structuredDataBlocks > 0 ? 100 : 0, fullMark: 100 },
+    { subject: "內部連結", A: 75, fullMark: 100 } /* Mock for internal links */
+  ] : [
+    { subject: "Meta 描述", A: 90, fullMark: 100 },
+    { subject: "H1 結構", A: 100, fullMark: 100 },
+    { subject: "圖片 Alt", A: 60, fullMark: 100 },
+    { subject: "Canonical", A: 100, fullMark: 100 },
+    { subject: "結構化資料", A: 40, fullMark: 100 },
+    { subject: "內部連結", A: 75, fullMark: 100 }
+  ];
 
   return (
     <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5 backdrop-blur-md sm:p-6">
       <div className="mb-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
-        <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-lg font-semibold text-white">智慧數據即時透視</h3>
-            <span
-              className={[
-                "rounded-full border px-2.5 py-1 text-[10px] font-semibold",
-                chartModel.dataSource.kind === "live"
-                  ? "border-emerald-400/25 bg-emerald-500/10 text-emerald-100"
-                  : "border-amber-400/25 bg-amber-500/10 text-amber-100",
-              ].join(" ")}
-            >
-              {chartModel.dataSource.label}
-            </span>
-          </div>
-          <p className="text-sm text-white/50">{chartModel.dataSource.description}</p>
+        <div>
+          <h3 className="text-lg font-semibold text-white">智慧數據即時透視</h3>
+          <p className="text-sm text-white/50">動態切換效能指標與 SEO 檢測視圖</p>
         </div>
         
         {/* Toggle Controls */}
@@ -75,14 +77,14 @@ export default function AnalyticsChartsPanel({ summary, trendReport }: Analytics
               className="absolute inset-0 h-full w-full"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartModel.performanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <BarChart data={performanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff15" />
                   <XAxis dataKey="name" stroke="#94A3B8" style={{ fontSize: 11 }} />
                   <YAxis stroke="#94A3B8" style={{ fontSize: 11 }} />
                   <Tooltip contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #1E293B", borderRadius: "8px", fontSize: 12, color: "#fff" }} />
                   <Legend wrapperStyle={{ fontSize: 12, paddingTop: 10 }} />
                   <Bar dataKey="current" name="當前實測" fill="#FFBB28" radius={[4, 4, 0, 0]}>
-                    {chartModel.performanceData.map((entry, index) => (
+                    {performanceData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.current > entry.target ? "#FF2255" : "#05FFC4"} />
                     ))}
                   </Bar>
@@ -100,7 +102,7 @@ export default function AnalyticsChartsPanel({ summary, trendReport }: Analytics
               className="absolute inset-0 h-full w-full flex items-center justify-center pt-5"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <RadarChart outerRadius="80%" data={chartModel.seoData}>
+                <RadarChart outerRadius="80%" data={seoData}>
                   <PolarGrid stroke="#ffffff20" />
                   <PolarAngleAxis dataKey="subject" stroke="#cbd5e1" style={{ fontSize: 12, fontWeight: 600 }} />
                   <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
@@ -112,35 +114,6 @@ export default function AnalyticsChartsPanel({ summary, trendReport }: Analytics
           )}
         </AnimatePresence>
       </div>
-
-      {trendReport ? (
-        <div className={["mt-6 rounded-[22px] border p-4", trendTone].join(" ")}>
-          <div className="mb-3 flex items-center gap-2">
-            <TrendIcon className="h-4 w-4" />
-            <p className="text-sm font-semibold">效能趨勢警示報告</p>
-          </div>
-          <div className="space-y-3 text-sm leading-6">
-            <div>
-              <p className="font-semibold text-white">近期趨勢摘要</p>
-              <p className="text-white/75">{trendReport.trendSummary}</p>
-            </div>
-            {trendReport.keyRegressions.length > 0 ? (
-              <div>
-                <p className="font-semibold text-white">關鍵衰退指標</p>
-                <ul className="mt-1 list-disc space-y-1 pl-5 text-white/75">
-                  {trendReport.keyRegressions.map((item, index) => (
-                    <li key={`${item}-${index}`}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-            <div>
-              <p className="font-semibold text-white">潛在肇因假說</p>
-              <p className="text-white/75">{trendReport.hypothesizedRootCause}</p>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }

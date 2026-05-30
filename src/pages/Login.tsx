@@ -1,6 +1,6 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { LogIn, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { LogIn, AlertCircle } from "lucide-react";
 import GlassContainer from "../components/ui/GlassContainer";
 import GlowingButton from "../components/ui/GlowingButton";
 import type { NavigateTo } from "../types/home";
@@ -13,10 +13,8 @@ export default function Login({ onNavigate }: Props) {
   const [isRegistering, setIsRegistering] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const usernameRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +49,6 @@ export default function Login({ onNavigate }: Props) {
       }
     } catch (err: any) {
       setError(err.message);
-      usernameRef.current?.focus();
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +71,6 @@ export default function Login({ onNavigate }: Props) {
 
           {error && (
             <motion.div
-              role="alert"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               className="mb-4 p-4 rounded-md bg-brand-danger/10 border border-brand-danger/20 flex items-start text-brand-danger"
@@ -90,10 +86,8 @@ export default function Login({ onNavigate }: Props) {
                 Username
               </label>
               <input
-                ref={usernameRef}
                 type="text"
                 required
-                autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full bg-brand-surface/50 border border-white/10 rounded-lg px-4 py-3 text-brand-text placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-brand-purple/50 transition-all"
@@ -105,26 +99,14 @@ export default function Login({ onNavigate }: Props) {
               <label className="block text-sm font-medium text-brand-muted mb-2">
                 Password
               </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  required
-                  autoComplete={isRegistering ? "new-password" : "current-password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-brand-surface/50 border border-white/10 rounded-lg px-4 py-3 pr-12 text-brand-text placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-brand-purple/50 transition-all"
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-md text-brand-muted hover:text-white focus-visible:ring-2 focus-visible:ring-brand-purple/60 focus-visible:outline-none transition"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  aria-pressed={showPassword}
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-brand-surface/50 border border-white/10 rounded-lg px-4 py-3 text-brand-text placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-brand-purple/50 transition-all"
+                placeholder="â¢â¢â¢â¢â¢â¢â¢â¢"
+              />
             </div>
 
             <GlowingButton

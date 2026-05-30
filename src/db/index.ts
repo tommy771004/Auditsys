@@ -69,6 +69,29 @@ export async function initDb() {
       IF NOT EXISTS (
         SELECT 1
         FROM information_schema.columns
+        WHERE table_name='audit_records' AND column_name='agent_results'
+      ) THEN
+        ALTER TABLE audit_records ADD COLUMN agent_results TEXT;
+      END IF;
+    END
+    $$;
+
+    CREATE TABLE IF NOT EXISTS audit_agent_logs (
+      id SERIAL PRIMARY KEY,
+      audit_id UUID NOT NULL REFERENCES audit_records(id) ON DELETE CASCADE,
+      agent TEXT NOT NULL,
+      timestamp TEXT NOT NULL,
+      status TEXT NOT NULL,
+      level TEXT NOT NULL,
+      message TEXT NOT NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    );
+
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
         WHERE table_name='audit_records' AND column_name='user_id'
       ) THEN
         ALTER TABLE audit_records ADD COLUMN user_id INTEGER REFERENCES audit_users(id);

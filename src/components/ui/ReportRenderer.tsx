@@ -1,18 +1,16 @@
 import React, { useState } from "react";
-import { LayoutDashboard, Zap, Target, ShieldAlert, Flag, ChevronDown, Gauge } from "lucide-react";
+import { LayoutDashboard, Zap, Target, ShieldAlert, Flag, ChevronDown, Activity } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface RichFinding {
-  // Rich schema (new):
-  severity?: string;
-  finding?: string;
-  rootCause?: string;
-  businessImpact?: string;
-  actionableFix?: string;
-  // Legacy schema (old stored audits):
   issue?: string;
+  finding?: string;
   impact?: string;
+  businessImpact?: string;
+  rootCause?: string;
+  actionableFix?: string;
+  severity?: string;
 }
 
 interface ParsedReport {
@@ -21,7 +19,7 @@ interface ParsedReport {
   deterministicFindings?: RichFinding[];
   browserFlowGaps?: RichFinding[];
   architectureRisks?: RichFinding[];
-  nextActions?: { action: string; impact?: string; actionableFix?: string }[];
+  nextActions?: { action: string; impact: string; actionableFix?: string }[];
 }
 
 const CollapsibleCard: React.FC<{ 
@@ -86,30 +84,82 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
   const SeverityBadge = ({ severity }: { severity?: string }) => {
     if (!severity) return null;
     const s = severity.toLowerCase();
-    if (s === "critical" || s === "high") return <span className="rounded-md bg-semantic-danger/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-danger border border-semantic-danger/30">{isZh ? "嚴重" : "Critical"}</span>;
-    if (s === "warning" || s === "medium") return <span className="rounded-md bg-semantic-warning/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-warning border border-semantic-warning/30">{isZh ? "警告" : "Warning"}</span>;
-    return <span className="rounded-md bg-semantic-success/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-success border border-semantic-success/30">{isZh ? "資訊" : "Info"}</span>;
+    if (s === "critical" || s === "high") {
+      return (
+        <span className="rounded-md bg-semantic-danger/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-danger border border-semantic-danger/30">
+          {isZh ? "致命/高影響" : "Critical"}
+        </span>
+      );
+    }
+    if (s === "warning" || s === "medium") {
+      return (
+        <span className="rounded-md bg-semantic-warning/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-warning border border-semantic-warning/30">
+          {isZh ? "需改善/警告" : "Warning"}
+        </span>
+      );
+    }
+    return (
+      <span className="rounded-md bg-semantic-success/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-semantic-success border border-semantic-success/30">
+        {isZh ? "良好/資訊" : "Info"}
+      </span>
+    );
   };
 
-  const FindingCard = ({ item }: { item: RichFinding }) => {
-    const title = item.finding ?? item.issue ?? "";
-    const impact = item.businessImpact ?? item.impact ?? "";
+  const RichFindingCard = ({ item }: { item: RichFinding }) => {
+    const [isInternalOpen, setIsInternalOpen] = useState(false);
+    const title = item.finding || item.issue || "";
+    const impact = item.businessImpact || item.impact || "";
+    const hasDetails = Boolean(item.rootCause || item.actionableFix);
+
     return (
-      <div className="rounded-2xl bg-white/[0.02] p-4 border border-white/[0.05] hover:bg-white/[0.04] transition-colors">
-        <div className="flex justify-between items-start mb-2 gap-2">
-          <p className="text-sm font-semibold text-white leading-snug">{title}</p>
-          <SeverityBadge severity={item.severity} />
+      <div 
+        className="rounded-2xl bg-white/[0.02] p-4 sm:p-5 border border-white/[0.05] hover:bg-white/[0.04] transition-all flex flex-col justify-between"
+      >
+        <div>
+          <div className="flex justify-between items-start mb-2.5 gap-3">
+            <p className="text-sm font-semibold text-white leading-snug">{title}</p>
+            <SeverityBadge severity={item.severity} />
+          </div>
+          <p className="text-xs text-white/70 leading-relaxed mb-3">{impact}</p>
         </div>
-        {item.rootCause && (
-          <p className="text-xs text-white/50 leading-relaxed mb-1">
-            <span className="font-semibold text-white/70">{isZh ? "根因：" : "Root cause: "}</span>{item.rootCause}
-          </p>
-        )}
-        {impact && <p className="text-xs text-white/60 leading-relaxed">{impact}</p>}
-        {item.actionableFix && (
-          <p className="mt-2 text-xs text-brand-cyan/80 leading-relaxed">
-            <span className="font-semibold">{isZh ? "建議解法：" : "Fix: "}</span>{item.actionableFix}
-          </p>
+
+        {hasDetails && (
+          <div className="mt-2 pt-2 border-t border-white/5">
+            <button
+              onClick={() => setIsInternalOpen(!isInternalOpen)}
+              className="flex items-center gap-1.5 text-[11px] font-bold text-brand-cyan uppercase tracking-wider hover:text-brand-cyan/80 transition-colors"
+            >
+              <span>{isZh ? "技術診斷與修復指引" : "Diagnostics & Solution"}</span>
+              <motion.span animate={{ rotate: isInternalOpen ? 180 : 0 }}>▼</motion.span>
+            </button>
+            <AnimatePresence initial={false}>
+              {isInternalOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden mt-3 space-y-3"
+                >
+                  {item.rootCause && (
+                    <div className="rounded-lg bg-black/40 p-3 border border-white/[0.03]">
+                      <span className="text-[10px] font-extrabold text-white/50 uppercase tracking-widest block mb-1">
+                        {isZh ? "根本成因 (Root Cause)" : "Root Cause"}
+                      </span>
+                      <p className="text-xs text-white/80 leading-relaxed font-mono">{item.rootCause}</p>
+                    </div>
+                  )}
+                  {item.actionableFix && (
+                    <div className="rounded-lg bg-brand-cyan/5 p-3 border border-brand-cyan/15">
+                      <span className="text-[10px] font-extrabold text-brand-cyan uppercase tracking-widest block mb-1">
+                        {isZh ? "開發者對策 (Actionable Fix)" : "Actionable Fix"}
+                      </span>
+                      <p className="text-xs text-white/95 leading-relaxed font-mono whitespace-pre-wrap">{item.actionableFix}</p>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         )}
       </div>
     );
@@ -130,44 +180,51 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
       )}
 
       <div className="flex flex-col gap-6">
+        {/* Core Web Vitals & Performance Findings (from CrUX) */}
         {parsed.performanceFindings && parsed.performanceFindings.length > 0 && (
           <CollapsibleCard
-            title={isZh ? "效能與核心網頁指標" : "Performance & Core Web Vitals"}
-            icon={<Gauge className="h-5 w-5 text-brand-cyan" />}
+            title={isZh ? "使用者實測核心效能 (CrUX Performance)" : "Core Performance Findings"}
+            icon={<Activity className="h-5 w-5 text-brand-cyan" />}
             colorClass="text-brand-cyan"
             borderColorClass="border-brand-cyan/20"
             defaultOpen={true}
           >
             <div className="grid gap-4 md:grid-cols-2">
-              {parsed.performanceFindings.map((item, i) => <FindingCard key={i} item={item} />)}
+              {parsed.performanceFindings.map((item, i) => (
+                <RichFindingCard key={i} item={item} />
+              ))}
             </div>
           </CollapsibleCard>
         )}
 
         {parsed.deterministicFindings && parsed.deterministicFindings.length > 0 && (
           <CollapsibleCard
-            title={isZh ? "技術發現" : "Technical Findings"}
+            title={isZh ? "技術發現 (Technical Findings)" : "Technical Findings"}
             icon={<Zap className="h-5 w-5 text-brand-purple" />}
             colorClass="text-brand-purple"
             borderColorClass="border-brand-purple/20"
             defaultOpen={true}
           >
             <div className="grid gap-4 md:grid-cols-2">
-              {parsed.deterministicFindings.map((item, i) => <FindingCard key={i} item={item} />)}
+              {parsed.deterministicFindings.map((item, i) => (
+                <RichFindingCard key={i} item={item} />
+              ))}
             </div>
           </CollapsibleCard>
         )}
 
         {parsed.browserFlowGaps && parsed.browserFlowGaps.length > 0 && (
           <CollapsibleCard
-            title={isZh ? "流程驗證 (Browser evidence)" : "Flow Verification"}
+            title={isZh ? "流程驗證 (Browser flow gaps)" : "Flow Verification"}
             icon={<Target className="h-5 w-5 text-semantic-success" />}
             colorClass="text-semantic-success"
             borderColorClass="border-semantic-success/20"
             defaultOpen={true}
           >
             <div className="grid gap-4 md:grid-cols-2">
-              {parsed.browserFlowGaps.map((item, i) => <FindingCard key={i} item={item} />)}
+              {parsed.browserFlowGaps.map((item, i) => (
+                <RichFindingCard key={i} item={item} />
+              ))}
             </div>
           </CollapsibleCard>
         )}
@@ -181,7 +238,9 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
             defaultOpen={true}
           >
             <div className="grid gap-4 md:grid-cols-2">
-              {parsed.architectureRisks.map((item, i) => <FindingCard key={i} item={item} />)}
+              {parsed.architectureRisks.map((item, i) => (
+                <RichFindingCard key={i} item={item} />
+              ))}
             </div>
           </CollapsibleCard>
         )}
@@ -202,9 +261,12 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-white leading-snug">{item.action}</p>
-                    {item.impact && <p className="mt-1 text-xs text-white/60 leading-relaxed">{item.impact}</p>}
-                    {item.actionableFix && item.actionableFix !== item.action && (
-                      <p className="mt-1 text-xs text-brand-cyan/80 leading-relaxed">{item.actionableFix}</p>
+                    <p className="mt-1 text-xs text-white/70 leading-relaxed mb-2">{item.impact}</p>
+                    {item.actionableFix && (
+                      <div className="mt-2 rounded bg-black/30 p-2 border border-white/5 font-mono text-[11px] leading-relaxed text-brand-cyan/90">
+                        <span className="text-[9px] font-bold uppercase tracking-wider block mb-0.5 text-white/40">{isZh ? "執行方案" : "Implementation"}</span>
+                        {item.actionableFix}
+                      </div>
                     )}
                   </div>
                 </div>

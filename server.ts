@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { generateAuditIntelligence } from "./src/Server/Services/auditIntelligence";
+import { runMultiAgentAudit } from "./src/Server/Services/multiAgentEngine";
 import {
   buildLiveScanSummaryFromDeterministic,
   estimateDomIssueCount,
@@ -13,18 +14,14 @@ import {
 } from "./src/Server/Services/liveScanCollector";
 import { collectDeterministicEvidence } from "./src/Server/Services/deterministicCollector";
 import { fetchCruxReport } from "./src/Server/Services/cruxCollector";
-import { collectNetworkProbe } from "./src/Server/Services/networkProbeCollector";
-import { analyzeNetworkBottlenecks } from "./src/Server/Services/networkBottleneckAnalyzer";
-import { formatBottleneckReport } from "./src/Server/Services/networkReportFormatter";
 import { fetchOpenRouterWithFallback } from "./src/Server/Services/openrouterHelper";
 import type { LiveScanSummary } from "./src/types/liveAudit.types";
 import type { PresentationMeasuredEvidence } from "./src/types/presentation";
 import { assertSafeAuditTargetUrl, AUDIT_TARGET_REDIRECT_LIMIT_ERROR, canSelfServePlanChange, getRequiredJwtSecret, parseSubscriptionPlan, UNSAFE_AUDIT_TARGET_ERROR } from "./src/Server/Services/securityPolicies";
-import { collectSecurityPosture, formatSecurityPostureLog } from "./src/Server/Services/securityPostureCollector";
 import { initDb, getDb } from "./src/db/index";
-import { users, audits, planSettings, intakeLeads } from "./src/db/schema";
+import { users, audits, planSettings, intakeLeads, auditAgentLogs } from "./src/db/schema";
 import { eq, desc, and } from "drizzle-orm";
-// Removed unused import
+import { EventEmitter } from "node:events";
 
 async function startServer() {
   const JWT_SECRET = getRequiredJwtSecret();
@@ -515,6 +512,8 @@ async function startServer() {
     res.setHeader("X-Accel-Buffering", "no");
     res.flushHeaders();
 
+    const db = getDb();
+    let auditId: string = "";
     let counter = 0;
     let closed = false;
     req.on("close", () => {
@@ -525,12 +524,25 @@ async function startServer() {
       if (closed) return;
       const log = { id: `log-${Date.now()}-${counter++}`, timestamp: Date.now(), level, message };
       res.write(`data: ${JSON.stringify(log)}\n\n`);
+
+      if (auditId) {
+        db.insert(auditAgentLogs).values({
+          auditId,
+          agent: "System",
+          timestamp: new Date().toISOString(),
+          status: "running",
+          level,
+          message,
+        }).catch(err => {
+          console.error("Failed async logging to database:", err);
+        });
+      }
     };
     const sendPhase = (status: string) => {
       if (!closed) res.write(`event: phase\ndata: ${JSON.stringify({ status })}\n\n`);
     };
     const sendDone = (summary: LiveScanSummary | null) => {
-      if (!closed) res.write(`event: done\ndata: ${JSON.stringify({ ok: true, summary })}\n\n`);
+      if (!closed) res.write(`event: done\ndata: ${JSON.stringify({ ok: true, summary, auditId })}\n\n`);
     };
     const sendFail = (message: string) => {
       if (!closed) res.write(`event: fail\ndata: ${JSON.stringify({ message })}\n\n`);
@@ -542,12 +554,21 @@ async function startServer() {
         return res.end();
       }
 
-      // ── Phase 1: scanning ──────────────────────────────────────────────
-      // The EventSource `onopen` already transitions the client to "scanning".
-      // We do NOT re-emit that phase here; instead we drive a single real
-      // `collectDeterministicEvidence` call that fetches the HTML once and
-      // extracts every signal we need for logging AND the score calculation.
+      // Initialize audit session in DB
+      if (typeof req.query.auditId === "string" && req.query.auditId && req.query.auditId.length > 8) {
+        auditId = req.query.auditId;
+      } else {
+        const inserted = await db.insert(audits).values({
+          url,
+          status: "pending",
+          result: JSON.stringify({}),
+          userId: (req as any).user?.id || null,
+        }).returning({ id: audits.id });
+        auditId = inserted[0].id;
+      }
+
       sendLog("info", `Connecting to target: ${url}`);
+      sendLog("info", `Session ID resolved for audit telemetry: ${auditId}`);
       sendLog("info", "Checking SSRF policy and resolving host…");
 
       const deterministic = await collectDeterministicEvidence({ url });
@@ -609,75 +630,59 @@ async function startServer() {
         sendLog("warn", `${domIssueCount} DOM defect(s) estimated — details available after stream.`);
       }
 
-      // ── Network Bottleneck Deep-Dive (fetch probe) ─────────────────────
-      sendLog("info", "Running network bottleneck deep-dive…");
-      try {
-        const htmlResponse = await fetch(finalUrl, { headers: { Accept: "text/html" } });
-        const html = (htmlResponse.headers.get("content-type") ?? "").includes("text/html")
-          ? await htmlResponse.text()
-          : "";
-        if (html) {
-          // Opt-in real-browser collector; falls back to the fetch probe when
-          // the mode is off or Playwright (an optional dep) is not installed.
-          let networkEvidence = await collectNetworkProbe(html, finalUrl);
-          if (process.env.BROWSER_COLLECTOR_MODE === "playwright-real") {
-            try {
-              const { collectPlaywrightEvidence } = await import("./src/Server/Services/playwrightCollector");
-              networkEvidence = await collectPlaywrightEvidence(finalUrl);
-            } catch {
-              sendLog("warn", "Playwright 收集器無法使用，改用 fetch 探針結果。");
-            }
-          }
-          const findings = analyzeNetworkBottlenecks(networkEvidence);
-          for (const line of formatBottleneckReport(findings)) {
-            if (closed) return res.end();
-            sendLog(line.level, line.message);
-          }
-          if (networkEvidence.truncated) {
-            sendLog("info", "資源數超過上限，僅分析前 40 個。");
-          }
-        } else {
-          sendLog("warn", "無法取得 HTML 內容，略過網路瓶頸分析。");
-        }
-      } catch {
-        sendLog("warn", "網路瓶頸分析失敗，串流繼續。");
-      }
-      if (closed) return res.end();
-
-      // ── Security Header Audit ────────────────────────────────────────────
-      sendLog("info", "🔒 Running security header audit…");
-      try {
-        const htmlRes = await fetch(finalUrl, { headers: { Accept: "text/html" }, redirect: "follow" });
-        const secPosture = collectSecurityPosture(htmlRes.headers);
-        for (const finding of secPosture.findings) {
-          const icon = finding.severity === "pass" ? "✓" : "⚠";
-          const label = finding.header
-            .replace("Content-Security-Policy", "CSP")
-            .replace("Strict-Transport-Security", "HSTS");
-          const detail = finding.present
-            ? (finding.misconfiguration ? `misconfigured — ${finding.misconfiguration.split("；")[0]}` : "ok")
-            : "MISSING";
-          sendLog(finding.severity === "pass" ? "success" : "warn", `${icon} ${label}: ${detail}`);
-        }
-        sendLog(
-          secPosture.score >= 75 ? "success" : "warn",
-          formatSecurityPostureLog(secPosture),
-        );
-      } catch {
-        sendLog("warn", "Security header audit failed, stream continues.");
-      }
-      if (closed) return res.end();
-
       // ── Phase 2: analyzing ────────────────────────────────────────────
       // Transition triggers the client-side Google PageSpeed fetch in parallel.
       sendPhase("analyzing");
       sendLog("info", "Lighthouse / PageSpeed measurement triggered in browser…");
       sendLog("info", "Launching browser evidence collector and architecture analyser…");
+      sendLog("info", "Starting Parallel Co-working Engine with specialized subagents…");
 
-      const summary = await buildLiveScanSummaryFromDeterministic(deterministic, domIssueCount);
+      const eventEmitter = new EventEmitter();
+
+      // Listen to multiplexed real-time log pushes from parallel subagents
+      eventEmitter.on("agent_log", (logEvent: any) => {
+        if (closed) return;
+        sendLog(logEvent.level, logEvent.message);
+
+        if (auditId) {
+          db.insert(auditAgentLogs).values({
+            auditId,
+            agent: logEvent.agent,
+            timestamp: logEvent.timestamp,
+            status: logEvent.status,
+            level: logEvent.level,
+            message: logEvent.message,
+          }).catch(err => {
+            console.error("Failed to write agent log to DB Async:", err);
+          });
+        }
+      });
+
+      const [summary, agentResults] = await Promise.all([
+        buildLiveScanSummaryFromDeterministic(deterministic, domIssueCount),
+        runMultiAgentAudit(
+          { url, language: typeof req.query.language === "string" ? req.query.language : "en" },
+          deterministic,
+          undefined,
+          undefined,
+          eventEmitter
+        )
+      ]);
+
       if (closed) return res.end();
 
       if (summary) {
+        summary.agentResults = agentResults;
+
+        // Persist final execution stats and agent results to audits database for preservation
+        await db.update(audits).set({
+          status: "completed",
+          result: JSON.stringify(summary),
+          agentResults: JSON.stringify(agentResults),
+        }).where(eq(audits.id, auditId)).catch(err => {
+          console.error("Failed to write final summary to DB:", err);
+        });
+
         sendLog("info",
           `Browser: ${summary.browserStatus} (${summary.browserMode})`);
         if (summary.routes.length > 1) {
@@ -692,6 +697,9 @@ async function startServer() {
           `Scores — overall: ${summary.scores.overall} · SEO: ${summary.scores.seo} · perf: ${summary.scores.performance} · arch: ${summary.scores.architecture}`,
         );
       } else {
+        await db.update(audits).set({
+          status: "failed",
+        }).where(eq(audits.id, auditId)).catch(err => {});
         sendLog("warn", "Deep analysis unavailable — report charts will be limited.");
       }
 
@@ -699,8 +707,34 @@ async function startServer() {
       sendDone(summary);
       res.end();
     } catch (error: any) {
+      if (auditId) {
+        db.update(audits).set({
+          status: "failed",
+          result: JSON.stringify({ error: error?.message || "scan_failed" }),
+        }).where(eq(audits.id, auditId)).catch(err => {});
+      }
       sendFail(error?.message || "scan_failed");
       res.end();
+    }
+  });
+
+  // Disaster reconstruction endpoint to retrieve historic sequential log events
+  app.get("/api/scan/logs", authenticateToken, async (req, res) => {
+    try {
+      const auditId = typeof req.query.auditId === "string" ? req.query.auditId : "";
+      if (!auditId) {
+        return res.status(400).json({ error: "missing_audit_id" });
+      }
+      const db = getDb();
+      const logs = await db
+        .select()
+        .from(auditAgentLogs)
+        .where(eq(auditAgentLogs.auditId, auditId))
+        .orderBy(auditAgentLogs.id);
+
+      res.json(logs);
+    } catch (error: any) {
+      res.status(502).json({ error: error?.message || "failed_fetching_logs" });
     }
   });
 
@@ -729,39 +763,6 @@ async function startServer() {
     }
     const result = await fetchCruxReport(url);
     res.json(result);
-  });
-
-  /**
-   * GET /api/scan/security?url=<target>
-   *
-   * Returns the full SecurityPostureResult for the target URL, including:
-   *  - score (0-100) and grade (A-F)
-   *  - per-header findings with severity and remediation hints
-   *  - detected platform stack (vercel / nginx / aspnet / cloudflare / unknown)
-   *  - platform-specific remediation code snippets (Vercel JSON, Nginx conf, ASP.NET C#)
-   *
-   * This endpoint is intentionally separate from the SSE stream so the client can
-   * display the full remediation panel on-demand after the stream completes.
-   */
-  app.get("/api/scan/security", authenticateToken, async (req, res) => {
-    const url = typeof req.query.url === "string" ? req.query.url : "";
-    if (!url) {
-      return res.status(400).json({ error: "missing_url" });
-    }
-
-    try {
-      await assertSafeAuditTargetUrl(url);
-
-      // Follow redirects manually to get the final response headers
-      const response = await fetch(url, { redirect: "follow", headers: { Accept: "text/html" } });
-      const result = collectSecurityPosture(response.headers);
-
-      res.json(result);
-    } catch (error: any) {
-      const message = error?.message;
-      const isClientError = message === UNSAFE_AUDIT_TARGET_ERROR || message === AUDIT_TARGET_REDIRECT_LIMIT_ERROR;
-      res.status(isClientError ? 400 : 502).json({ error: message || "security_scan_failed" });
-    }
   });
 
   // Audit Presentation Slide Deck Auditor - AI driven or offline fallback

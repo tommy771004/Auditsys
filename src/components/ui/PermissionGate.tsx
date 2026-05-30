@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
-import GlowingButton from "./GlowingButton";
+import { Button } from "./Button";
 
 interface PermissionGateProps {
   icon: LucideIcon;
@@ -36,13 +36,13 @@ export default function PermissionGate({
         {description}
       </p>
 
-      <GlowingButton 
+      <Button 
         onClick={onRequestPermission} 
         className="min-w-[180px]"
         loadingLabel="處理中..."
       >
         {buttonLabel}
-      </GlowingButton>
+      </Button>
     </motion.div>
   );
 }

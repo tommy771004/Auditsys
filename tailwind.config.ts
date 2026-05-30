@@ -10,7 +10,6 @@ export default {
           surface: "#111827",
           purple: "#8B5CF6",   // Violet Token
           cyan: "#06B6D4",     // Cyan Token
-          green: "#05FFC4",    // Neon Green (presentation charts/badges)
           blue: "#1D4ED8",
           text: "#F8FAFC",
           muted: "#94A3B8",

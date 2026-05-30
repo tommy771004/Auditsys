@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Activity, Boxes, Gauge, ListChecks, Network, ServerCog, TriangleAlert } from "lucide-react";
+import { type ReactNode, useState } from "react";
+import { motion } from "framer-motion";
+import { Activity, Boxes, Gauge, ListChecks, Network, ServerCog, TriangleAlert, Bot, Zap, ShieldCheck, Search, Compass } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { LiveScanSummary } from "../../types/liveAudit.types";
 
@@ -73,7 +73,9 @@ function AssetBar({ label, value, max, tone }: { label: string; value: number; m
 }
 
 export default function ScanSummaryPanel({ summary }: ScanSummaryPanelProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isZh = i18n.language?.startsWith("zh");
+  const [activeAgent, setActiveAgent] = useState<"crux" | "security" | "seo" | "network">("crux");
 
   const scoreItems = [
     { id: "overall", value: summary.scores.overall, label: t("liveAudit.summary.scores.overall") },
@@ -129,6 +131,150 @@ export default function ScanSummaryPanel({ summary }: ScanSummaryPanelProps) {
         ))}
       </div>
 
+      {/* Parallel Multi-Agent Co-working Insights */}
+      {summary.agentResults ? (
+        <div className="my-6 space-y-4 rounded-[24px] border border-white/10 bg-white/[0.02] p-4 sm:p-5">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between border-b border-white/10 pb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-300">
+                <Bot className="h-5 w-5 animate-pulse" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-white uppercase tracking-wider">
+                  {isZh ? "AI 協同專家代理集群診斷" : "AI Co-working Agent Cluster Insights"}
+                </h4>
+                <p className="text-[11px] text-slate-400">
+                  {isZh ? "4 個領域特化 Agent 即時並行分析、交互論證、給出修復方程式" : "4 specialized Domain Agents executed in parallel scatter-gather"}
+                </p>
+              </div>
+            </div>
+            
+            {/* Agent Selector Tabs */}
+            <div className="flex flex-wrap gap-1.5 bg-slate-950/40 p-1 rounded-xl border border-white/10">
+              <button
+                type="button"
+                onClick={() => setActiveAgent("crux")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  activeAgent === "crux"
+                    ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/25"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <Zap className="h-3 w-3" />
+                <span>{isZh ? "核心效能" : "Crux Perf"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveAgent("security")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  activeAgent === "security"
+                    ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/25"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <ShieldCheck className="h-3 w-3" />
+                <span>{isZh ? "資安防禦" : "DevSecOps"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveAgent("seo")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  activeAgent === "seo"
+                    ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/25"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <Search className="h-3 w-3" />
+                <span>{isZh ? "DOM 與搜尋" : "SEO & DOM"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveAgent("network")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  activeAgent === "network"
+                    ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/25"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <Compass className="h-3 w-3" />
+                <span>{isZh ? "網路偵探" : "Network"}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Active Agent Findings list */}
+          <div className="space-y-4">
+            {(() => {
+              const findings = 
+                activeAgent === "crux" ? summary.agentResults.cruxPerformance :
+                activeAgent === "security" ? summary.agentResults.devSecOps :
+                activeAgent === "seo" ? summary.agentResults.seoAndDom :
+                summary.agentResults.networkDetective;
+
+              if (!findings || findings.length === 0) {
+                return (
+                  <p className="text-xs text-slate-500 italic py-6 text-center">
+                    {isZh ? "此 Agent 尚未回傳特定弱點報告項目" : "This agent has completed run with clean status"}
+                  </p>
+                );
+              }
+
+              return findings.map((item, idx) => {
+                const isCrit = item.severity === "critical";
+                const isWarn = item.severity === "warning";
+                const severityBadge = isCrit
+                  ? "border-rose-400/20 bg-rose-500/10 text-rose-300"
+                  : isWarn
+                  ? "border-amber-400/20 bg-amber-500/10 text-amber-300"
+                  : "border-cyan-400/20 bg-cyan-500/10 text-cyan-300";
+
+                return (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="rounded-2xl border border-white/5 bg-slate-900/30 p-4 space-y-3.5"
+                  >
+                    <div className="flex items-start gap-2.5 justify-between">
+                      <h5 className="text-xs sm:text-sm font-semibold text-white flex flex-wrap items-center gap-2">
+                        <span className={`text-[9px] uppercase tracking-wider font-bold border rounded-md px-1.5 py-0.5 ${severityBadge}`}>
+                          {item.severity}
+                        </span>
+                        <span>{item.finding}</span>
+                      </h5>
+                    </div>
+
+                    <div className="grid gap-3.5 sm:grid-cols-3 text-[11.5px] leading-6">
+                      <div className="space-y-1 rounded-xl bg-white/[0.01] border border-white/5 p-3">
+                        <p className="font-bold text-slate-300 uppercase tracking-widest text-[9px]">
+                          {isZh ? "🔍 本質成因 / Root Cause" : "🔍 Root Cause"}
+                        </p>
+                        <p className="text-slate-400 whitespace-pre-wrap">{item.rootCause}</p>
+                      </div>
+
+                      <div className="space-y-1 rounded-xl bg-white/[0.01] border border-white/5 p-3">
+                        <p className="font-bold text-slate-300 uppercase tracking-widest text-[9px]">
+                          {isZh ? "💼 商業衝擊 / Impact" : "💼 Business Impact"}
+                        </p>
+                        <p className="text-slate-400 whitespace-pre-wrap">{item.businessImpact}</p>
+                      </div>
+
+                      <div className="space-y-1 rounded-xl bg-indigo-500/[0.01] border border-indigo-500/20 p-3">
+                        <p className="font-bold text-indigo-300 uppercase tracking-widest text-[9px]">
+                          {isZh ? "🛠️ 引導修復 / Guided Fix" : "🛠️ Guided Fix"}
+                        </p>
+                        <p className="text-slate-300 font-medium whitespace-pre-wrap">{item.actionableFix}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              });
+            })()}
+          </div>
+        </div>
+      ) : null}
+
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Asset breakdown */}
         <div className="space-y-4 rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
@@ -149,37 +295,22 @@ export default function ScanSummaryPanel({ summary }: ScanSummaryPanelProps) {
             <ListChecks className="h-4 w-4 text-emerald-200" />
             {t("liveAudit.summary.seo.title")}
           </div>
-          <motion.ul 
-            className="grid grid-cols-1 gap-2 sm:grid-cols-2"
-            initial="hidden"
-            animate="visible"
-            variants={{
-              visible: { transition: { staggerChildren: 0.04 } }
-            }}
-          >
-            <AnimatePresence initial={false}>
-              {seoSignals.map((signal) => (
-                <motion.li
-                  key={signal.id}
-                  layout
-                  variants={{
-                    hidden: { opacity: 0, y: 6 },
-                    visible: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } }
-                  }}
-                  exit={{ opacity: 0, height: 0, overflow: "hidden", transition: { duration: 0.2 } }}
-                  className={[
-                    "flex items-center gap-2 rounded-xl border px-3 py-2 text-xs",
-                    signal.ok
-                      ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-100"
-                      : "border-rose-400/20 bg-rose-400/10 text-rose-100",
-                  ].join(" ")}
-                >
-                  <span className="text-sm">{signal.ok ? "✓" : "✕"}</span>
-                  <span>{signal.label}</span>
-                </motion.li>
-              ))}
-            </AnimatePresence>
-          </motion.ul>
+          <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {seoSignals.map((signal) => (
+              <li
+                key={signal.id}
+                className={[
+                  "flex items-center gap-2 rounded-xl border px-3 py-2 text-xs",
+                  signal.ok
+                    ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-100"
+                    : "border-rose-400/20 bg-rose-400/10 text-rose-100",
+                ].join(" ")}
+              >
+                <span className="text-sm">{signal.ok ? "✓" : "✕"}</span>
+                <span>{signal.label}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
 
@@ -223,32 +354,14 @@ export default function ScanSummaryPanel({ summary }: ScanSummaryPanelProps) {
             <TriangleAlert className="h-4 w-4" />
             {t("liveAudit.summary.warnings.title", { count: summary.warnings.length })}
           </div>
-          <motion.ul 
-            className="space-y-1.5"
-            initial="hidden"
-            animate="visible"
-            variants={{
-              visible: { transition: { staggerChildren: 0.04 } }
-            }}
-          >
-            <AnimatePresence initial={false}>
-              {summary.warnings.map((warning, index) => (
-                <motion.li 
-                  key={`${warning}-${index}`}
-                  layout
-                  variants={{
-                    hidden: { opacity: 0, y: 6 },
-                    visible: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } }
-                  }}
-                  exit={{ opacity: 0, height: 0, overflow: "hidden", transition: { duration: 0.2 } }}
-                  className="flex gap-2 text-xs leading-6 text-amber-50/90"
-                >
-                  <span className="text-amber-300">•</span>
-                  <span>{warning}</span>
-                </motion.li>
-              ))}
-            </AnimatePresence>
-          </motion.ul>
+          <ul className="space-y-1.5">
+            {summary.warnings.map((warning, index) => (
+              <li key={index} className="flex gap-2 text-xs leading-6 text-amber-50/90">
+                <span className="text-amber-300">•</span>
+                <span>{warning}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       ) : null}
     </GlassSection>

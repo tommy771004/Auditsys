@@ -107,6 +107,14 @@
       "report": {
         "title": "Streaming final report",
         "description": "Type the final report into view character by character so the audit feels alive instead of static."
+      },
+      "ralph": {
+        "title": "Ralph Loop Code Fixer",
+        "description": "Continuous closed-loop auto-correction sandbox (Action ⟶ Compile ⟶ Test ⟶ Auto-Correct) for bulletproof code changes."
+      },
+      "pge": {
+        "title": "PGE Guided Debate Loop",
+        "description": "Generates, details, and refines fixes via a Planner-Generator-Evaluator adversarial arena to crush self-assessment biases."
       }
     },
     "missionEyebrow": "Mission Control",
@@ -122,6 +130,7 @@
       "analyzing_context": "analyzing context",
       "spawning_subagents": "spawning subagents",
       "parallel_execution": "parallel execution",
+      "context_pruning": "context rot pruning",
       "synthesizing_memory": "synthesizing memory",
       "streaming_report": "streaming report",
       "complete": "complete"
@@ -131,6 +140,7 @@
       "analyzing_context": "The primary agent is reviewing the target URL, runtime context, and available tools before delegating work.",
       "spawning_subagents": "The primary agent is creating specialist subagents and binding tools to each role.",
       "parallel_execution": "Subagents are now running in parallel. Each glass card streams its own tool output in real time.",
+      "context_pruning": "[Context Rot Defense] The harness detects high noise from raw tool logs and DOM details. Activating the Context Pruner to strip out 75% of redundant segments, preserving 300 core tokens to protect LLM from attention degradation.",
       "synthesizing_memory": "The system is promoting the latest runtime finding into long-term memory so later remediation and reporting stay aligned.",
       "streaming_report": "The primary agent is synthesizing the subagent outputs into a final report that streams directly into view.",
       "complete": "The Agent simulation is complete. You can open the sample report to compare the console with the evidence-driven reporting surface."
@@ -143,6 +153,28 @@
       "reportReadyValue": "Ready",
       "reportStreamingValue": "Streaming",
       "reportPendingValue": "Pending"
+    },
+    "contextPruning": {
+      "title": "Context Rot Cleanup & Pruning",
+      "subtitle": "An essential production-grade feature: LLMs suffer from severe attention loss as history grows. The harness active 'Context Pruner' optimizes visual attention.",
+      "originalSize": "Original Context Size",
+      "prunedSize": "Reformed Core Context",
+      "redundancyEvicted": "Redundancy Evicted",
+      "attentionDilution": "Attention Dilution Risk",
+      "attentionDilutionHigh": "HIGH (AI prone to hallucinate)",
+      "attentionDilutionLow": "LOW (Attention restored to 100%)",
+      "shieldArmed": "Context Rot Defense Activated & Armed",
+      "scanningRedundancy": "Scanning raw HTML structure and logs submitted by specialist subagents...",
+      "compressing": "Compressing heavy output logs into parsed structural snapshots...",
+      "restored": "Pruning complete! Stripped 75% redundant text, keeping 300 tokens of core asserting structure.",
+      "logs": {
+        "step1": "🛡️ Detected dilution warning: LLM historical conversation window reached 16.4k tokens",
+        "step2": "✂️ Active Pruner triggered: analyzing specialist execution dumps...",
+        "step3": "📉 Stripped 12,400 characters of raw HTML nodes, hydration properties & tag logs",
+        "step4": "📉 Compressed detailed API latency and gateway diagnostic matrices",
+        "step5": "📉 Filtered out duplicate accessibility nodes in element layout trees",
+        "step6": "✅ Context Pruned! 75% of noise evicted. 300 core tokens finalized for focused output."
+      }
     },
     "sections": {
       "spawningTitle": "Queued subagents",
@@ -240,7 +272,9 @@
       "noTool": "No tool attached yet",
       "terminalTitle": "Live terminal output",
       "emptyLogs": "Waiting for tool output...",
-      "argsTitle": "Tool arguments"
+      "argsTitle": "Tool arguments",
+      "sandboxLabel": "Action Execution Sandbox (Isolated)",
+      "sandboxToken": "Token-ID: {{token}}"
     },
     "subagentStatus": {
       "pending": "pending",
@@ -585,7 +619,6 @@
       "modes": {
         "stub": "Stub",
         "playwright": "Playwright",
-        "crawler": "Lightweight Crawler",
         "webwright": "Webwright"
       },
       "status": {
@@ -885,8 +918,7 @@
     "response": "Response:",
     "unknownError": "Unknown error",
     "standardEngine": "Standard engine",
-    "refreshHistory": "Refresh history",
-    "close": "Close report"
+    "refreshHistory": "Refresh history"
   },
   "admin": {
     "title": "Admin Dashboard",
@@ -1026,12 +1058,8 @@
       "types": {
         "missing_alt": "Missing alt text",
         "multiple_h1": "Multiple H1",
-        "invalid_canonical": "Invalid canonical",
-        "render_blocking": "Render-blocking resource"
-      },
-      "original": "Original snippet",
-      "fixed": "Fixed snippet",
-      "diff": "Fix:"
+        "invalid_canonical": "Invalid canonical"
+      }
     },
     "report": {
       "title": "Scan complete",

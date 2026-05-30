@@ -14,7 +14,19 @@ export const audits = pgTable('audit_records', {
   url: text('url').notNull(),
   status: text('status').notNull(),
   result: text('result'), // JSON stringified result
+  agentResults: text('agent_results'), // JSON stringified SubagentsResults
   userId: integer('user_id').references(() => users.id),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const auditAgentLogs = pgTable('audit_agent_logs', {
+  id: serial('id').primaryKey(),
+  auditId: uuid('audit_id').references(() => audits.id).notNull(),
+  agent: text('agent').notNull(),
+  timestamp: text('timestamp').notNull(),
+  status: text('status').notNull(),
+  level: text('level').notNull(),
+  message: text('message').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

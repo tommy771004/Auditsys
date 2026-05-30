@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GripVertical } from "lucide-react";
+import { haptics } from "../../utils/haptics";
 
 interface ImageComparisonSliderProps {
   beforeImage: string;
@@ -26,15 +27,15 @@ export default function ImageComparisonSlider({
 
   const handlePointerDown = (e: React.PointerEvent) => {
     setIsDragging(true);
-    // Vibrate lightly on grab
-    if (navigator.vibrate) navigator.vibrate(10);
+    // 抓取時輕微震動回饋
+    haptics.tap();
     updatePosition(e.clientX);
   };
 
   const handlePointerUp = () => {
-    if (isDragging && navigator.vibrate && !isAtEdge) {
-      // Light release vibration
-      navigator.vibrate(10);
+    if (isDragging && !isAtEdge) {
+      // 釋放時輕微震動回饋
+      haptics.tap();
     }
     setIsDragging(false);
   };
@@ -44,30 +45,29 @@ export default function ImageComparisonSlider({
     const rect = containerRef.current.getBoundingClientRect();
     let x = clientX - rect.left;
     
-    // Clamp
+    // 限制範圍在 0 ~ 100%
     x = Math.max(0, Math.min(x, rect.width));
     const percent = (x / rect.width) * 100;
 
     setPosition(percent);
 
-    // Haptic feedback logic
-    if (navigator.vibrate) {
-      // 1. Edge detection
-      if (percent <= 0 || percent >= 100) {
-        if (!isAtEdge) {
-          // Distinct vibration pattern for reaching the ends (Success feel)
-          navigator.vibrate([20, 30, 20]);
-          setIsAtEdge(true);
-        }
-      } else {
-        if (isAtEdge) setIsAtEdge(false);
-        
-        // 2. Tick detection (every 5%)
-        if (Math.abs(percent - lastTickRef.current) >= 5) {
-          navigator.vibrate(5); // Extremely short, subtle click
-          // Update last tick to the nearest 5% step to keep it consistent
-          lastTickRef.current = Math.round(percent / 5) * 5;
-        }
+    // --- 觸覺回饋 (Haptic Feedback) 邏輯 ---
+    // 1. 邊界檢測 (Edge detection)
+    if (percent <= 0 || percent >= 100) {
+      if (!isAtEdge) {
+        // 拉到底時：明顯的成功模式震動 (Success feel)
+        haptics.success();
+        setIsAtEdge(true);
+      }
+    } else {
+      if (isAtEdge) setIsAtEdge(false);
+      
+      // 2. 刻度檢測 (Tick detection - 每 5% 觸發一次)
+      if (Math.abs(percent - lastTickRef.current) >= 5) {
+        // 極短促的喀喀聲震動，模擬實體旋鈕
+        haptics.tick(); 
+        // 將最後刻度更新至最近的 5% 倍數，保持手感一致性
+        lastTickRef.current = Math.round(percent / 5) * 5;
       }
     }
   }, [isAtEdge]);
@@ -109,7 +109,7 @@ export default function ImageComparisonSlider({
       />
       
       {/* After Label */}
-      <div className="absolute top-4 right-4 z-10">
+      <div className="absolute top-4 right-4 z-10 pointer-events-none">
         <span className="rounded-full bg-black/50 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-white/90 border border-white/10 shadow-lg">
           {afterLabel}
         </span>
@@ -117,7 +117,7 @@ export default function ImageComparisonSlider({
 
       {/* Before Image (Foreground, clipped) */}
       <div
-        className="absolute inset-0 overflow-hidden"
+        className="absolute inset-0 overflow-hidden pointer-events-none"
         style={{ width: `${position}%` }}
       >
         <img
@@ -154,10 +154,10 @@ export default function ImageComparisonSlider({
               layout
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ 
-                scale: isDragging ? 1.1 : 1, 
+                scale: isAtEdge ? 1.15 : (isDragging ? 1.1 : 1), 
                 opacity: 1,
                 boxShadow: isAtEdge 
-                  ? "0 0 20px rgba(52,211,153,0.6)" 
+                  ? "0 0 25px rgba(52,211,153,0.7)" 
                   : isDragging 
                     ? "0 0 20px rgba(255,255,255,0.4)" 
                     : "0 0 10px rgba(0,0,0,0.3)"
@@ -170,7 +170,7 @@ export default function ImageComparisonSlider({
                   : "border-white/50 bg-white/10 text-white"
               }`}
             >
-              <GripVertical className="h-5 w-5 opacity-80" />
+              <GripVertical className="h-5 w-5 opacity-80 pointer-events-none" />
             </motion.div>
           </AnimatePresence>
         </div>

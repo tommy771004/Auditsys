@@ -60,25 +60,25 @@
   },
   "hero": {
     "badge": "多智能體 AI 稽核",
-    "titleLine1": "別再瞎猜您的網站架構",
-    "titleLine2": "是在哪裡流失了速度",
-    "description": "透過多代理 AI 稽核，在幾分鐘內（而不是幾個月）精準定位前端瓶頸、API 延遲與架構風險。",
-    "panelTitle": "啟動稽核收件流程",
-    "panelDescription": "輸入真實網站網址，即可測試驗證、載入狀態與可接正式 API 的提交流程。",
+    "titleLine1": "別再瞎猜您的網站",
+    "titleLine2": "究竟在何處流失速度與效能。",
+    "description": "在幾分鐘（而非幾個月）內，透過多智能體 AI 自動精準指出前端瓶頸、API 延遲和架構風險。",
+    "panelTitle": "啟動引導預覽",
+    "panelDescription": "使用真實網站網址，測試驗證、非同步狀態以及已就緒的資料擷取流程。",
     "inputLabel": "網站網址",
     "inputPlaceholder": "https://your-company.com",
     "submit": "開始免費掃描",
     "secondaryCta": "查看範例報告",
-    "consoleCta": "打開任務控制台",
+    "consoleCta": "開啟 Agent 任務控制台",
     "loading": "正在準備稽核",
-    "helper": "安全收件，首輪評估無需提供原始程式碼。",
-    "formCaption": "貼上正式環境網址，預覽產品化收件體驗。",
-    "formFootnote": "可透過 VITE_AUDIT_ENDPOINT 連接正式服務。",
-    "successTitle": "稽核請求已排入",
-    "successDescription": "請求已通過驗證，目前流程會先模擬成功回應，之後可直接接上正式 API。",
-    "errorTitle": "暫時無法送出掃描",
+    "helper": "安全引導。初次分析不需要任何原始碼存取權。",
+    "formCaption": "貼上生產環境網址，預覽標準化的客戶引導流程。",
+    "formFootnote": "這份端點可以透過 VITE_AUDIT_ENDPOINT 連接。",
+    "successTitle": "稽核請求已送入佇列",
+    "successDescription": "該請求已通過驗證，工作流已開往真實端點準備執行。",
+    "errorTitle": "掃描請求已被阻擋",
     "trustPills": {
-      "security": "安全收件",
+      "security": "安全引導",
       "turnaround": "48 小時交付",
       "expert": "資深架構師審查"
     }
@@ -87,13 +87,7 @@
     "requiredUrl": "請輸入網站網址。",
     "invalidUrl": "請輸入以 http:// 或 https:// 開頭的有效網址。",
     "submitFailed": "稽核請求送出失敗，請稍後再試。",
-    "unauthorized": "請先登入帳號，或您的訂閱方案限制了此操作。",
-    "requiredGoal": "請至少選擇一個稽核目標。",
-    "requiredStack": "請至少選擇一項目前技術棧。",
-    "requiredCompany": "請輸入公司或產品名稱。",
-    "requiredEmail": "請輸入聯絡電子郵件。",
-    "invalidEmail": "請輸入有效的電子郵件格式。",
-    "intakeSubmitFailed": "引導表單送出失敗，請稍後再試。"
+    "unauthorized": "請先登入帳號，或您的訂閱方案限制了此操作。"
   },
   "auditConsole": {
     "badge": "代理工作流",
@@ -113,6 +107,14 @@
       "report": {
         "title": "串流最終報告",
         "description": "不使用靜態 loading spinner，而是讓報告內容逐字生成，直接呈現代理正在工作。"
+      },
+      "ralph": {
+        "title": "Ralph Loop 閉環代碼修復",
+        "description": "「撰寫代碼 ⟶ 沙箱編譯 ⟶ 測試失敗 ⟶ 自動反思修正」的多輪循環迭代，100% 阻絕瑕疵變更。"
+      },
+      "pge": {
+        "title": "PGE 多輪協商論證對抗",
+        "description": "由 Planner 訂立合約任務、Generator 實作、與冷酷 Evaluator 來回互批審判，歷經 5-15 輪對抗調優以獲得最優解。"
       }
     },
     "missionEyebrow": "Mission Control",
@@ -128,7 +130,9 @@
       "analyzing_context": "分析上下文中",
       "spawning_subagents": "子代理生成中",
       "parallel_execution": "平行處理中",
+      "context_pruning": "抗腐化脈絡修剪",
       "synthesizing_memory": "寫入長期記憶",
+      "quality_gate": "品保閘門審查 (Quality Gate)",
       "streaming_report": "串流報告中",
       "complete": "完成"
     },
@@ -137,7 +141,9 @@
       "analyzing_context": "主代理正在整理目標網址、任務上下文與可呼叫工具，為接下來的子代理分工建立基礎。",
       "spawning_subagents": "主代理正在建立平行子代理，並為每個角色分派工具與任務邊界。",
       "parallel_execution": "子代理已經進入平行處理，每張卡片都會即時顯示自己正在執行的工具輸出。",
+      "context_pruning": "【抗脈絡腐化防禦】偵測到平行工具輸出含大量重複 DOM 節點與 raw logs。Harness 啟動脈絡剪裁器 (Context Pruner)，主動壓縮、修剪 75% 冗余文字、保留 300 語意 tokens (注意聚焦度提升至 100%)，防範 LLM 脈絡腐爛引起的幻覺。",
       "synthesizing_memory": "系統正在把剛剛發現的 runtime 風險寫入長期記憶，讓後續修復建議與報告能引用同一份上下文。",
+      "quality_gate": "【品保閘門與人機協同】Agent 已完成分析、修剪與記憶合成。為確保產出的真實度與稽核品質，我們在此處設立安全攔截閘門，供人類審查目前的長期記憶寫入，並手動核准以釋放最終報告生成功用。",
       "streaming_report": "主代理正在把子代理結果綜整成最終報告，內容會以逐字串流的方式出現在畫面上。",
       "complete": "代理解析模擬流程已完成。你可以直接打開範例報告，比對前端控制台與 evidence-driven report 的銜接。"
     },
@@ -149,6 +155,28 @@
       "reportReadyValue": "已完成",
       "reportStreamingValue": "串流中",
       "reportPendingValue": "等待中"
+    },
+    "contextPruning": {
+      "title": "脈絡抗腐化修剪 (Context Rot Cleanup)",
+      "subtitle": "生產級 Harness 必備！LLM 隨著對話與工具歷史增加會造成注意力腐化。系統正透過「脈絡剪裁器」主動重構並壓縮狀態。",
+      "originalSize": "原始脈絡大小",
+      "prunedSize": "修剪後核心脈絡",
+      "redundancyEvicted": "已排除冗餘度",
+      "attentionDilution": "注意力稀釋風險",
+      "attentionDilutionHigh": "極高 (容易引起 AI 幻覺)",
+      "attentionDilutionLow": "極低 (注意力重塑至 100%)",
+      "shieldArmed": "防禦閘門已啟動 (Context Rot Defense Activated)",
+      "scanningRedundancy": "正在掃描平行代理的原始日誌與 DOM 結構...",
+      "compressing": "壓縮冗長輸出並綜整成精煉 Snapshot...",
+      "restored": "修剪成功！清除 75% 冗余文字，保留 300 tokens 關鍵語意架構。",
+      "logs": {
+        "step1": "🛡️ 偵測到 LLM 脈絡面臨腐化臨界值：歷史快照高達 16.4k tokens",
+        "step2": "✂️ 剪裁器啟動：分析 specialist 代理群之執行成果輸出...",
+        "step3": "📉 剪除 12,400 字元 raw DOM 節點、 hydration 及無用樣式屬性",
+        "step4": "📉 壓縮 API latency 與 Gateway 延遲日誌",
+        "step5": "📉 過濾 A11y 標籤重複樹狀結構並清理雜訊",
+        "step6": "✅ 脈絡緊緊化修剪完成：排除 75% 冗余 logs，保留 300 核心 tokens！"
+      }
     },
     "sections": {
       "spawningTitle": "子代理已排程",
@@ -246,7 +274,9 @@
       "noTool": "尚未綁定工具",
       "terminalTitle": "即時終端輸出",
       "emptyLogs": "等待工具開始輸出...",
-      "argsTitle": "工具參數"
+      "argsTitle": "工具參數",
+      "sandboxLabel": "安全沙箱隔離 (Action Execution Sandbox)",
+      "sandboxToken": "Token-ID: {{token}}"
     },
     "subagentStatus": {
       "pending": "待命",
@@ -591,7 +621,6 @@
       "modes": {
         "stub": "Stub",
         "playwright": "Playwright",
-        "crawler": "輕量爬蟲",
         "webwright": "Webwright"
       },
       "status": {
@@ -891,8 +920,7 @@
     "response": "回應：",
     "unknownError": "未知錯誤",
     "standardEngine": "標準引擎",
-    "refreshHistory": "重新整理歷史紀錄",
-    "close": "關閉報告"
+    "refreshHistory": "重新整理歷史紀錄"
   },
   "admin": {
     "title": "管理員主控台",
@@ -1032,12 +1060,8 @@
       "types": {
         "missing_alt": "缺少 alt 文字",
         "multiple_h1": "多個 H1",
-        "invalid_canonical": "canonical 無效",
-        "render_blocking": "阻塞渲染資源"
-      },
-      "original": "原始片段",
-      "fixed": "修正片段",
-      "diff": "修正說明："
+        "invalid_canonical": "canonical 無效"
+      }
     },
     "report": {
       "title": "掃描完成",

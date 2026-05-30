@@ -1,6 +1,7 @@
-import { ArrowRight, Gauge, RefreshCcw, ShieldCheck, TriangleAlert } from "lucide-react";
+import { ArrowRight, Gauge, RefreshCcw, ShieldCheck, TriangleAlert, LayoutDashboard } from "lucide-react";
 import { motion } from "framer-motion";
-import GlowingButton from "../ui/GlowingButton";
+import { useTranslation } from "react-i18next";
+import { Button } from "../ui/Button";
 import type { LiveScanSummary } from "../../types/liveAudit.types";
 import { buildAuditOutcomeViewModel, type AuditOutcomeSeverity } from "./auditOutcomePresenter";
 
@@ -23,6 +24,7 @@ const SCORE_TONE: Record<AuditOutcomeSeverity, string> = {
 };
 
 export default function AuditOutcomeHero({ summary, onOpenReport, onRescan }: AuditOutcomeHeroProps) {
+  const { t } = useTranslation();
   const model = buildAuditOutcomeViewModel(summary);
   const Icon = model.severity === "success" ? ShieldCheck : model.severity === "warning" ? TriangleAlert : Gauge;
 
@@ -69,14 +71,14 @@ export default function AuditOutcomeHero({ summary, onOpenReport, onRescan }: Au
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row lg:w-52 lg:flex-col">
-          <GlowingButton className="w-full justify-center" loadingLabel="" onClick={onOpenReport}>
-            <ArrowRight className="h-4 w-4" />
-            開啟完整報告
-          </GlowingButton>
-          <GlowingButton className="w-full justify-center" variant="ghost" loadingLabel="" onClick={onRescan}>
+          <Button className="w-full justify-center" loadingLabel="" onClick={onOpenReport}>
+            <LayoutDashboard className="h-4 w-4" />
+            {t("liveAudit.actions.viewReport")}
+          </Button>
+          <Button className="w-full justify-center" variant="ghost" loadingLabel="" onClick={onRescan}>
             <RefreshCcw className="h-4 w-4" />
-            重新掃描
-          </GlowingButton>
+            {t("liveAudit.actions.scanAgain")}
+          </Button>
         </div>
       </div>
     </motion.section>
