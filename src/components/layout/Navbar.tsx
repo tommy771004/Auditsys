@@ -85,12 +85,15 @@ export default function Navbar({ currentRoute, currentSection, onNavigate }: Nav
           <div className="flex items-center justify-between gap-4">
             <button
               type="button"
-              className="flex items-center gap-2 text-xl font-bold tracking-tight text-white transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none rounded-lg"
+              className="flex items-center gap-3 text-[1.08rem] font-bold font-grotesk tracking-tight text-white transition-opacity hover:opacity-80 focus-visible:outline-none rounded-lg"
               onClick={() => {
                 handleNavigation("home", "overview");
               }}
             >
-              {t("brand.name")}
+              <span className="grid place-items-center w-8 h-8 rounded-[9px] bg-brand-gradient text-[#1a1205] shadow-[0_4px_16px_-4px_rgba(255,179,71,0.6)]">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>
+              </span>
+              <span>Audit<span className="text-brand-amber ml-0.5">Sys</span></span>
             </button>
 
             <nav className="hidden items-center gap-2 lg:flex">
@@ -100,7 +103,7 @@ export default function Navbar({ currentRoute, currentSection, onNavigate }: Nav
                   type="button"
                   className={[
                     "rounded-full px-4 py-2 text-sm font-medium transition active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none",
-                    isActiveItem(item) ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/[0.08] hover:text-white",
+                    isActiveItem(item) ? "bg-brand-amber/10 text-brand-amber" : "text-brand-muted hover:bg-white/5 hover:text-white",
                   ]
                     .filter(Boolean)
                     .join(" ")}
@@ -172,7 +175,7 @@ export default function Navbar({ currentRoute, currentSection, onNavigate }: Nav
                       type="button"
                       className={[
                         "flex w-full items-center min-h-[44px] rounded-2xl px-4 py-3 text-left text-sm font-medium transition active:scale-[0.98]",
-                        isActiveItem(item) ? "bg-white/10 text-white" : "text-white/80 hover:bg-white/[0.08] hover:text-white",
+                        isActiveItem(item) ? "bg-brand-amber/10 text-brand-amber" : "text-brand-muted hover:bg-white/5 hover:text-white",
                       ]
                         .filter(Boolean)
                         .join(" ")}

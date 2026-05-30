@@ -564,7 +564,9 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
   };
 
   return (
-    <main className="relative z-10 pb-24 pt-32 sm:pt-36">
+    <div className="relative w-full min-h-screen">
+      <div className="hero-grid-bg pointer-events-none" />
+      <main className="relative z-10 pb-24 pt-32 sm:pt-36">
       <MemorySyncBadge update={activeMemoryUpdate} />
       <PageContainer>
         <ConsoleTabs currentRoute="console" onNavigate={onNavigate} />
@@ -1105,5 +1107,6 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
 
       </PageContainer>
     </main>
+    </div>
   );
 }

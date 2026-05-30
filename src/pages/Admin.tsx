@@ -137,7 +137,9 @@ export default function Admin({ onNavigate }: Props) {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div className="relative w-full min-h-screen">
+      <div className="hero-grid-bg pointer-events-none" />
+      <div className="relative z-10 min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 pb-4 border-b border-white/10">
         <div>
           <h1 className="text-3xl font-bold text-brand-text flex items-center">
@@ -454,20 +456,37 @@ export default function Admin({ onNavigate }: Props) {
                         </div>
                       </div>
                     </div>
-                   <div className="mt-4 flex justify-end">
-                     <button
-                       onClick={() => handleUpdatePlanSetting(plan.planId, { 
-                         aiProvider: plan.aiProvider,
-                         agentRouterApiKey: plan.agentRouterApiKey,
-                         openRouterApiKey: plan.openRouterApiKey,
-                         allowedModels: plan.allowedModels,
-                         price: plan.price
-                       })}
-                       className="px-4 py-2 bg-brand-purple/20 text-brand-purple hover:bg-brand-purple/30 rounded-lg font-medium transition-colors"
-                     >
-                       {t("admin.settings.save")}
-                     </button>
-                   </div>
+                    <div className="mt-4 flex justify-end">
+                      <button
+                        onClick={() => {
+                          let finalModels = plan.allowedModels;
+                          const pendingModel = newModels[plan.planId]?.trim();
+                          
+                          if (pendingModel) {
+                            const models = finalModels ? finalModels.split(',').filter(Boolean) : [];
+                            models.push(pendingModel);
+                            finalModels = models.join(',');
+                            
+                            // Optimistically clear the input and update the UI state
+                            setNewModels({ ...newModels, [plan.planId]: "" });
+                            setPlanSettings(planSettings.map(p => 
+                              p.planId === plan.planId ? { ...p, allowedModels: finalModels } : p
+                            ));
+                          }
+                          
+                          handleUpdatePlanSetting(plan.planId, { 
+                            aiProvider: plan.aiProvider,
+                            agentRouterApiKey: plan.agentRouterApiKey,
+                            openRouterApiKey: plan.openRouterApiKey,
+                            allowedModels: finalModels,
+                            price: plan.price
+                          });
+                        }}
+                        className="px-4 py-2 bg-brand-purple/20 text-brand-purple hover:bg-brand-purple/30 rounded-lg font-medium transition-colors"
+                      >
+                        {t("admin.settings.save")}
+                      </button>
+                    </div>
                  </GlassContainer>
                ))}
                {planSettings.length === 0 && (
@@ -635,6 +654,7 @@ export default function Admin({ onNavigate }: Props) {
           </div>
         )}
       </AnimatePresence>
+    </div>
     </div>
   );
 }

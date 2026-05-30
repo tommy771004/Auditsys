@@ -129,7 +129,11 @@ export async function fetchAgentRouter(apiKey: string, prompt: string, model: st
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+      'User-Agent': 'AuditLens/1.0',
+      'HTTP-Referer': process.env.OPENROUTER_APP_URL || 'https://auditlens.app',
+      'X-Title': process.env.OPENROUTER_APP_TITLE || 'AuditLens'
     },
     body: JSON.stringify({
       model,
@@ -138,16 +142,23 @@ export async function fetchAgentRouter(apiKey: string, prompt: string, model: st
     })
   });
 
+  const responseText = await response.text();
+
   if (!response.ok) {
-    const errText = await response.text().catch(() => '');
-    throw new Error(`AgentRouter API Error: ${response.status} ${errText}`);
+    throw new Error(`AgentRouter API Error: ${response.status} ${responseText}`);
   }
 
-  const data = await response.json();
+  let data;
+  try {
+    data = JSON.parse(responseText);
+  } catch (err: any) {
+    throw new Error(`AgentRouter returned invalid JSON (Status: ${response.status}). Response preview: ${responseText.substring(0, 150)}`);
+  }
+
   const text = data.choices?.[0]?.message?.content;
   
   if (!text) {
-    throw new Error('AgentRouter returned empty content');
+    throw new Error(`AgentRouter returned empty content. Response: ${responseText.substring(0, 150)}`);
   }
 
   return { model, text };

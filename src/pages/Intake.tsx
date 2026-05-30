@@ -142,7 +142,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                 aria-invalid={isCompanyError}
                 aria-describedby={isCompanyError ? "intake-company-error" : undefined}
                 className={[
-                  "w-full rounded-2xl bg-slate-950/50 min-h-[44px] px-4 py-3 text-base text-white outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950",
+                  "w-full rounded-2xl bg-black/50 min-h-[44px] px-4 py-3 text-base text-white outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950",
                   isCompanyError
                     ? "border border-rose-300/40 focus:border-rose-400 focus:ring-rose-400/50"
                     : "border border-white/10 focus:border-brand-cyan focus:ring-brand-cyan/50",
@@ -172,9 +172,9 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                   aria-invalid={isUrlError}
                   aria-describedby={isUrlError ? "intake-url-error" : undefined}
                   className={[
-                  "w-full rounded-2xl bg-slate-950/50 min-h-[44px] py-3 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900",
+                  "w-full rounded-2xl bg-black/50 min-h-[44px] py-3 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-slate",
                     isUrlError
-                      ? "border border-rose-300/40 focus:border-rose-400 focus:ring-rose-400/50"
+                      ? "border border-brand-danger/40 focus:border-brand-danger focus:ring-brand-danger/50"
                       : "border border-white/10 focus:border-brand-cyan focus:ring-brand-cyan/50",
                   ]
                     .filter(Boolean)
@@ -319,9 +319,9 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                 aria-invalid={isEmailError}
                 aria-describedby={isEmailError ? "intake-email-error" : undefined}
                 className={[
-                  "w-full rounded-2xl bg-slate-950/50 min-h-[44px] py-3 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900",
+                  "w-full rounded-2xl bg-black/50 min-h-[44px] py-3 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-slate",
                   isEmailError
-                    ? "border border-rose-300/40 focus:border-rose-400 focus:ring-rose-400/50"
+                    ? "border border-brand-danger/40 focus:border-brand-danger focus:ring-brand-danger/50"
                     : "border border-white/10 focus:border-brand-cyan focus:ring-brand-cyan/50",
                 ]
                   .filter(Boolean)
@@ -347,7 +347,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                 }}
                 placeholder={t("intake.placeholders.notes")}
                 rows={6}
-                className="w-full rounded-[1.4rem] border border-white/10 bg-slate-950/50 py-4 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-brand-muted focus:border-brand-purple focus:ring-4 focus:ring-brand-purple/15"
+                className="w-full rounded-[1.4rem] border border-white/10 bg-black/50 py-4 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-brand-muted focus:border-brand-purple focus:ring-4 focus:ring-brand-purple/15"
               />
             </div>
           </label>

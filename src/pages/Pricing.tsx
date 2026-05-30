@@ -171,7 +171,9 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
   ];
 
   return (
-    <PageContainer className="relative z-10 flex flex-col gap-16 pb-16 pt-28 sm:pt-32 lg:gap-20 lg:pb-24">
+    <div className="relative w-full min-h-screen">
+      <div className="hero-grid-bg pointer-events-none" />
+      <PageContainer className="relative z-10 flex flex-col gap-16 pb-16 pt-28 sm:pt-32 lg:gap-20 lg:pb-24">
       <motion.section {...pageMotion} className="max-w-4xl">
         <PageIntro
           eyebrow={t("pricing.badge")}
@@ -302,5 +304,6 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
         </div>
       </motion.section>
     </PageContainer>
+    </div>
   );
 }

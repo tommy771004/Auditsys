@@ -180,7 +180,9 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
   };
 
   return (
-    <PageContainer className="relative z-10 flex flex-col gap-24 pb-16 pt-28 sm:pt-32 lg:gap-32 lg:pb-24">
+    <div className="relative w-full min-h-screen">
+      <div className="hero-grid-bg pointer-events-none" />
+      <PageContainer className="relative z-10 flex flex-col gap-24 pb-16 pt-28 sm:pt-32 lg:gap-32 lg:pb-24">
         <section id="overview" className="grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)] lg:items-center">
           <motion.div {...heroMotion} className="space-y-7">
             <div className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-brand-cyan backdrop-blur-xl">
@@ -190,7 +192,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
             <div className="space-y-5">
               <h1 className="max-w-3xl text-4xl font-semibold leading-[1.05] tracking-[-0.04em] text-brand-text sm:text-5xl lg:text-7xl">
                 <span className="block">{t("hero.titleLine1")}</span>
-                <span className="mt-2 block bg-gradient-to-r from-white via-violet-200 to-cyan-200 bg-clip-text text-transparent">
+                <span className="mt-2 block bg-brand-gradient bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(255,179,71,0.2)]">
                   {t("hero.titleLine2")}
                 </span>
               </h1>
@@ -235,9 +237,9 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
                         aria-invalid={isUrlFieldError}
                         aria-describedby={isUrlFieldError ? "home-url-error" : undefined}
                         className={[
-                          "w-full rounded-2xl bg-slate-950/50 min-h-[44px] py-3 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950",
+                          "w-full rounded-2xl bg-black/50 min-h-[44px] py-3 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-slate",
                           isUrlFieldError
-                            ? "border border-rose-300/40 focus:border-rose-400 focus:ring-rose-400/50"
+                            ? "border border-brand-danger/40 focus:border-brand-danger focus:ring-brand-danger/50"
                             : "border border-white/10 focus:border-brand-cyan focus:ring-brand-cyan/50",
                         ]
                           .filter(Boolean)
@@ -356,5 +358,6 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
           </GlassCard>
         </motion.section>
       </PageContainer>
+    </div>
   );
 }

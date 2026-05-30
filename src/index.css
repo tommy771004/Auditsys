@@ -52,6 +52,17 @@
   .glass-panel {
     @apply border border-white/10 shadow-[0_20px_55px_-22px_rgba(0,0,0,0.75)] backdrop-blur-2xl bg-[#141b29]/85 rounded-[18px];
   }
+
+  .hero-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+    background-size: 52px 52px;
+    mask-image: radial-gradient(ellipse 75% 65% at 60% 35%, #000 30%, transparent 80%);
+    opacity: 0.55;
+    z-index: 0;
+  }
 }
 
 /* Respect prefers-reduced-motion for CSS-driven animations */
