@@ -31,11 +31,6 @@ const navigationItems: NavLinkItem[] = [
     route: "pricing",
     labelKey: "navbar.pricing",
   },
-  {
-    id: "campaign",
-    route: "campaign",
-    labelKey: "navbar.campaign",
-  },
 ];
 
 interface NavbarProps {

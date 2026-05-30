@@ -263,7 +263,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
                       loadingLabel={t("hero.loading")}
                       type="button"
                       variant="ghost"
-                      onClick={() => onNavigate("report")}
+                      onClick={() => onNavigate("console")}
                     >
                       {t("hero.secondaryCta")}
                     </GlowingButton>

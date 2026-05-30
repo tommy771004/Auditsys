@@ -28,6 +28,8 @@ import type {
 } from "./auditPipelineTypes";
 
 export interface AuditHarnessConfig {
+  aiProvider?: string;
+  agentRouterApiKey?: string;
   openRouterApiKey?: string;
   apiKey?: string;
   allowedModels?: string[];
@@ -436,7 +438,7 @@ async function executeAttempt(
   
   // P2: Orchestration & Guardrails
   const taskPlan = orchestrator.planTask(payload.url, payload.goals);
-  const activeGuardrails = guardrails.getGuardrailsForContext(payload.url);
+  const activeGuardrails = await guardrails.getGuardrailsForContext(payload.url);
   if (activeGuardrails.length > 0) {
     tracer.logDecisionPath("Guardrails Injected", "Matched context", `${activeGuardrails.length} rules applied`);
   }
@@ -641,7 +643,7 @@ export async function runAuditHarness(
     
     // P2: Record Error Guardrails on Failure to learn for next time
     if (retryReason) {
-      guardrails.recordError(retryReason, `Avoid triggering ${retryReason}. Enhance DOM inspection and timeout limits.`);
+      await guardrails.recordError(retryReason, `Avoid triggering ${retryReason}. Enhance DOM inspection and timeout limits.`);
     }
 
     pivots.push({
@@ -664,6 +666,8 @@ export async function runAuditHarness(
       ? "quality_gate_requires_manual_review"
       : undefined;
 
+  const activeGuardrailsCount = (await guardrails.getGuardrailsForContext(payload.url)).length;
+
   // P3: Retrospective Report Generation
   const retrospective = `
 ## Audit Retrospective [${runId}]
@@ -672,7 +676,7 @@ export async function runAuditHarness(
 - **Attempts**: ${attempts.length}
 - **Pivots**: ${pivots.length}
 - **Cost**: $${costTracker.totalCost.toFixed(4)}
-- **Guardrails Triggered**: ${guardrails.getGuardrailsForContext(payload.url).length}
+- **Guardrails Triggered**: ${activeGuardrailsCount}
 - **Failure Summary**: ${latestExecution?.error || "None"}
 
 ### Debug Trace
@@ -704,7 +708,7 @@ ${attempts.map(a => `Attempt ${a.index}:\n` + a.trace.map(t => `  [${t.stage}] $
   };
 
   // P2: Data Flywheel
-  flywheel.record({
+  await flywheel.record({
     runId,
     timestamp: nowIso(),
     latencyMs: harness.durationMs,

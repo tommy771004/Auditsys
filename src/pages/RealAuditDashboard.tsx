@@ -265,10 +265,7 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
                     <GlassContainer accent="violet" className="space-y-3">
                       <p className="text-sm font-semibold text-white">{t("liveAudit.report.title")}</p>
                       <p className="text-sm leading-7 text-brand-muted">{t("liveAudit.report.description")}</p>
-                      <GlowingButton className="w-full justify-center" loadingLabel="" onClick={() => onNavigate("report")}>
-                        <ArrowRight className="h-4 w-4" />
-                        {t("liveAudit.report.openSample")}
-                      </GlowingButton>
+
                       <GlowingButton className="w-full justify-center" variant="ghost" loadingLabel="" onClick={() => startScan(state.targetUrl)}>
                         <RefreshCcw className="h-4 w-4" />
                         {t("liveAudit.actions.rescan")}

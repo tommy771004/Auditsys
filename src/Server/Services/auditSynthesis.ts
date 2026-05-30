@@ -1,5 +1,5 @@
 import type { AuditEvidenceBundle, AuditRequestPayload, AuditSynthesisResult, BrowserCollectorTimelineStep, DeterministicCollectorResult } from "./auditPipelineTypes";
-import { fetchOpenRouterWithFallback } from "./openrouterHelper";
+import { fetchOpenRouterWithFallback, fetchAgentRouter } from "./openrouterHelper";
 
 function buildEvidenceLines(payload: AuditRequestPayload, deterministic: DeterministicCollectorResult): string[] {
   const lines = [
@@ -183,8 +183,11 @@ function buildFallbackSummary(payload: AuditRequestPayload, evidence: AuditEvide
   });
 }
 
-export async function synthesizeAudit(payload: AuditRequestPayload, evidence: AuditEvidenceBundle, config?: { openRouterApiKey?: string, apiKey?: string, allowedModels?: string[] }): Promise<AuditSynthesisResult> {
-  const apiKey = config?.openRouterApiKey || config?.apiKey || process.env.OPENROUTER_API_KEY;
+export async function synthesizeAudit(payload: AuditRequestPayload, evidence: AuditEvidenceBundle, config?: { aiProvider?: string, agentRouterApiKey?: string, openRouterApiKey?: string, apiKey?: string, allowedModels?: string[] }): Promise<AuditSynthesisResult> {
+  const provider = config?.aiProvider || 'openrouter';
+  const apiKey = provider === 'agentrouter'
+    ? (config?.agentRouterApiKey || process.env.AGENT_ROUTER_TOKEN)
+    : (config?.openRouterApiKey || config?.apiKey || process.env.OPENROUTER_API_KEY);
 
   if (!apiKey) {
     return {
@@ -198,10 +201,12 @@ export async function synthesizeAudit(payload: AuditRequestPayload, evidence: Au
   try {
     const prompt = buildAuditPrompt(payload, evidence);
 
-    const response = await fetchOpenRouterWithFallback(apiKey, prompt, config?.allowedModels);
+    const response = provider === 'agentrouter'
+      ? await fetchAgentRouter(apiKey, prompt, config?.allowedModels?.[0] || 'gpt-4o')
+      : await fetchOpenRouterWithFallback(apiKey, prompt, config?.allowedModels);
 
     return {
-      provider: "openrouter",
+      provider: provider === 'agentrouter' ? 'agentrouter' : 'openrouter',
       queued: false,
       summary: response.text ?? "",
       model: response.model,

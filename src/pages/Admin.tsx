@@ -347,16 +347,33 @@ export default function Admin({ onNavigate }: Props) {
                      <div className="grid grid-cols-1 gap-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-brand-muted mb-2">{t("admin.settings.openRouterKey")}</label>
+                          <label className="block text-sm font-medium text-brand-muted mb-2">AI Provider</label>
+                          <select
+                            value={plan.aiProvider || "openrouter"}
+                            onChange={(e) => {
+                              const newSettings = planSettings.map(p => p.planId === plan.planId ? { ...p, aiProvider: e.target.value } : p);
+                              setPlanSettings(newSettings);
+                            }}
+                            className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-purple mb-4"
+                          >
+                            <option value="openrouter">OpenRouter (Default)</option>
+                            <option value="agentrouter">Agent Router API</option>
+                          </select>
+                          
+                          <label className="block text-sm font-medium text-brand-muted mb-2">
+                            {plan.aiProvider === 'agentrouter' ? "Agent Router Token" : t("admin.settings.openRouterKey")}
+                          </label>
                           <input
                             type="password"
                             placeholder={t("admin.settings.enterApiKey")}
-                            value={plan.openRouterApiKey}
+                            value={plan.aiProvider === 'agentrouter' ? (plan.agentRouterApiKey || "") : (plan.openRouterApiKey || "")}
                             onChange={(e) => {
-                              const newSettings = planSettings.map(p => p.planId === plan.planId ? { ...p, openRouterApiKey: e.target.value } : p);
+                              const newSettings = planSettings.map(p => p.planId === plan.planId ? 
+                                (plan.aiProvider === 'agentrouter' ? { ...p, agentRouterApiKey: e.target.value } : { ...p, openRouterApiKey: e.target.value }) 
+                                : p);
                               setPlanSettings(newSettings);
                             }}
-                            className="w-full bg-brand-surface/50 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-purple"
+                            className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-purple"
                           />
                         </div>
                         <div>
@@ -369,7 +386,7 @@ export default function Admin({ onNavigate }: Props) {
                               const newSettings = planSettings.map(p => p.planId === plan.planId ? { ...p, price: e.target.value } : p);
                               setPlanSettings(newSettings);
                             }}
-                            className="w-full bg-brand-surface/50 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-purple"
+                            className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-purple"
                           />
                         </div>
                       </div>
@@ -377,7 +394,7 @@ export default function Admin({ onNavigate }: Props) {
                         <label className="block text-sm font-medium text-brand-muted mb-2">{t("admin.settings.allowedModels")}</label>
                         <div className="space-y-2 mb-3">
                           {(plan.allowedModels ? plan.allowedModels.split(',').filter(Boolean) : []).map((model: string, idx: number) => (
-                            <div key={idx} className="flex items-center justify-between bg-white/5 border border-white/10 rounded-lg px-3 py-2 focus-within:border-brand-purple transition-colors">
+                            <div key={idx} className="flex items-center justify-between bg-black/50 border border-white/10 rounded-lg px-3 py-2 focus-within:border-brand-purple transition-colors">
                               <input
                                 type="text"
                                 value={model}
@@ -418,7 +435,7 @@ export default function Admin({ onNavigate }: Props) {
                                 }
                               }
                             }}
-                            className="flex-1 bg-brand-surface/50 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-purple text-sm"
+                            className="flex-1 bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-purple text-sm"
                           />
                           <button
                             onClick={() => {
@@ -440,6 +457,8 @@ export default function Admin({ onNavigate }: Props) {
                    <div className="mt-4 flex justify-end">
                      <button
                        onClick={() => handleUpdatePlanSetting(plan.planId, { 
+                         aiProvider: plan.aiProvider,
+                         agentRouterApiKey: plan.agentRouterApiKey,
                          openRouterApiKey: plan.openRouterApiKey,
                          allowedModels: plan.allowedModels,
                          price: plan.price

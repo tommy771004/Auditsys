@@ -3,7 +3,7 @@ import { normalizeAuditRequestPayload } from "./auditPipelineTypes";
 import { runAuditHarness } from "./harnessRunner";
 import { assertSafeAuditTargetUrl } from "./securityPolicies";
 
-export async function generateAuditIntelligence(payload: unknown, config?: { openRouterApiKey?: string, apiKey?: string, allowedModels?: string[] }): Promise<AuditIntelligenceResult> {
+export async function generateAuditIntelligence(payload: unknown, config?: { aiProvider?: string, agentRouterApiKey?: string, openRouterApiKey?: string, apiKey?: string, allowedModels?: string[] }): Promise<AuditIntelligenceResult> {
   const normalizedPayload = normalizeAuditRequestPayload(payload);
 
   if (!normalizedPayload.url) {

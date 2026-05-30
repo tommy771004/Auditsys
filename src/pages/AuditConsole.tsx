@@ -203,24 +203,24 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
   const harnessStats = harness
     ? [
         {
+          id: "cost",
+          label: t("auditConsole.harness.stats.cost", { defaultValue: "Est. Cost" }),
+          value: `$${(harness.governance.estimatedTokenSpend * 0.0000015).toFixed(4)}`, // Rough blend of input/output token cost
+        },
+        {
+          id: "duration",
+          label: t("auditConsole.harness.stats.duration", { defaultValue: "Latency" }),
+          value: `${(harness.durationMs / 1000).toFixed(1)}s`,
+        },
+        {
           id: "attempts",
           label: t("auditConsole.harness.stats.attempts"),
           value: `${harness.attempts.length}/${harness.governance.maxAttempts}`,
         },
         {
-          id: "retries",
-          label: t("auditConsole.harness.stats.retries"),
-          value: `${harness.governance.retriesUsed}/${harness.governance.retryCap}`,
-        },
-        {
-          id: "tools",
-          label: t("auditConsole.harness.stats.tools"),
-          value: String(harness.toolRegistry.filter((tool) => tool.enabled).length),
-        },
-        {
-          id: "steps",
-          label: t("auditConsole.harness.stats.steps"),
-          value: `${harness.governance.stepsUsed}/${harness.governance.maxSteps}`,
+          id: "pivots",
+          label: t("auditConsole.harness.stats.pivots", { defaultValue: "Pivots" }),
+          value: String(harness.pivots.length),
         },
       ]
     : [];
@@ -479,16 +479,6 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
             </div>
 
             <div className="flex flex-col gap-3 rounded-[28px] border border-white/10 bg-white/[0.04] p-5">
-              <GlowingButton
-                className="w-full justify-center"
-                loadingLabel={t("auditConsole.submitLoading")}
-                onClick={() => {
-                  onNavigate("report");
-                }}
-              >
-                <ArrowRight className="h-4 w-4" />
-                {t("auditConsole.actions.openSampleReport")}
-              </GlowingButton>
               <GlowingButton
                 className="w-full justify-center"
                 loadingLabel={t("auditConsole.submitLoading")}
@@ -1037,30 +1027,31 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative w-full max-w-5xl h-[85vh] flex flex-col rounded-[24px] border border-white/10 bg-slate-950/60 shadow-2xl overflow-hidden backdrop-blur-2xl"
+                className="relative w-full max-w-5xl h-[85vh] flex flex-col rounded-[24px] border border-white/10 shadow-[0_0_80px_rgba(34,211,238,0.15)] overflow-hidden backdrop-blur-3xl bg-slate-950/70"
               >
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-cyan/5 via-transparent to-brand-purple/5 pointer-events-none" />
                 {/* Header */}
-                <div className="flex items-center justify-between border-b border-white/10 bg-white/5 px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-brand-cyan/30 bg-brand-cyan/10 text-brand-cyan">
+                <div className="relative flex items-center justify-between border-b border-white/10 bg-white/5 px-6 py-4 backdrop-blur-md">
+                  <div className="flex items-center gap-4">
+                    <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-cyan-400/30 bg-cyan-400/10 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.2)]">
                       <Terminal className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-white">Agent Terminal Logs</h3>
+                      <h3 className="text-lg font-semibold tracking-wide text-white">Agent Terminal Logs</h3>
                       <p className="text-sm text-brand-muted">{missionTarget}</p>
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => setShowAgentLogs(false)}
-                    className="rounded-full p-2 text-white/60 hover:bg-white/10 hover:text-white transition focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
+                    className="rounded-full p-2 text-white/60 hover:bg-white/10 hover:text-white transition focus-visible:ring-2 focus-visible:ring-cyan-400/60 focus-visible:outline-none min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
                   >
                     <X className="h-5 w-5" />
                   </button>
                 </div>
                 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-4 font-mono text-[13px] bg-slate-950/40">
+                <div className="relative flex-1 overflow-y-auto p-6 space-y-4 font-mono text-[13px] bg-slate-950/20 z-10 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
                   {toolCalls.length === 0 && memoryUpdates.length === 0 ? (
                     <div className="text-white/40 flex h-full items-center justify-center">
                       <span className="animate-pulse">Waiting for agent activity...</span>

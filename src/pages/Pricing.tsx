@@ -283,16 +283,7 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
               >
                 {t("pricing.primaryCta")}
               </GlowingButton>
-              <GlowingButton
-                className="justify-center"
-                loadingLabel={t("hero.loading")}
-                variant="ghost"
-                onClick={() => {
-                  onNavigate("report");
-                }}
-              >
-                {t("pricing.secondaryCta")}
-              </GlowingButton>
+
             </div>
           </div>
         </GlassCard>

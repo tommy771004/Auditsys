@@ -20,11 +20,6 @@ const footerLinks: FooterLinkItem[] = [
     labelKey: "footer.home",
   },
   {
-    id: "report",
-    route: "report",
-    labelKey: "footer.report",
-  },
-  {
     id: "console",
     route: "console",
     labelKey: "footer.console",

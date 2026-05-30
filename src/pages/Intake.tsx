@@ -445,16 +445,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                     >
                       {t("intake.buttons.launchConsole")}
                     </GlowingButton>
-                    <GlowingButton
-                      className="justify-center"
-                      loadingLabel={t("hero.loading")}
-                      variant="ghost"
-                      onClick={() => {
-                        onNavigate("report");
-                      }}
-                    >
-                      {t("intake.buttons.viewReport")}
-                    </GlowingButton>
+
                     <GlowingButton
                       className="justify-center"
                       loadingLabel={t("hero.loading")}

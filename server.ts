@@ -13,7 +13,7 @@ import {
 } from "./src/Server/Services/liveScanCollector";
 import { collectDeterministicEvidence } from "./src/Server/Services/deterministicCollector";
 import { fetchCruxReport } from "./src/Server/Services/cruxCollector";
-import { fetchOpenRouterWithFallback } from "./src/Server/Services/openrouterHelper";
+import { fetchOpenRouterWithFallback, fetchAgentRouter } from "./src/Server/Services/openrouterHelper";
 import type { LiveScanSummary } from "./src/types/liveAudit.types";
 import type { PresentationMeasuredEvidence } from "./src/types/presentation";
 import { assertSafeAuditTargetUrl, AUDIT_TARGET_REDIRECT_LIMIT_ERROR, canSelfServePlanChange, getRequiredJwtSecret, parseSubscriptionPlan, UNSAFE_AUDIT_TARGET_ERROR } from "./src/Server/Services/securityPolicies";
@@ -316,9 +316,11 @@ async function startServer() {
   app.patch("/api/admin/plan-settings/:planId", authenticateToken, requireAdmin, async (req, res) => {
     try {
       const db = getDb();
-      const { openRouterApiKey, allowedModels, price } = req.body;
+      const { openRouterApiKey, allowedModels, price, aiProvider, agentRouterApiKey } = req.body;
       const updates: any = {};
       if (openRouterApiKey !== undefined) updates.openRouterApiKey = openRouterApiKey;
+      if (agentRouterApiKey !== undefined) updates.agentRouterApiKey = agentRouterApiKey;
+      if (aiProvider !== undefined) updates.aiProvider = aiProvider;
       if (allowedModels !== undefined) updates.allowedModels = allowedModels;
       if (price !== undefined) updates.price = price;
 
@@ -382,6 +384,8 @@ async function startServer() {
       const userPlanSettings = await db.select().from(planSettings).where(eq(planSettings.planId, currentPlan)).then(rows => rows[0]);
 
       const config = userPlanSettings ? {
+        aiProvider: userPlanSettings.aiProvider,
+        agentRouterApiKey: userPlanSettings.agentRouterApiKey,
         openRouterApiKey: userPlanSettings.openRouterApiKey,
         allowedModels: currentPlan === 'free' ? undefined : (userPlanSettings.allowedModels ? userPlanSettings.allowedModels.split(',').map(m => m.trim()).filter(Boolean) : undefined)
       } : undefined;
@@ -430,6 +434,8 @@ async function startServer() {
       const userPlanSettings = await db.select().from(planSettings).where(eq(planSettings.planId, currentPlan)).then(rows => rows[0]);
 
       const config = userPlanSettings ? {
+        aiProvider: userPlanSettings.aiProvider,
+        agentRouterApiKey: userPlanSettings.agentRouterApiKey,
         openRouterApiKey: userPlanSettings.openRouterApiKey,
         allowedModels: currentPlan === 'free' ? undefined : (userPlanSettings.allowedModels ? userPlanSettings.allowedModels.split(',').map(m => m.trim()).filter(Boolean) : undefined)
       } : undefined;
@@ -713,11 +719,16 @@ async function startServer() {
     const userPlanSettings = await db.select().from(planSettings).where(eq(planSettings.planId, currentPlan)).then(rows => rows[0]);
 
     const config = userPlanSettings ? {
+      aiProvider: userPlanSettings.aiProvider,
+      agentRouterApiKey: userPlanSettings.agentRouterApiKey,
       openRouterApiKey: userPlanSettings.openRouterApiKey,
       allowedModels: currentPlan === 'free' ? undefined : (userPlanSettings.allowedModels ? userPlanSettings.allowedModels.split(',').map(m => m.trim()).filter(Boolean) : undefined)
     } : undefined;
 
-    const apiKey = config?.openRouterApiKey || process.env.OPENROUTER_API_KEY;
+    const provider = config?.aiProvider || 'openrouter';
+    const apiKey = provider === 'agentrouter' 
+      ? (config?.agentRouterApiKey || process.env.AGENT_ROUTER_TOKEN) 
+      : (config?.openRouterApiKey || process.env.OPENROUTER_API_KEY);
 
     if (apiKey) {
       try {
@@ -905,7 +916,9 @@ async function startServer() {
           請嚴格根據你對這項技術棧 ${normalizedTechStack} 和這項已知痛點 ${normalizedIssues} 的理解進行客觀的、硬核的架構推理解析，並在 bullets、explanations、metrics 以及 chartData 中體現對應技術名詞與實踐（例如若是 .NET 8, 提及 LINQ 延遲或 EF Core、SQL Clustered Index, Kestrel 執行緒；若是 React 或者是其他，提及相對應的技術）。核心網頁指標（LCP/INP/CLS）若上方實測數據有提供，務必直接採用其數值與評級；未量測者標註「估算」。僅返回純 JSON。
         `;
 
-          const response = await fetchOpenRouterWithFallback(apiKey, prompt, config?.allowedModels);
+          const response = provider === 'agentrouter'
+            ? await fetchAgentRouter(apiKey, prompt, config?.allowedModels?.[0] || 'gpt-4o')
+            : await fetchOpenRouterWithFallback(apiKey, prompt, config?.allowedModels);
 
           const textResponse = response.text;
           if (textResponse) {

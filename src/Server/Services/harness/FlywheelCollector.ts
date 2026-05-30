@@ -1,5 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
+import { getDb } from "../../../db";
+import { agentFlywheel } from "../../../db/schema";
 
 export interface FlywheelRecord {
   runId: string;
@@ -15,23 +15,19 @@ export interface FlywheelRecord {
  * 負責收集與儲存特工執行的遙測特徵，為將來的模型微調與決策最佳化建立訓練資料池。
  */
 export class FlywheelCollector {
-  private filePath = path.resolve(process.cwd(), ".harness_flywheel.json");
-
-  public record(data: FlywheelRecord) {
-    let records: FlywheelRecord[] = [];
-    if (fs.existsSync(this.filePath)) {
-      try {
-        records = JSON.parse(fs.readFileSync(this.filePath, "utf-8"));
-      } catch (e) {
-        records = [];
-      }
-    }
-    records.push(data);
+  public async record(data: FlywheelRecord) {
     try {
-      fs.writeFileSync(this.filePath, JSON.stringify(records, null, 2));
+      const db = getDb();
+      await db.insert(agentFlywheel).values({
+        runId: data.runId,
+        latencyMs: data.latencyMs,
+        costUsd: data.costUsd.toFixed(6), // store as text with 6 precision
+        success: data.success,
+        contextSummary: data.contextSummary
+      });
       console.log(`[Flywheel] Recorded data for run ${data.runId} (Success: ${data.success}, Cost: $${data.costUsd.toFixed(4)})`);
     } catch (e) {
-      console.warn("[Flywheel] Failed to write flywheel record", e);
+      console.warn("[Flywheel] Failed to write flywheel record to DB", e);
     }
   }
 }

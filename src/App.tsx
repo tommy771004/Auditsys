@@ -17,10 +17,8 @@ import RealAuditDashboard from "./pages/RealAuditDashboard";
 import Home from "./pages/Home";
 import Intake from "./pages/Intake";
 import Pricing from "./pages/Pricing";
-import SampleReport from "./pages/SampleReport";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
-import Campaign from "./pages/Campaign";
 import AuditPresentation from "./pages/AuditPresentation";
 import type { AppRoute } from "./types/home";
 
@@ -53,16 +51,12 @@ export default function App() {
         return <RealAuditDashboard onNavigate={navigate} />;
       case "pricing":
         return <Pricing onNavigate={navigate} />;
-      case "report":
-        return <SampleReport activeSection={section} onNavigate={navigate} />;
       case "intake":
         return <Intake onNavigate={navigate} />;
       case "login":
         return <Login onNavigate={navigate} />;
       case "admin":
         return <Admin onNavigate={navigate} />;
-      case "campaign":
-        return <Campaign onNavigate={navigate} />;
       case "presentation":
         return <AuditPresentation onNavigate={navigate} />;
       case "home":

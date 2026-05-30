@@ -123,3 +123,32 @@ export async function fetchOpenRouterWithFallback(apiKey: string, prompt: string
   }
   throw lastError || new Error('All fallback models failed.');
 }
+
+export async function fetchAgentRouter(apiKey: string, prompt: string, model: string): Promise<OpenRouterFallbackResult> {
+  const response = await fetch('https://agentrouter.org/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 4000
+    })
+  });
+
+  if (!response.ok) {
+    const errText = await response.text().catch(() => '');
+    throw new Error(`AgentRouter API Error: ${response.status} ${errText}`);
+  }
+
+  const data = await response.json();
+  const text = data.choices?.[0]?.message?.content;
+  
+  if (!text) {
+    throw new Error('AgentRouter returned empty content');
+  }
+
+  return { model, text };
+}

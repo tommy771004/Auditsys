@@ -91,6 +91,22 @@ export async function initDb() {
       ) THEN
         ALTER TABLE audit_plan_settings ADD COLUMN price TEXT NOT NULL DEFAULT '$0';
       END IF;
+
+      IF NOT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name='audit_plan_settings' AND column_name='ai_provider'
+      ) THEN
+        ALTER TABLE audit_plan_settings ADD COLUMN ai_provider TEXT DEFAULT 'openrouter';
+      END IF;
+
+      IF NOT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name='audit_plan_settings' AND column_name='agentrouter_api_key'
+      ) THEN
+        ALTER TABLE audit_plan_settings ADD COLUMN agentrouter_api_key TEXT DEFAULT '';
+      END IF;
     END
     $$;
 
@@ -104,6 +120,23 @@ export async function initDb() {
       stack TEXT,
       team_size TEXT,
       notes TEXT,
+      created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS agent_guardrails (
+      id SERIAL PRIMARY KEY,
+      error_pattern TEXT NOT NULL,
+      guardrail_prompt TEXT NOT NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS agent_flywheel (
+      id SERIAL PRIMARY KEY,
+      run_id TEXT NOT NULL,
+      latency_ms INTEGER NOT NULL,
+      cost_usd TEXT NOT NULL,
+      success BOOLEAN NOT NULL,
+      context_summary TEXT,
       created_at TIMESTAMP NOT NULL DEFAULT NOW()
     );
 
