@@ -3,6 +3,9 @@
     "name": "AuditLens",
     "tagline": "網站效能與架構稽核"
   },
+  "auditStacks": {
+    "heading": "支援稽核的現代網頁技術棧"
+  },
   "meta": {
     "home": "AuditLens | 網站效能與架構稽核",
     "pricing": "AuditLens | 定價方案",

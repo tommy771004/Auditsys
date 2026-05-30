@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { LogIn, AlertCircle, Eye, EyeOff } from "lucide-react";
 import GlassContainer from "../components/ui/GlassContainer";
 import GlowingButton from "../components/ui/GlowingButton";
+import Logos3 from "../components/ui/Logos3";
+import { Reveal } from "../components/ui/Reveal";
 import type { NavigateTo } from "../types/home";
 
 interface Props {
@@ -58,7 +60,7 @@ export default function Login({ onNavigate }: Props) {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-14 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -153,6 +155,10 @@ export default function Login({ onNavigate }: Props) {
           </div>
         </GlassContainer>
       </motion.div>
+
+      <Reveal className="w-full max-w-2xl">
+        <Logos3 />
+      </Reveal>
     </div>
   );
 }

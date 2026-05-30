@@ -731,6 +731,8 @@ async function startServer() {
       : (config?.openRouterApiKey || process.env.OPENROUTER_API_KEY);
 
     if (apiKey) {
+      const maskedKey = apiKey.substring(0, 4) + '...' + apiKey.substring(apiKey.length - 4);
+      console.log(`[DEBUG] Using ${provider} API Key: ${maskedKey}`);
       try {
         const prompt = `
           你是 15 年資歷的頂尖雲端架構師 (Principal Cloud Architect) 與網頁效能稽核專家 (Expert Web Performance Auditor)。

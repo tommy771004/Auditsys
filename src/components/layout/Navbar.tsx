@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Home, Sparkles, Terminal, Tag, type LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { AppRoute, NavLinkItem, NavigateTo } from "../../types/home";
 import LanguageSwitcher from "../ui/LanguageSwitcher";
 import GlowingButton from "../ui/GlowingButton";
+import MenuBar, { type GlowMenuItem } from "../ui/GlowMenu";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import PageContainer from "./PageContainer";
 
@@ -32,6 +33,31 @@ const navigationItems: NavLinkItem[] = [
     labelKey: "navbar.pricing",
   },
 ];
+
+// Per-item icon + radial glow + active icon color for the GlowMenu desktop nav.
+// Color literals are present here so Tailwind's content scanner emits them.
+const navItemMeta: Record<string, { icon: LucideIcon; gradient: string; iconColor: string }> = {
+  overview: {
+    icon: Home,
+    gradient: "radial-gradient(circle, rgba(58,214,195,0.18) 0%, rgba(34,197,194,0.06) 50%, rgba(20,128,120,0) 100%)",
+    iconColor: "text-cyan-300",
+  },
+  features: {
+    icon: Sparkles,
+    gradient: "radial-gradient(circle, rgba(157,139,255,0.18) 0%, rgba(139,92,246,0.06) 50%, rgba(91,33,182,0) 100%)",
+    iconColor: "text-violet-300",
+  },
+  console: {
+    icon: Terminal,
+    gradient: "radial-gradient(circle, rgba(255,179,71,0.18) 0%, rgba(234,179,8,0.06) 50%, rgba(180,83,9,0) 100%)",
+    iconColor: "text-amber-300",
+  },
+  pricing: {
+    icon: Tag,
+    gradient: "radial-gradient(circle, rgba(96,165,250,0.18) 0%, rgba(59,130,246,0.06) 50%, rgba(29,78,216,0) 100%)",
+    iconColor: "text-blue-300",
+  },
+};
 
 interface NavbarProps {
   currentRoute: AppRoute;
@@ -78,6 +104,21 @@ export default function Navbar({ currentRoute, currentSection, onNavigate }: Nav
     }
   };
 
+  const menuItems: GlowMenuItem[] = navigationItems.map((item) => ({
+    icon: navItemMeta[item.id].icon,
+    label: t(item.labelKey),
+    gradient: navItemMeta[item.id].gradient,
+    iconColor: navItemMeta[item.id].iconColor,
+  }));
+  const activeNavItem = navigationItems.find(isActiveItem);
+  const activeMenuLabel = activeNavItem ? t(activeNavItem.labelKey) : undefined;
+  const handleMenuClick = (label: string) => {
+    const target = navigationItems.find((navItem) => t(navItem.labelKey) === label);
+    if (target) {
+      handleNavigation(target.route, target.section);
+    }
+  };
+
   return (
     <motion.header initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="fixed inset-x-0 top-0 z-50 pt-4">
       <PageContainer>
@@ -96,25 +137,12 @@ export default function Navbar({ currentRoute, currentSection, onNavigate }: Nav
               <span>Audit<span className="text-brand-amber ml-0.5">Sys</span></span>
             </button>
 
-            <nav className="hidden items-center gap-2 lg:flex">
-              {navigationItems.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className={[
-                    "rounded-full px-4 py-2 text-sm font-medium transition active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none",
-                    isActiveItem(item) ? "bg-brand-amber/10 text-brand-amber" : "text-brand-muted hover:bg-white/5 hover:text-white",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  onClick={() => {
-                    handleNavigation(item.route, item.section);
-                  }}
-                >
-                  {t(item.labelKey)}
-                </button>
-              ))}
-            </nav>
+            <MenuBar
+              className="hidden lg:block"
+              items={menuItems}
+              activeItem={activeMenuLabel}
+              onItemClick={handleMenuClick}
+            />
 
             <div className="hidden items-center gap-3 lg:flex">
               <LanguageSwitcher />

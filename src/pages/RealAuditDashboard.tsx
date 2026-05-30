@@ -11,6 +11,8 @@ import DOMIssueHighlighter from "../components/live/DOMIssueHighlighter";
 import ExecutionTerminal from "../components/live/ExecutionTerminal";
 import ScanSummaryPanel from "../components/live/ScanSummaryPanel";
 import AnalyticsChartsPanel from "../components/ui/AnalyticsChartsPanel";
+import StatusBadge from "../components/ui/StatusBadge";
+import { Reveal } from "../components/ui/Reveal";
 import { useRealTimeAudit } from "../hooks/useRealTimeAudit";
 import type { ExecutionStatus } from "../types/liveAudit.types";
 import type { NavigateTo } from "../types/home";
@@ -87,7 +89,7 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
         <ConsoleTabs currentRoute="live" onNavigate={onNavigate} />
         <div className="flex flex-col gap-10">
           {/* Header */}
-          <div className="mx-auto flex max-w-3xl flex-col items-center space-y-4 text-center">
+          <Reveal className="mx-auto flex max-w-3xl flex-col items-center space-y-4 text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-100/92">
               <Radio className="h-3.5 w-3.5" />
               {t("liveAudit.badge")}
@@ -96,7 +98,7 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
               <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">{t("liveAudit.title")}</h1>
               <p className="text-base leading-8 text-brand-muted sm:text-lg">{t("liveAudit.description")}</p>
             </div>
-          </div>
+          </Reveal>
 
           {/* Mission control input */}
           <GlassContainer accent="cyan" className="space-y-6">
@@ -227,6 +229,20 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
               >
                 {showReport && summary ? (
                   <div className="space-y-6">
+                    <div className="flex flex-wrap gap-3">
+                      <StatusBadge
+                        status="success"
+                        leftIcon={ScanSearch}
+                        leftLabel={t("liveAudit.badge")}
+                        rightLabel={t(`liveAudit.status.${state.status}`)}
+                      />
+                      <StatusBadge
+                        status={domIssues.length ? "error" : "success"}
+                        leftIcon={domIssues.length ? TriangleAlert : ScanSearch}
+                        leftLabel={t("liveAudit.dom.title")}
+                        rightLabel={String(domIssues.length)}
+                      />
+                    </div>
                     <AnalyticsChartsPanel />
                     <ScanSummaryPanel summary={summary} />
                   </div>

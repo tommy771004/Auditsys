@@ -7,3 +7,5 @@ coverage/
 .env*
 !.env.example
 .claude/*
+test-fetch.js
+test-waf.js

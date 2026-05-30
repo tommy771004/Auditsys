@@ -3,6 +3,9 @@
     "name": "AuditLens",
     "tagline": "Web Performance & Architecture Audit"
   },
+  "auditStacks": {
+    "heading": "Audited across modern web stacks"
+  },
   "meta": {
     "home": "AuditLens | Web Performance & Architecture Audit",
     "pricing": "AuditLens | Pricing",

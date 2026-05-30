@@ -8,6 +8,7 @@ import PageContainer from "../components/layout/PageContainer";
 import GlassCard from "../components/ui/GlassCard";
 import GlowingButton from "../components/ui/GlowingButton";
 import SectionHeader from "../components/ui/SectionHeader";
+import Logos3 from "../components/ui/Logos3";
 import { useAuditForm } from "../hooks/useAuditForm";
 import type { LocalizedContentItem, NavigateTo, TrustPillItem, WorkflowContentItem } from "../types/home";
 
@@ -295,6 +296,10 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
             </GlassCard>
           </motion.div>
         </section>
+
+        <motion.section {...heroMotion}>
+          <Logos3 />
+        </motion.section>
 
         <motion.section {...heroMotion} id="features" className="space-y-8">
           <SectionHeader eyebrow={t("features.sectionEyebrow")} title={t("features.sectionTitle")} description={t("features.sectionDescription")} className="max-w-3xl" />

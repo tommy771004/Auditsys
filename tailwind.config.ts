@@ -41,6 +41,15 @@ export default {
       backgroundImage: {
         "brand-gradient": "var(--grad)",
       },
+      keyframes: {
+        marquee: {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-50%)" },
+        },
+      },
+      animation: {
+        marquee: "marquee 40s linear infinite",
+      },
     },
   },
   plugins: [],

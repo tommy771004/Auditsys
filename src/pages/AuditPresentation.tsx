@@ -40,6 +40,7 @@ import {
 import type { AuditPresentationResult, AuditSlide, SlideChartData, SlideMetric } from "../types/presentation";
 import type { NavigateTo } from "../types/home";
 import ConsoleTabs from "../components/ui/ConsoleTabs";
+import { Reveal } from "../components/ui/Reveal";
 
 // Chart palette aligned to brand/semantic tokens (see tailwind.config.ts).
 const CHART_COLORS = ["#06B6D4", "#05FFC4", "#F43F5E", "#F59E0B", "#8B5CF6"];
@@ -259,7 +260,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
 
         {/* Header Title Block */}
         <div className="mb-8 flex flex-col justify-between gap-4 border-b border-white/[0.06] pb-6 md:flex-row md:items-end">
-          <div>
+          <Reveal>
             <div className="inline-flex items-center gap-1.5 rounded-full bg-brand-cyan/10 px-3 py-1 text-xs font-medium text-brand-cyan">
               <Sparkles className="h-3.5 w-3.5 animate-pulse" />
               智能簡報架構分析
@@ -270,7 +271,7 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
             <p className="mt-1 text-sm text-slate-400">
               將深層網頁性能指標，轉譯為具備極高商业說服力的 PowerPoint/Keynote 分級投影片與高階講稿。
             </p>
-          </div>
+          </Reveal>
 
           <div className="flex flex-wrap gap-3">
             <button

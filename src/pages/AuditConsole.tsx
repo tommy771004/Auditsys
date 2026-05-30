@@ -10,6 +10,8 @@ import { ReportRenderer } from "../components/ui/ReportRenderer";
 import GlowingButton from "../components/ui/GlowingButton";
 import MemorySyncBadge from "../components/ui/MemorySyncBadge";
 import SubagentCard from "../components/ui/SubagentCard";
+import StatusBadge from "../components/ui/StatusBadge";
+import { Reveal } from "../components/ui/Reveal";
 import { useAuditAgent, buildLiveMemoryUpdates, buildLiveReportContent } from "../hooks/useAuditAgent";
 import type { AgentReportMetric } from "../types/agent.types";
 import type { NavigateTo } from "../types/home";
@@ -409,6 +411,21 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                   ))}
                 </div>
 
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <StatusBadge
+                    status={harness.qualityGate.failedCount ? "error" : "success"}
+                    leftIcon={harness.qualityGate.failedCount ? ShieldAlert : ShieldCheck}
+                    leftLabel={t("auditConsole.harness.title")}
+                    rightLabel={t(`auditConsole.harness.status.${harness.status}`)}
+                  />
+                  <StatusBadge
+                    status={harness.qualityGate.failedCount ? "error" : harness.qualityGate.warningCount ? "default" : "success"}
+                    leftIcon={Shield}
+                    leftLabel={`${harness.qualityGate.passedCount}/${harness.qualityGate.checks.length}`}
+                    rightLabel={t("auditConsole.harness.checksTitle")}
+                  />
+                </div>
+
                 <div className="mt-4 space-y-2">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/55">{t("auditConsole.harness.checksTitle")}</p>
                   {harnessChecks.map((check) => (
@@ -573,7 +590,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
         <div className="flex flex-col gap-10">
           
           {/* Layer 1: Header */}
-          <div className="space-y-4 text-center mx-auto max-w-3xl flex flex-col items-center">
+          <Reveal className="space-y-4 text-center mx-auto max-w-3xl flex flex-col items-center">
             <div className="inline-flex items-center justify-center gap-2 rounded-full border border-violet-300/15 bg-violet-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-violet-100/92">
               <Sparkles className="h-3.5 w-3.5" />
               {t("auditConsole.badge")}
@@ -582,7 +599,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
               <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">{t("auditConsole.title")}</h1>
               <p className="text-base leading-8 text-brand-muted sm:text-lg">{t("auditConsole.description")}</p>
             </div>
-          </div>
+          </Reveal>
 
           {/* Layer 2: Mission Control Input & Metrics */}
           <GlassContainer accent="violet" className="space-y-8">

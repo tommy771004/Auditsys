@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import PageContainer from "../components/layout/PageContainer";
 import GlassCard from "../components/ui/GlassCard";
 import GlowingButton from "../components/ui/GlowingButton";
+import StatusBadge from "../components/ui/StatusBadge";
 import PageIntro from "../components/ui/PageIntro";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import SectionHeader from "../components/ui/SectionHeader";
@@ -208,6 +209,13 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
                         <span>{t(plan.badgeKey)}</span>
                       </div>
                     ) : null}
+                    <StatusBadge
+                      className="self-start"
+                      status={user?.subscriptionPlan === plan.planIdMap ? "success" : "default"}
+                      leftIcon={user?.subscriptionPlan === plan.planIdMap ? Check : Sparkles}
+                      leftLabel={t(plan.nameKey)}
+                      rightLabel={user?.subscriptionPlan === plan.planIdMap ? t("misc.activePlan") : t(plan.ctaKey)}
+                    />
                     <div className="space-y-2">
                       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">{t(plan.nameKey)}</p>
                       <div className="flex flex-wrap items-baseline gap-3">

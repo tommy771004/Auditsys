@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import GlassContainer from "../components/ui/GlassContainer";
 import type { NavigateTo } from "../types/home";
 import { ReportRenderer } from "../components/ui/ReportRenderer";
+import { Reveal } from "../components/ui/Reveal";
 
 interface Props {
   onNavigate: NavigateTo;
@@ -140,7 +141,7 @@ export default function Admin({ onNavigate }: Props) {
     <div className="relative w-full min-h-screen">
       <div className="hero-grid-bg pointer-events-none" />
       <div className="relative z-10 min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 pb-4 border-b border-white/10">
+      <Reveal className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 pb-4 border-b border-white/10">
         <div>
           <h1 className="text-3xl font-bold text-brand-text flex items-center">
             <ShieldAlert className="mr-3 text-brand-purple" /> {t("admin.title")}
@@ -153,7 +154,7 @@ export default function Admin({ onNavigate }: Props) {
         >
           <LogOut className="mr-2 h-4 w-4" /> {t("admin.signOut")}
         </button>
-      </div>
+      </Reveal>
 
       <div className="flex space-x-4 mb-8">
         <button

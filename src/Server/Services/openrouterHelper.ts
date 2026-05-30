@@ -124,41 +124,60 @@ export async function fetchOpenRouterWithFallback(apiKey: string, prompt: string
   throw lastError || new Error('All fallback models failed.');
 }
 
+import OpenAI from 'openai';
+
+// agentrouter.org sits behind Aliyun WAF. Server-side calls can be served a JS
+// slider-CAPTCHA challenge page (HTTP 200, HTML body) instead of an API JSON
+// response. Browser-like headers downgrade naive UA-based WAF rules; a full JS
+// challenge cannot be solved here and is surfaced as AGENTROUTER_WAF_BLOCKED so
+// the caller can switch providers instead of logging an 8KB HTML dump.
+const AGENTROUTER_BROWSER_HEADERS = {
+  'User-Agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+  'Accept': 'application/json, text/plain, */*',
+  'Accept-Language': 'zh-TW,zh;q=0.9,en;q=0.8',
+};
+
+function isAliyunWafChallenge(value: unknown): boolean {
+  if (value == null) return false;
+  const text = typeof value === 'string' ? value : JSON.stringify(value);
+  return /aliyun_waf|captcha-element|nc-container|initAliyunCaptcha|滑动验证|访问验证/.test(text);
+}
+
+const AGENTROUTER_WAF_ERROR =
+  'AGENTROUTER_WAF_BLOCKED: agentrouter.org served an Aliyun WAF CAPTCHA challenge instead of an API response. The provider is blocking server-side traffic — switch the plan aiProvider to "openrouter" or use a different AgentRouter endpoint/key.';
+
 export async function fetchAgentRouter(apiKey: string, prompt: string, model: string): Promise<OpenRouterFallbackResult> {
-  const response = await fetch('https://agentrouter.org/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-      'User-Agent': 'AuditLens/1.0',
-      'HTTP-Referer': process.env.OPENROUTER_APP_URL || 'https://auditlens.app',
-      'X-Title': process.env.OPENROUTER_APP_TITLE || 'AuditLens'
-    },
-    body: JSON.stringify({
-      model,
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 4000
-    })
+  const client = new OpenAI({
+    apiKey: apiKey,
+    baseURL: 'https://agentrouter.org/v1',
+    defaultHeaders: AGENTROUTER_BROWSER_HEADERS,
   });
 
-  const responseText = await response.text();
-
-  if (!response.ok) {
-    throw new Error(`AgentRouter API Error: ${response.status} ${responseText}`);
-  }
-
-  let data;
+  let response: any;
   try {
-    data = JSON.parse(responseText);
-  } catch (err: any) {
-    throw new Error(`AgentRouter returned invalid JSON (Status: ${response.status}). Response preview: ${responseText.substring(0, 150)}`);
+    response = await client.chat.completions.create({
+      model: model,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 4000,
+    });
+  } catch (error: any) {
+    if (isAliyunWafChallenge(error?.message) || isAliyunWafChallenge(error?.error)) {
+      throw new Error(AGENTROUTER_WAF_ERROR);
+    }
+    throw new Error(`AgentRouter API Error: ${error.message}`);
   }
 
-  const text = data.choices?.[0]?.message?.content;
-  
+  // A WAF challenge can arrive as HTTP 200 with an HTML body the SDK passes
+  // through as a raw string / non-chat object — detect it before reading choices.
+  if (isAliyunWafChallenge(response)) {
+    throw new Error(AGENTROUTER_WAF_ERROR);
+  }
+
+  const text = response?.choices?.[0]?.message?.content;
   if (!text) {
-    throw new Error(`AgentRouter returned empty content. Response: ${responseText.substring(0, 150)}`);
+    const preview = JSON.stringify(response).slice(0, 300);
+    throw new Error(`AgentRouter returned empty content (model ${model}). Response preview: ${preview}`);
   }
 
   return { model, text };
