@@ -1,28 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg: #0a0e16;
+    --bg-alt: #0e131e;
+    --surface: #141b29;
+    --surface-2: #1a2233;
+    --border: rgba(255, 255, 255, 0.10);
+    --border-strong: rgba(255, 255, 255, 0.18);
+    --text: #e9eef6;
+    --muted: #9aa7bc;
+    --faint: #6b7689;
+    --amber: #ffb347;
+    --teal: #3ad6c3;
+    --violet: #9d8bff;
+    --green: #5fd28a;
+    --red: #ff6b6b;
+    --blue: #5b8def;
+    --radius: 18px;
+    --radius-sm: 12px;
+    --maxw: 1140px;
+    --shadow: 0 20px 55px -22px rgba(0, 0, 0, 0.75);
+    --grad: linear-gradient(135deg, #ffb347 0%, #ff7eb6 48%, #9d8bff 100%);
+    --fz: "Noto Sans TC", system-ui, sans-serif;
+    --fe: "Space Grotesk", "Noto Sans TC", sans-serif;
+    --fm: "JetBrains Mono", monospace;
+  }
+
   html {
-    font-family: 'Inter', 'San Francisco', system-ui, sans-serif;
-    background-color: theme('colors.surface.background');
-    color: theme('colors.brand.text');
+    font-family: var(--fz);
+    background-color: var(--bg);
+    color: var(--text);
     scroll-behavior: smooth;
-    /* Optimize font rendering on macOS/iOS */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     touch-action: manipulation;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
   }
 }
 
 @layer components {
   .glass-panel {
-    @apply border border-white/10 bg-surface-background/85 shadow-glass backdrop-blur-2xl;
+    @apply border border-white/10 shadow-[0_20px_55px_-22px_rgba(0,0,0,0.75)] backdrop-blur-2xl bg-[#141b29]/85 rounded-[18px];
   }
 }
 
-/* Respect prefers-reduced-motion for CSS-driven animations (Tailwind animate-*,
-   shimmer, smooth scroll). Framer-motion is handled via <MotionConfig reducedMotion="user">. */
+/* Respect prefers-reduced-motion for CSS-driven animations */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

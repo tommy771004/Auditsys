@@ -231,6 +231,28 @@
         "warningValue": "{{count}} evidence warning(s)"
       }
     },
+    "harness": {
+      "eyebrow": "Harness Gate",
+      "title": "Automated quality gate",
+      "status": {
+        "passed": "Passed",
+        "manual_review": "Manual review",
+        "failed": "Failed"
+      },
+      "checkStatus": {
+        "passed": "Pass",
+        "warning": "Warn",
+        "failed": "Fail"
+      },
+      "stats": {
+        "attempts": "Attempts",
+        "retries": "Retries",
+        "tools": "Tools",
+        "steps": "Steps"
+      },
+      "checksTitle": "Sensor checks",
+      "handoff": "Two-retry or quality gate policy requires human handoff: {{reason}}."
+    },
     "subagentCard": {
       "eyebrow": "Subagent",
       "toolCount": "{{count}} tool task(s)",

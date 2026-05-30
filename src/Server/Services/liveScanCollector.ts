@@ -8,7 +8,7 @@ import type { LiveScanRoute, LiveScanScores, LiveScanSummary } from "../../types
 export type SSELogLevel = "info" | "warn" | "error" | "success";
 
 /** Mirrors the client-side `LiveDOMIssue` contract. */
-export type DOMIssueType = "missing_alt" | "multiple_h1" | "invalid_canonical";
+type DOMIssueType = "missing_alt" | "multiple_h1" | "invalid_canonical";
 
 export interface LiveDOMIssue {
   element: string;
@@ -17,7 +17,7 @@ export interface LiveDOMIssue {
   highlightLine?: number;
 }
 
-export interface FetchedTarget {
+interface FetchedTarget {
   html: string;
   finalUrl: string;
   statusCode: number;
@@ -38,7 +38,7 @@ function isRedirectStatus(status: number): boolean {
 }
 
 /** Fetches the target HTML, following same-origin-safe redirects (SSRF guarded). */
-export async function fetchTargetHtml(targetUrl: string): Promise<FetchedTarget> {
+async function fetchTargetHtml(targetUrl: string): Promise<FetchedTarget> {
   const startedTime = Date.now();
   let currentUrl = targetUrl;
 
@@ -191,7 +191,7 @@ function findInvalidCanonical(html: string, lines: string[], finalUrl: string): 
 }
 
 /** Parses already-fetched HTML for the supported DOM issue types. */
-export function analyzeDomIssues(html: string, finalUrl: string): LiveDOMIssue[] {
+function analyzeDomIssues(html: string, finalUrl: string): LiveDOMIssue[] {
   if (!html) {
     return [];
   }
@@ -344,7 +344,7 @@ function foldLiveScanSummary(
  * frame (powers the post-scan charts). Returns `null` if collection fails so the
  * stream can still close gracefully.
  */
-export async function buildLiveScanSummary(targetUrl: string, domIssueCount: number): Promise<LiveScanSummary | null> {
+async function buildLiveScanSummary(targetUrl: string, domIssueCount: number): Promise<LiveScanSummary | null> {
   try {
     const deterministic = await collectDeterministicEvidence({ url: targetUrl });
     const browser = await collectBrowserEvidence({ url: targetUrl }, deterministic);

@@ -1,8 +1,9 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import type { HTMLMotionProps } from "framer-motion";
 
-interface GlowingButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface GlowingButtonProps extends HTMLMotionProps<"button"> {
   children: ReactNode;
   loadingLabel: string;
   isLoading?: boolean;

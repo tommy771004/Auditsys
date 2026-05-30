@@ -14,13 +14,13 @@ export default function Campaign({ onNavigate }: CampaignProps) {
   const { t } = useTranslation();
 
   return (
-    <PageContainer onNavigate={onNavigate}>
+    <PageContainer>
       <div className="mx-auto max-w-7xl px-4 pb-24 pt-32 sm:px-6 lg:px-8">
         <SectionHeader
-          badge={t("campaign.badge")}
+          eyebrow={t("campaign.badge")}
           title={t("campaign.title")}
           description={t("campaign.description")}
-          align="center"
+          className="text-center"
         />
 
         <div className="mt-16 space-y-24">
@@ -64,7 +64,7 @@ export default function Campaign({ onNavigate }: CampaignProps) {
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
-              <GlassContainer accent="purple" className="p-5 sm:p-8">
+              <GlassContainer accent="violet" className="p-5 sm:p-8">
                 <h3 className="mb-4 text-sm font-bold text-white/90">{t("campaign.socialAds.test1.title")}</h3>
                 <div className="mb-4 aspect-video rounded-xl bg-slate-950/80 border border-brand-purple/20 flex flex-col items-center justify-center p-6 text-center shadow-inner">
                   <p className="text-xs text-white/60 italic">"{t("campaign.socialAds.test1.visual")}"</p>

@@ -71,7 +71,7 @@ export default function App() {
     }
   };
 
-  const baseUrl = import.meta.env.VITE_CLIENT_URL || window.location.origin;
+  const baseUrl = (import.meta.env as any).VITE_CLIENT_URL || window.location.origin;
   const canonicalUrl = `${baseUrl}/#${route}`;
 
   return (

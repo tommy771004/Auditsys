@@ -31,6 +31,8 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
   const [historyItems, setHistoryItems] = useState<any[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState<boolean>(false);
   const [selectedHistoryAudit, setSelectedHistoryAudit] = useState<any | null>(null);
+  const [showLiveRetrospective, setShowLiveRetrospective] = useState<boolean>(false);
+  const [showAgentLogs, setShowAgentLogs] = useState<boolean>(false);
   const modalCloseRef = useRef<HTMLButtonElement>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
@@ -179,6 +181,50 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
   const showParallelGrid = phase === "parallel_execution" || phase === "synthesizing_memory";
   const showFinalReport = phase === "streaming_report" || phase === "complete";
   const missionTarget = targetUrl || urlInput.trim();
+  const harness = latestAuditResult?.harness;
+  
+  const getHarnessStatusClassName = (status: string) => {
+    switch (status) {
+      case "passed": return "border-emerald-400/25 bg-emerald-400/10 text-emerald-100";
+      case "failed": return "border-rose-400/25 bg-rose-400/10 text-rose-100";
+      default: return "border-amber-400/25 bg-amber-400/10 text-amber-100";
+    }
+  };
+
+  const getHarnessCheckClassName = (status: string) => {
+    switch (status) {
+      case "passed": return "border-emerald-400/25 bg-emerald-400/10 text-emerald-400";
+      case "failed": return "border-rose-400/25 bg-rose-400/10 text-rose-400";
+      default: return "border-amber-400/25 bg-amber-400/10 text-amber-400";
+    }
+  };
+
+  const HarnessStatusIcon = harness?.status === "passed" ? ShieldCheck : harness?.status === "failed" ? ShieldAlert : Shield;
+  const harnessStats = harness
+    ? [
+        {
+          id: "attempts",
+          label: t("auditConsole.harness.stats.attempts"),
+          value: `${harness.attempts.length}/${harness.governance.maxAttempts}`,
+        },
+        {
+          id: "retries",
+          label: t("auditConsole.harness.stats.retries"),
+          value: `${harness.governance.retriesUsed}/${harness.governance.retryCap}`,
+        },
+        {
+          id: "tools",
+          label: t("auditConsole.harness.stats.tools"),
+          value: String(harness.toolRegistry.filter((tool) => tool.enabled).length),
+        },
+        {
+          id: "steps",
+          label: t("auditConsole.harness.stats.steps"),
+          value: `${harness.governance.stepsUsed}/${harness.governance.maxSteps}`,
+        },
+      ]
+    : [];
+  const harnessChecks = harness?.qualityGate.checks.slice(0, 5) ?? [];
   const reportSourceLabel = reportSource === "live"
     ? t("auditConsole.live.badge")
     : reportSource === "mock"
@@ -337,6 +383,69 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
           </div>
 
           <div className="space-y-4">
+            {harness ? (
+              <div className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-slate-950/40 text-white/85">
+                      <HarnessStatusIcon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">{t("auditConsole.harness.eyebrow")}</p>
+                      <p className="text-sm font-semibold text-white">{t("auditConsole.harness.title")}</p>
+                    </div>
+                  </div>
+                  <span className={["rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]", getHarnessStatusClassName(harness.status)].join(" ")}>
+                    {t(`auditConsole.harness.status.${harness.status}`)}
+                  </span>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  {harnessStats.map((item) => (
+                    <div key={item.id} className="rounded-[18px] border border-white/10 bg-slate-950/35 px-3 py-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">{item.label}</p>
+                      <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 space-y-2">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/55">{t("auditConsole.harness.checksTitle")}</p>
+                  {harnessChecks.map((check) => (
+                    <div key={check.id} className="rounded-[18px] border border-white/10 bg-slate-950/35 px-3 py-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="text-sm font-semibold text-white">{check.label}</p>
+                        <span className={["shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em]", getHarnessCheckClassName(check.status)].join(" ")}>
+                          {t(`auditConsole.harness.checkStatus.${check.status}`)}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs leading-5 text-white/58">{check.details}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {harness.handoffRequired ? (
+                  <p className="mt-4 rounded-[18px] border border-amber-400/15 bg-amber-400/10 px-3 py-3 text-xs leading-5 text-amber-100/88">
+                    {t("auditConsole.harness.handoff", { reason: harness.handoffReason ?? "manual_review" })}
+                  </p>
+                ) : null}
+
+                {harness.retrospective ? (
+                  <div className="mt-4">
+                    <GlowingButton
+                      className="w-full justify-center !bg-slate-900/50 hover:!bg-slate-900/80 !border-white/10"
+                      variant="ghost"
+                      loadingLabel={t("auditConsole.harness.viewRetrospective")}
+                      onClick={() => setShowLiveRetrospective(true)}
+                    >
+                      <Terminal className="h-4 w-4 text-emerald-400" />
+                      <span className="text-white/80">{t("auditConsole.harness.viewRetrospective")}</span>
+                    </GlowingButton>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
             <div className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">{t("auditConsole.live.snapshot.title")}</p>
               <div className="mt-4 space-y-3">
@@ -566,14 +675,26 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
 
           {/* Layer 3: Mission Stream (The Active Execution) */}
           <GlassContainer accent="cyan" className="min-h-[500px]">
-             <div className="flex flex-wrap items-center gap-3 border-b border-white/10 pb-4 mb-6">
-                <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-white/84">
-                  <Cpu className="h-5 w-5" />
+             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4 mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-white/84">
+                    <Cpu className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">{t("auditConsole.sections.missionStreamTitle")}</p>
+                    <p className="text-sm text-brand-muted">{t("auditConsole.sections.missionStreamDescription", { url: missionTarget })}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">{t("auditConsole.sections.missionStreamTitle")}</p>
-                  <p className="text-sm text-brand-muted">{t("auditConsole.sections.missionStreamDescription", { url: missionTarget })}</p>
-                </div>
+                
+                <GlowingButton
+                  variant="ghost"
+                  loadingLabel=""
+                  onClick={() => setShowAgentLogs(true)}
+                  className="!px-4 !py-2 min-h-0 text-xs text-white/80"
+                >
+                  <Terminal className="h-4 w-4 mr-2" />
+                  <span>Agent Logs</span>
+                </GlowingButton>
               </div>
 
               <AnimatePresence mode="wait" initial={false}>
@@ -839,6 +960,150 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                           </div>
                         )}
                       </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Live Retrospective Modal */}
+        <AnimatePresence>
+          {showLiveRetrospective && latestAuditResult?.harness?.retrospective && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+                onClick={() => setShowLiveRetrospective(false)}
+              />
+              <motion.div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="retrospective-modal-title"
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="relative w-full max-w-4xl max-h-[85vh] flex flex-col rounded-[24px] border border-emerald-500/20 bg-slate-950/90 shadow-2xl overflow-hidden backdrop-blur-xl"
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between border-b border-emerald-500/20 bg-emerald-900/10 px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
+                      <Terminal className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 id="retrospective-modal-title" className="text-lg font-semibold text-emerald-100">{t("auditConsole.harness.retrospectiveTitle")}</h3>
+                      <p className="text-sm text-emerald-400/60">{missionTarget}</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowLiveRetrospective(false)}
+                    aria-label={t("auditConsole.harness.hideRetrospective")}
+                    className="rounded-full p-2 text-emerald-400/60 hover:bg-emerald-500/20 hover:text-emerald-300 transition focus-visible:ring-2 focus-visible:ring-emerald-400/60 focus-visible:outline-none min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto p-6 bg-slate-950/50">
+                  <div className="prose prose-sm prose-invert max-w-none text-emerald-50/80 font-mono text-[13px] leading-relaxed [&_h2]:text-emerald-300 [&_h3]:text-emerald-400 [&_strong]:text-emerald-200">
+                    <ReportRenderer reportText={latestAuditResult.harness.retrospective} />
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Agent Logs Terminal Modal */}
+        <AnimatePresence>
+          {showAgentLogs && (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+                onClick={() => setShowAgentLogs(false)}
+              />
+              <motion.div
+                role="dialog"
+                aria-modal="true"
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="relative w-full max-w-5xl h-[85vh] flex flex-col rounded-[24px] border border-white/10 bg-slate-950/60 shadow-2xl overflow-hidden backdrop-blur-2xl"
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between border-b border-white/10 bg-white/5 px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-brand-cyan/30 bg-brand-cyan/10 text-brand-cyan">
+                      <Terminal className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">Agent Terminal Logs</h3>
+                      <p className="text-sm text-brand-muted">{missionTarget}</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowAgentLogs(false)}
+                    className="rounded-full p-2 text-white/60 hover:bg-white/10 hover:text-white transition focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-4 font-mono text-[13px] bg-slate-950/40">
+                  {toolCalls.length === 0 && memoryUpdates.length === 0 ? (
+                    <div className="text-white/40 flex h-full items-center justify-center">
+                      <span className="animate-pulse">Waiting for agent activity...</span>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {/* We'll render toolCalls and memoryUpdates. In a real app we'd sort them by time. */}
+                      {toolCalls.map((call, idx) => (
+                        <div key={`tool-${idx}`} className="border-l-2 border-brand-cyan/30 pl-4 py-2">
+                          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                            <span className="text-brand-purple font-medium">[{call.agentId}]</span>
+                            <span className="text-white/90">Executing <span className="font-semibold text-brand-cyan">{call.name}</span></span>
+                            <span className={[
+                              "ml-auto text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-full border",
+                              call.status === 'success' ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400' 
+                                : call.status === 'failed' ? 'border-rose-500/20 bg-rose-500/10 text-rose-400' 
+                                : 'border-amber-500/20 bg-amber-500/10 text-amber-400 animate-pulse'
+                            ].join(" ")}>
+                              {call.status}
+                            </span>
+                          </div>
+                          <div className="text-white/50 text-xs bg-slate-950/60 p-3 rounded-lg border border-white/5 overflow-x-auto whitespace-pre-wrap">
+                            {JSON.stringify(call.args, null, 2)}
+                          </div>
+                          {call.logs && call.logs.length > 0 && (
+                            <div className="mt-2 text-white/50 text-xs bg-slate-950/60 p-3 rounded-lg border border-white/5 overflow-x-auto whitespace-pre-wrap">
+                              <span className="text-emerald-400/80 mb-1 block">Output logs:</span>
+                              {call.logs.join("\n")}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                      {memoryUpdates.map((mem, idx) => (
+                        <div key={`mem-${idx}`} className="border-l-2 border-brand-purple/30 pl-4 py-2">
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <span className="text-brand-purple font-semibold">[Memory]</span>
+                            <span className="text-white/90 font-medium">Updated: <span className="text-brand-purple/90">{mem.key}</span></span>
+                          </div>
+                          <div className="text-white/60 text-xs bg-slate-950/60 p-3 rounded-lg border border-white/5 whitespace-pre-wrap">
+                            {mem.fact}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>

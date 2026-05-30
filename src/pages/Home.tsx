@@ -12,6 +12,8 @@ import { useAuditForm } from "../hooks/useAuditForm";
 import type { LocalizedContentItem, NavigateTo, TrustPillItem, WorkflowContentItem } from "../types/home";
 
 interface FeatureCard extends LocalizedContentItem {
+  titleKey: string;
+  descriptionKey: string;
   icon: LucideIcon;
   glow: "purple" | "cyan" | "blue";
   iconClassName: string;

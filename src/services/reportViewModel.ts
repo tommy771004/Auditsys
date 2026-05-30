@@ -3,7 +3,7 @@ import type { AuditIntelligenceResult, BrowserCollectorFlow, BrowserCollectorTim
 
 export type ReportSectionId = "overview" | "performance" | "seo" | "architecture" | "actions";
 
-export interface ReportMetricItem {
+interface ReportMetricItem {
   id: string;
   value: number;
   labelKey: string;
@@ -18,26 +18,26 @@ export interface PanelContent {
   bullets: string[];
 }
 
-export interface ReportArchitectureNode {
+interface ReportArchitectureNode {
   id: string;
   label: string;
   className: string;
 }
 
-export interface BrowserEvidenceStatItem {
+interface BrowserEvidenceStatItem {
   id: string;
   value: string;
   label: string;
   tone: "default" | "warning" | "success";
 }
 
-export interface BrowserEvidenceArtifactItem {
+interface BrowserEvidenceArtifactItem {
   id: string;
   label: string;
   value: string;
 }
 
-export interface BrowserEvidenceTimelineItem {
+interface BrowserEvidenceTimelineItem {
   id: string;
   label: string;
   detail?: string;
@@ -45,7 +45,7 @@ export interface BrowserEvidenceTimelineItem {
   tone: "default" | "warning" | "success";
 }
 
-export interface BrowserEvidenceViewModel {
+interface BrowserEvidenceViewModel {
   stats: BrowserEvidenceStatItem[];
   details: string[];
   artifacts: BrowserEvidenceArtifactItem[];

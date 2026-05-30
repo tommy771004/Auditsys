@@ -237,9 +237,33 @@
         "warningValue": "{{count}} 個 evidence warnings"
       }
     },
+    "harness": {
+      "eyebrow": "Harness Gate",
+      "title": "自動化驗證閘門",
+      "status": {
+        "passed": "通過",
+        "manual_review": "需人工複核",
+        "failed": "未通過"
+      },
+      "checkStatus": {
+        "passed": "通過",
+        "warning": "警示",
+        "failed": "失敗"
+      },
+      "stats": {
+        "attempts": "執行次數",
+        "retries": "重試次數",
+        "tools": "掛載工具",
+        "steps": "耗用步數"
+      },
+      "retrospectiveTitle": "Agent 執行回顧",
+      "viewRetrospective": "檢視 Agent 日誌",
+      "hideRetrospective": "隱藏 Agent 日誌",
+      "checksTitle": "Sensor checks",
+      "handoff": "Two-retry 或品質閘門已要求人工介入：{{reason}}。"
+    },
     "subagentCard": {
       "eyebrow": "子代理",
-      "toolCount": "{{count}} 個工具任務",
       "executionTimeLabel": "執行時間",
       "executionTime": "{{value}} ms",
       "activeToolLabel": "主要工具",
@@ -881,6 +905,7 @@
     "httpStatus": "HTTP 狀態：",
     "resolvedUrl": "解析網址：",
     "pageTitle": "頁面標題：",
+    "retrospective": "Agent 執行回顧",
     "warnings": "警告：",
     "browserEvidence": "瀏覽器證據",
     "status": "狀態：",

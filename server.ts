@@ -168,9 +168,9 @@ async function startServer() {
         return res.status(403).json({ error: decision.reason });
       }
 
-      await db.update(users).set({ subscriptionPlan: requestedPlan }).where(eq(users.id, user.id));
+      await db.update(users).set({ subscriptionPlan: requestedPlan }).where(eq(users.id, Number(user.id)));
 
-      const updatedUserList = await db.select().from(users).where(eq(users.id, user.id));
+      const updatedUserList = await db.select().from(users).where(eq(users.id, Number(user.id)));
       const updatedUser = updatedUserList[0];
 
       if (!updatedUser) {
@@ -205,7 +205,7 @@ async function startServer() {
       const db = getDb();
       const userAudits = await db.select()
         .from(audits)
-        .where(eq(audits.userId, user.id))
+        .where(eq(audits.userId, Number(user.id)))
         .orderBy(desc(audits.createdAt));
       res.json(userAudits.map(a => ({
         ...a,
@@ -222,7 +222,7 @@ async function startServer() {
       const db = getDb();
       const auditRecord = await db.select()
         .from(audits)
-        .where(and(eq(audits.id, req.params.id), eq(audits.userId, user.id)))
+        .where(and(eq(audits.id, req.params.id as string), eq(audits.userId, Number(user.id))))
         .then(rows => rows[0]);
       
       if (!auditRecord) {
@@ -262,7 +262,7 @@ async function startServer() {
       if (subscriptionPlan !== undefined) updates.subscriptionPlan = subscriptionPlan;
       if (isAdmin !== undefined) updates.isAdmin = isAdmin;
 
-      await db.update(users).set(updates).where(eq(users.id, req.params.id));
+      await db.update(users).set(updates).where(eq(users.id, Number(req.params.id)));
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -282,7 +282,7 @@ async function startServer() {
   app.delete("/api/admin/leads/:id", authenticateToken, requireAdmin, async (req, res) => {
     try {
       const db = getDb();
-      await db.delete(intakeLeads).where(eq(intakeLeads.id, req.params.id));
+      await db.delete(intakeLeads).where(eq(intakeLeads.id, req.params.id as string));
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -322,7 +322,7 @@ async function startServer() {
       if (allowedModels !== undefined) updates.allowedModels = allowedModels;
       if (price !== undefined) updates.price = price;
 
-      await db.update(planSettings).set(updates).where(eq(planSettings.planId, req.params.planId));
+      await db.update(planSettings).set(updates).where(eq(planSettings.planId, req.params.planId as string));
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -364,7 +364,7 @@ async function startServer() {
   app.delete("/api/admin/audits/:id", authenticateToken, requireAdmin, async (req, res) => {
     try {
       const db = getDb();
-      await db.delete(audits).where(eq(audits.id, req.params.id));
+      await db.delete(audits).where(eq(audits.id, req.params.id as string));
       res.json({ success: true });
     } catch (error: any) {
       console.error("Error deleting audit:", error);
@@ -377,7 +377,7 @@ async function startServer() {
     try {
       const user = (req as any).user;
       const db = getDb();
-      const dbUser = await db.select().from(users).where(eq(users.id, user.id)).then(rows => rows[0]);
+      const dbUser = await db.select().from(users).where(eq(users.id, Number(user.id))).then(rows => rows[0]);
       const currentPlan = dbUser?.subscriptionPlan || 'free';
       const userPlanSettings = await db.select().from(planSettings).where(eq(planSettings.planId, currentPlan)).then(rows => rows[0]);
 
@@ -398,10 +398,11 @@ async function startServer() {
 
       try {
         const result = await generateAuditIntelligence(req.body, config);
+        const auditStatus = result.queued ? "pending" : result.harness?.status === "failed" ? "failed" : "completed";
         
         // 2. Update audit record upon success
         await db.update(audits).set({
-          status: result.queued ? "pending" : "completed",
+          status: auditStatus,
           result: JSON.stringify(result)
         }).where(eq(audits.id, auditId));
 
@@ -461,10 +462,11 @@ async function startServer() {
 
       try {
         const result = await generateAuditIntelligence(body, config);
+        const auditStatus = result.queued ? "pending" : result.harness?.status === "failed" ? "failed" : "completed";
 
         // 3. Update audit record upon success
         await db.update(audits).set({
-          status: result.queued ? "pending" : "completed",
+          status: auditStatus,
           result: JSON.stringify(result)
         }).where(eq(audits.id, auditId));
 

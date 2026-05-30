@@ -4,11 +4,11 @@ export type AgentPhase = "idle" | "analyzing_context" | "spawning_subagents" | "
 
 export type AgentReportSource = "live" | "mock";
 
-export type SubagentStatus = "pending" | "active" | "done";
+type SubagentStatus = "pending" | "active" | "done";
 
 export type ToolCallStatus = "running" | "success" | "failed";
 
-export type MemoryUpdateType = "architecture" | "bottleneck" | "tech_stack";
+type MemoryUpdateType = "architecture" | "bottleneck" | "tech_stack";
 
 export type ToolCallArgumentValue = string | number | boolean | null | readonly string[] | readonly number[] | readonly boolean[];
 

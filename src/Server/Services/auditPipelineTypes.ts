@@ -126,6 +126,123 @@ export interface AuditIntelligenceResult extends AuditSynthesisResult {
   generatedAt: string;
   request: AuditRequestPayload;
   evidence: AuditEvidenceBundle;
+  harness?: AuditHarnessRun;
+}
+
+export type AuditHarnessRunStatus = "passed" | "manual_review" | "failed";
+
+export type AuditHarnessCheckStatus = "passed" | "warning" | "failed";
+
+export type AuditHarnessTraceStage =
+  | "input_validation"
+  | "tool_call"
+  | "sensor_check"
+  | "quality_gate"
+  | "retry"
+  | "pivot"
+  | "handoff"
+  | "complete";
+
+export interface AuditHarnessToolDefinition {
+  id: "deterministic_collector" | "browser_collector" | "audit_synthesis";
+  name: string;
+  description: string;
+  inputSchema: Record<string, unknown>;
+  middleware: string[];
+  enabled: boolean;
+}
+
+export interface AuditHarnessMiddlewareDefinition {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface AuditHarnessTraceEvent {
+  id: string;
+  attempt: number;
+  stage: AuditHarnessTraceStage;
+  status: "running" | "passed" | "warning" | "failed";
+  message: string;
+  startedAt: string;
+  completedAt: string;
+  durationMs: number;
+}
+
+export interface AuditHarnessSensorResult {
+  id: string;
+  label: string;
+  status: AuditHarnessCheckStatus;
+  severity: "low" | "medium" | "high" | "critical";
+  observedValue: string;
+  threshold?: string;
+  details: string;
+}
+
+export interface AuditHarnessQualityGate {
+  status: AuditHarnessRunStatus;
+  checks: AuditHarnessSensorResult[];
+  passedCount: number;
+  warningCount: number;
+  failedCount: number;
+}
+
+export interface AuditHarnessAttempt {
+  index: number;
+  strategy: "standard" | "retry_same_contract" | "pivot_after_retries";
+  status: AuditHarnessRunStatus;
+  startedAt: string;
+  completedAt: string;
+  durationMs: number;
+  retryReason?: string;
+  error?: string;
+  sensors: AuditHarnessSensorResult[];
+  trace: AuditHarnessTraceEvent[];
+}
+
+export interface AuditHarnessPivot {
+  afterAttempt: number;
+  reason: string;
+  nextStrategy: AuditHarnessAttempt["strategy"];
+  rollbackCheckpointId: string;
+}
+
+export interface AuditHarnessRollback {
+  checkpointId: string;
+  supported: boolean;
+  action: "metadata_checkpoint";
+  reason: string;
+}
+
+export interface AuditHarnessGovernance {
+  retryCap: number;
+  maxAttempts: number;
+  retriesUsed: number;
+  maxSteps: number;
+  stepsUsed: number;
+  circuitBreakerTripped: boolean;
+  circuitBreakerReason?: string;
+  tokenBudget: number;
+  estimatedTokenSpend: number;
+}
+
+export interface AuditHarnessRun {
+  runId: string;
+  status: AuditHarnessRunStatus;
+  startedAt: string;
+  completedAt: string;
+  durationMs: number;
+  policyVersion: string;
+  toolRegistry: AuditHarnessToolDefinition[];
+  middleware: AuditHarnessMiddlewareDefinition[];
+  attempts: AuditHarnessAttempt[];
+  qualityGate: AuditHarnessQualityGate;
+  governance: AuditHarnessGovernance;
+  pivots: AuditHarnessPivot[];
+  rollback: AuditHarnessRollback;
+  handoffRequired: boolean;
+  handoffReason?: string;
+  retrospective?: string;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

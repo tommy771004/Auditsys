@@ -1,8 +1,6 @@
-import { synthesizeAudit } from "./auditSynthesis";
-import { collectBrowserEvidence } from "./browserCollector";
-import { collectDeterministicEvidence } from "./deterministicCollector";
 import type { AuditIntelligenceResult } from "./auditPipelineTypes";
 import { normalizeAuditRequestPayload } from "./auditPipelineTypes";
+import { runAuditHarness } from "./harnessRunner";
 import { assertSafeAuditTargetUrl } from "./securityPolicies";
 
 export async function generateAuditIntelligence(payload: unknown, config?: { openRouterApiKey?: string, apiKey?: string, allowedModels?: string[] }): Promise<AuditIntelligenceResult> {
@@ -14,20 +12,13 @@ export async function generateAuditIntelligence(payload: unknown, config?: { ope
 
   await assertSafeAuditTargetUrl(normalizedPayload.url);
 
-  const deterministic = await collectDeterministicEvidence(normalizedPayload);
-  const browser = await collectBrowserEvidence(normalizedPayload, deterministic);
-  const synthesis = await synthesizeAudit(normalizedPayload, {
-    deterministic,
-    browser,
-  }, config);
+  const { synthesis, evidence, harness } = await runAuditHarness(normalizedPayload, config);
 
   return {
     ...synthesis,
     generatedAt: new Date().toISOString(),
     request: normalizedPayload,
-    evidence: {
-      deterministic,
-      browser,
-    },
+    evidence,
+    harness,
   };
 }

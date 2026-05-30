@@ -1,7 +1,8 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { motion } from "framer-motion";
+import type { HTMLMotionProps } from "framer-motion";
 
-interface GlassContainerProps extends HTMLAttributes<HTMLDivElement> {
+interface GlassContainerProps extends HTMLMotionProps<"section"> {
   children: ReactNode;
   accent?: "violet" | "cyan" | "blue";
 }

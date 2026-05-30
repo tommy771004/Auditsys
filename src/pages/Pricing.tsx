@@ -247,7 +247,7 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
                         className="mt-auto w-full justify-center min-h-[44px] transition-transform active:scale-[0.98]"
                         isLoading={upgradingPlan === plan.planIdMap}
                         loadingLabel={t("misc.upgrading")}
-                        variant={isCurrentPlan ? "ghost" : "default"}
+                        variant={isCurrentPlan ? "ghost" : "primary"}
                         onClick={() => {
                           if (isCurrentPlan) {
                             onNavigate("console");
