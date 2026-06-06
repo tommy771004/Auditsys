@@ -19,7 +19,7 @@ export default function MemorySyncBadge({ update }: MemorySyncBadgeProps) {
           transition={{ duration: 0.24, ease: "easeOut" }}
           className="fixed right-4 top-24 z-50 sm:right-8"
         >
-          <div className="relative overflow-hidden rounded-full border border-emerald-400/25 bg-slate-950/75 px-4 py-3 shadow-[0_0_36px_rgba(16,185,129,0.22)] backdrop-blur-xl">
+          <div className="relative overflow-hidden rounded-full border border-emerald-400/25 bg-white/75 px-4 py-3 shadow-[0_0_36px_rgba(16,185,129,0.22)] backdrop-blur-xl">
             <motion.span
               aria-hidden="true"
               className="absolute right-4 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-emerald-300"
@@ -28,8 +28,8 @@ export default function MemorySyncBadge({ update }: MemorySyncBadgeProps) {
             />
             <div className="pr-7">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-100/88">{t("auditConsole.memoryBadge.saved")}</p>
-              <p className="mt-1 max-w-[18rem] text-sm text-white/90">{update.fact}</p>
-              <p className="mt-1 text-xs text-white/55">{t("auditConsole.memoryBadge.type", { value: t(`auditConsole.memoryType.${update.type}`) })}</p>
+              <p className="mt-1 max-w-[18rem] text-sm text-black/90">{update.fact}</p>
+              <p className="mt-1 text-xs text-black/55">{t("auditConsole.memoryBadge.type", { value: t(`auditConsole.memoryType.${update.type}`) })}</p>
             </div>
           </div>
         </motion.div>

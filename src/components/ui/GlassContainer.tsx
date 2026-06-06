@@ -1,34 +1,48 @@
-import type { HTMLAttributes, ReactNode } from "react";
-import { motion } from "framer-motion";
-import type { HTMLMotionProps } from "framer-motion";
+import React, { useRef, useState } from "react";
+import { motion, type HTMLMotionProps, type Variants } from "framer-motion";
 
 interface GlassContainerProps extends HTMLMotionProps<"section"> {
-  children: ReactNode;
-  accent?: "violet" | "cyan" | "blue";
+  children: React.ReactNode;
+  accent?: "violet" | "cyan" | "blue" | "teal" | "purple";
 }
 
-const accentClassNames: Record<NonNullable<GlassContainerProps["accent"]>, string> = {
-  violet: "shadow-[0_24px_80px_rgba(76,29,149,0.28)]",
-  cyan: "shadow-[0_24px_80px_rgba(8,145,178,0.24)]",
-  blue: "shadow-[0_24px_80px_rgba(29,78,216,0.22)]",
+const defaultVariants: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { type: "spring", stiffness: 350, damping: 30 } 
+  }
 };
 
-export default function GlassContainer({ children, className, accent = "violet", ...props }: GlassContainerProps) {
+export default function GlassContainer({ children, className, accent, variants, ...props }: GlassContainerProps) {
+  const divRef = useRef<HTMLElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [opacity, setOpacity] = useState(0);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    if (!divRef.current) return;
+    const rect = divRef.current.getBoundingClientRect();
+    setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
   return (
     <motion.section
+      ref={divRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setOpacity(1)}
+      onMouseLeave={() => setOpacity(0)}
       layout
+      variants={variants || defaultVariants}
+      whileHover={{ y: -4, boxShadow: "8px 8px 0px 0px rgba(0,0,0,1)" }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
       className={[
-        "relative overflow-hidden rounded-[32px] border border-white/10 bg-slate-900/50 p-5 backdrop-blur-xl sm:p-8",
-        "before:pointer-events-none before:absolute before:inset-x-10 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/65 before:to-transparent",
-        accentClassNames[accent],
+        "relative overflow-hidden rounded-sm border border-black bg-white p-5 sm:p-8 text-black",
         className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      ].filter(Boolean).join(" ")}
       {...props}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_48%)]" />
-      <div className="relative">{children}</div>
+      <div className="relative z-20">{children}</div>
     </motion.section>
   );
 }

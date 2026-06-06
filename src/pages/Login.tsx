@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { LogIn, AlertCircle, Eye, EyeOff } from "lucide-react";
 import GlassContainer from "../components/ui/GlassContainer";
-import GlowingButton from "../components/ui/GlowingButton";
+import SolidButton from "../components/ui/SolidButton";
 import Logos3 from "../components/ui/Logos3";
 import { Reveal } from "../components/ui/Reveal";
 import type { NavigateTo } from "../types/home";
@@ -98,7 +98,7 @@ export default function Login({ onNavigate }: Props) {
                 autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-brand-surface/50 border border-white/10 rounded-lg px-4 py-3 text-brand-text placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-brand-purple/50 transition-all"
+                className="w-full bg-brand-surface/50 border border-black rounded-sm px-4 py-3 text-brand-text placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-brand-purple/50 transition-all"
                 placeholder="Enter your username"
               />
             </div>
@@ -114,13 +114,13 @@ export default function Login({ onNavigate }: Props) {
                   autoComplete={isRegistering ? "new-password" : "current-password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-brand-surface/50 border border-white/10 rounded-lg px-4 py-3 pr-12 text-brand-text placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-brand-purple/50 transition-all"
+                  className="w-full bg-brand-surface/50 border border-black rounded-sm px-4 py-3 pr-12 text-brand-text placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-brand-purple/50 transition-all"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-md text-brand-muted hover:text-white focus-visible:ring-2 focus-visible:ring-brand-purple/60 focus-visible:outline-none transition"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-md text-brand-muted hover:text-black focus-visible:ring-2 focus-visible:ring-brand-purple/60 focus-visible:outline-none transition"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                   aria-pressed={showPassword}
                 >
@@ -129,14 +129,14 @@ export default function Login({ onNavigate }: Props) {
               </div>
             </div>
 
-            <GlowingButton
+            <SolidButton
               type="submit"
               disabled={isLoading}
               loadingLabel={isRegistering ? "Creating account..." : "Signing in..."}
-              className="w-full py-4 rounded-lg flex items-center justify-center font-medium bg-brand-blue/20 hover:bg-brand-blue/30 text-brand-text"
+              className="w-full py-4 rounded-sm flex items-center justify-center font-medium bg-brand-blue/20 hover:bg-brand-blue/30 text-brand-text"
             >
               {isLoading ? (isRegistering ? "Creating account..." : "Signing in...") : (isRegistering ? "Create Account" : "Sign in")}
-            </GlowingButton>
+            </SolidButton>
           </form>
 
           <div className="mt-6 text-center">

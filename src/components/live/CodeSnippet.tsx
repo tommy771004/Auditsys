@@ -114,7 +114,7 @@ export default function CodeSnippet({ code, highlightLine }: CodeSnippetProps) {
   const lines = code.replace(/\r\n/g, "\n").split("\n");
 
   return (
-    <pre className="overflow-x-auto rounded-2xl border border-white/10 bg-slate-950/70 p-0 font-mono text-[12.5px] leading-6">
+    <pre className="overflow-x-auto rounded-sm border border-black bg-white p-0 font-mono text-[12.5px] leading-6">
       <code className="block">
         {lines.map((line, index) => {
           const isHighlighted = index === highlightLine;

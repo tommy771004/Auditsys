@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Gauge, TriangleAlert, Users, FlaskConical } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { CruxMetric, CruxRating, CruxResult, PageSpeedResult } from "../../types/liveAudit.types";
@@ -43,16 +43,16 @@ function mapPageSpeedResponse(payload: PageSpeedApiResponse): PageSpeedResult {
 }
 
 function scoreToneClass(score: number): string {
-  if (score >= 90) return "text-emerald-300";
-  if (score >= 50) return "text-amber-300";
-  return "text-rose-300";
+  if (score >= 90) return "text-emerald-300 drop-shadow-[0_0_12px_rgba(52,211,153,0.4)]";
+  if (score >= 50) return "text-amber-300 drop-shadow-[0_0_12px_rgba(252,211,77,0.4)]";
+  return "text-rose-300 drop-shadow-[0_0_12px_rgba(244,63,94,0.4)]";
 }
 
 function ratingTextClass(rating: CruxRating | null): string {
   if (rating === "good") return "text-emerald-300";
   if (rating === "needs-improvement") return "text-amber-300";
   if (rating === "poor") return "text-rose-300";
-  return "text-white/60";
+  return "text-black/60";
 }
 
 function ratingStrokeClass(rating: CruxRating | null): string {
@@ -152,39 +152,47 @@ export default function CoreWebVitalsCard({ targetUrl, active }: CoreWebVitalsCa
   ];
 
   return (
-    <div className="rounded-[24px] border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl">
-      <div className="flex items-start justify-between gap-3">
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="group rounded-sm border border-black bg-black/10 p-5 backdrop-blur-xl relative overflow-hidden transition-colors hover:bg-black/5"
+    >
+      
+      <div className="relative z-10 flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-400/10 text-cyan-100">
-            <Gauge className="h-5 w-5" />
+          <div className="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-cyan-300/20 bg-cyan-400/10 text-cyan-100 shadow-inner shadow-cyan-400/10">
+            <Gauge className="h-5 w-5 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-white">{t("liveAudit.vitals.title")}</p>
+            <p className="text-sm font-semibold text-black tracking-tight">{t("liveAudit.vitals.title")}</p>
             <p className="text-xs text-brand-muted">
               {phase === "field" ? t("liveAudit.vitals.fieldSubtitle") : t("liveAudit.vitals.subtitle")}
             </p>
           </div>
         </div>
-        {phase === "field" ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-100">
-            <Users className="h-3 w-3" />
-            {t("liveAudit.vitals.fieldBadge")}
-          </span>
-        ) : phase === "lab" ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/25 bg-amber-400/10 px-2.5 py-1 text-[10px] font-semibold text-amber-100">
-            <FlaskConical className="h-3 w-3" />
-            {t("liveAudit.vitals.labBadge")}
-          </span>
-        ) : null}
+        <AnimatePresence mode="wait">
+          {phase === "field" ? (
+            <motion.span initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-100 shadow-sm shadow-emerald-400/10">
+              <Users className="h-3 w-3" />
+              {t("liveAudit.vitals.fieldBadge")}
+            </motion.span>
+          ) : phase === "lab" ? (
+            <motion.span initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/25 bg-amber-400/10 px-2.5 py-1 text-[10px] font-semibold text-amber-100 shadow-sm shadow-amber-400/10">
+              <FlaskConical className="h-3 w-3" />
+              {t("liveAudit.vitals.labBadge")}
+            </motion.span>
+          ) : null}
+        </AnimatePresence>
       </div>
 
-      <div className="mt-5">
+      <div className="mt-5 relative z-10">
         {phase === "idle" ? (
-          <p className="rounded-2xl border border-dashed border-white/10 px-4 py-6 text-center text-sm text-white/60">
+          <p className="rounded-sm border border-dashed border-black px-4 py-6 text-center text-sm text-black/60">
             {t("liveAudit.vitals.pending")}
           </p>
         ) : phase === "error" ? (
-          <div className="flex items-center gap-3 rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-4 text-sm text-rose-100">
+          <div className="flex items-center gap-3 rounded-sm border border-rose-400/20 bg-rose-500/10 px-4 py-4 text-sm text-rose-100">
             <TriangleAlert className="h-5 w-5 shrink-0" />
             <span>{t("liveAudit.vitals.error")}</span>
           </div>
@@ -192,18 +200,24 @@ export default function CoreWebVitalsCard({ targetUrl, active }: CoreWebVitalsCa
           <div className="space-y-4">
             <div className="grid grid-cols-1 gap-3">
               {[0, 1, 2].map((index) => (
-                <div key={index} className="h-20 animate-pulse rounded-2xl bg-white/10" />
+                <div key={index} className="h-20 animate-pulse rounded-sm bg-black/10" />
               ))}
             </div>
           </div>
         ) : phase === "field" && crux ? (
-          <div className="space-y-4">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
             <div className="space-y-3">
-              {fieldMetrics.map(({ id, label, metric, history }) => (
-                <div key={id} className="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3">
+              {fieldMetrics.map(({ id, label, metric, history }, idx) => (
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }} 
+                  animate={{ opacity: 1, x: 0 }} 
+                  transition={{ delay: idx * 0.1 }}
+                  key={id} 
+                  className="rounded-sm border border-black bg-white px-4 py-3 transition-colors hover:bg-white"
+                >
                   <div className="flex items-center justify-between gap-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">{label}</p>
-                    <p className={`text-lg font-semibold ${ratingTextClass(metric.rating)}`}>{formatMetricValue(id, metric.p75)}</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-black/55">{label}</p>
+                    <p className={`text-lg font-semibold tracking-tight ${ratingTextClass(metric.rating)}`}>{formatMetricValue(id, metric.p75)}</p>
                   </div>
                   {metric.rating ? (
                     <p className={`mt-0.5 text-[10px] font-medium ${ratingTextClass(metric.rating)}`}>
@@ -211,14 +225,14 @@ export default function CoreWebVitalsCard({ targetUrl, active }: CoreWebVitalsCa
                     </p>
                   ) : null}
                   {history.filter((value) => value !== null).length >= 2 ? (
-                    <div className="mt-2">
+                    <div className="mt-2 mix-blend-screen">
                       <CwvSparkline values={history} strokeClass={ratingStrokeClass(metric.rating)} />
                     </div>
                   ) : null}
-                </div>
+                </motion.div>
               ))}
             </div>
-            <p className="text-[10px] text-white/60">
+            <p className="text-[10px] text-black/60">
               {crux.collectionPeriod
                 ? t("liveAudit.vitals.fieldFooterWithPeriod", {
                     scope: t(`liveAudit.vitals.scope.${crux.scope ?? "origin"}`),
@@ -226,32 +240,38 @@ export default function CoreWebVitalsCard({ targetUrl, active }: CoreWebVitalsCa
                   })
                 : t("liveAudit.vitals.fieldFooter", { scope: t(`liveAudit.vitals.scope.${crux.scope ?? "origin"}`) })}
             </p>
-          </div>
+          </motion.div>
         ) : phase === "lab" && lab ? (
-          <div className="space-y-5">
-            <div className="flex flex-col items-center">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
+            <div className="flex flex-col items-center mt-2">
               <motion.div
-                initial={{ scale: 0.85, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
+                initial={{ scale: 0.85, opacity: 0, rotate: -20 }}
+                animate={{ scale: 1, opacity: 1, rotate: 0 }}
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                className="relative inline-flex h-24 w-24 items-center justify-center rounded-full border border-white/10 bg-slate-950/50"
+                className="relative inline-flex h-24 w-24 items-center justify-center rounded-full border border-black bg-white shadow-inner shadow-black/20"
               >
-                <span className={`text-3xl font-semibold ${scoreToneClass(lab.score)}`}>{lab.score}</span>
+                <div className="absolute inset-0 rounded-full border-2 border-black/5 border-t-brand-cyan opacity-50 animate-[spin_4s_linear_infinite] mix-blend-overlay" />
+                <span className={`text-3xl font-semibold tracking-tight ${scoreToneClass(lab.score)}`}>{lab.score}</span>
               </motion.div>
-              <p className="mt-2 text-xs uppercase tracking-[0.18em] text-white/55">{t("liveAudit.vitals.score")}</p>
+              <p className="mt-4 text-xs uppercase tracking-[0.18em] text-cyan-200/60 font-semibold">{t("liveAudit.vitals.score")}</p>
             </div>
             <div className="grid grid-cols-3 gap-3">
-              {labMetrics.map((metric) => (
-                <div key={metric.id} className="rounded-2xl border border-white/10 bg-slate-950/40 px-3 py-3 text-center">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/50">{metric.label}</p>
-                  <p className="mt-1 text-sm font-semibold text-white">{lab[metric.id]}</p>
-                </div>
+              {labMetrics.map((metric, idx) => (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }} 
+                  animate={{ opacity: 1, scale: 1 }} 
+                  transition={{ delay: idx * 0.1 }}
+                  key={metric.id} className="rounded-sm border border-black bg-white px-3 py-3 text-center transition-colors hover:bg-white"
+                >
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-black/50">{metric.label}</p>
+                  <p className="mt-1 text-sm font-semibold text-black tracking-tight">{lab[metric.id]}</p>
+                </motion.div>
               ))}
             </div>
             <p className="text-[10px] text-amber-200/70">{t("liveAudit.vitals.labFallbackNote")}</p>
-          </div>
+          </motion.div>
         ) : null}
       </div>
-    </div>
+    </motion.div>
   );
 }

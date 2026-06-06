@@ -8,7 +8,7 @@ type SubagentStatus = "pending" | "active" | "done";
 
 export type ToolCallStatus = "running" | "success" | "failed";
 
-type MemoryUpdateType = "architecture" | "bottleneck" | "tech_stack";
+export type MemoryUpdateType = "architecture" | "bottleneck" | "tech_stack";
 
 export type ToolCallArgumentValue = string | number | boolean | null | readonly string[] | readonly number[] | readonly boolean[];
 
@@ -55,6 +55,15 @@ export interface UseAgentResult {
   latestAuditResult: AuditIntelligenceResult | null;
   reportSource: AgentReportSource | null;
   errorKey: string | null;
-  startAudit: (url: string, intakeData?: any) => Promise<void>;
+  startAudit: (url: string, intakeData?: any, isHitlOverride?: boolean) => Promise<void>;
   reset: () => void;
+  // Dynamic extensions for HITL, Swarm Router, and Flywheel Engine
+  enabledAgentIds?: string[];
+  setEnabledAgentIds?: (ids: string[]) => void;
+  customAgentDefs?: any[];
+  addCustomAgent?: (role: string, tool: string) => void;
+  hitlInstructions?: string;
+  setHitlInstructions?: (val: string) => void;
+  immunizedRules?: string[];
+  setImmunizedRules?: (val: string[]) => void;
 }

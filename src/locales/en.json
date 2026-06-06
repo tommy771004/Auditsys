@@ -138,6 +138,27 @@
       "streaming_report": "The primary agent is synthesizing the subagent outputs into a final report that streams directly into view.",
       "complete": "The Agent simulation is complete. You can open the sample report to compare the console with the evidence-driven reporting surface."
     },
+    "tools": {
+      "dom_probe": {
+        "label": "Analyzing Lighthouse score & DOM depth"
+      },
+      "api_latency": {
+        "label": "Fetching CSS metrics & API latency"
+      },
+      "alt_inspector": {
+        "label": "Analyzing accessibility & Alt Tags"
+      },
+      "memory_synth": {
+        "label": "Synthesizing architecture memory"
+      },
+      "idle": {
+        "label": "Analyzing repository structure"
+      }
+    },
+    "retryToast": {
+      "title": "Agent Correction",
+      "description": "LLM output JSON parsing failed. Injecting format feedback and enforcing Two-Retry loop."
+    },
     "metrics": {
       "subagents": "Subagents",
       "tools": "Tool calls",
@@ -237,6 +258,12 @@
     "harness": {
       "eyebrow": "Harness Gate",
       "title": "Automated quality gate",
+      "retryWidget": {
+        "title": "Two-Retry Governance",
+        "totalRetries": "Total Retries",
+        "resolved": "Resolved",
+        "correctionRate": "Correction Rate"
+      },
       "status": {
         "passed": "Passed",
         "manual_review": "Manual review",
@@ -327,27 +354,27 @@
       },
       "logs": {
         "frontend": {
-          "queue": "Queueing DOM depth and hydration-boundary analysis.",
-          "dom": "Homepage DOM sampling completed with no abnormal first-route expansion.",
-          "hydration": "Report route still depends on prior audit hydration, so the runtime gate remains unresolved.",
-          "summary": "Frontend pass completed. The main risk is still the report-route hydration gate."
+          "queue": "Initiating DOM depth and Lighthouse performance execution...",
+          "dom": "Parsing First Contentful Paint (FCP) and Layout Shifts (CLS)...",
+          "hydration": "Retrieving JavaScript payload size and execution timing...",
+          "summary": "Frontend metrics aggregation complete. Transferring payload..."
         },
         "backend": {
-          "queue": "Pinging the API gateway and establishing a latency baseline.",
-          "gateway": "Gateway round-trip latency remains within the acceptable range with no obvious burst pattern.",
-          "waterfall": "Compared the initial document waterfall with follow-up requests and did not detect a server-side choke point of the same severity.",
-          "summary": "API latency analysis completed. The primary issue remains the frontend runtime gate, not server saturation."
+          "queue": "Pinging API gateway to establish baseline Time To First Byte (TTFB)...",
+          "gateway": "Analyzing response headers, Cache-Control, and server security policies...",
+          "waterfall": "Reconstructing document request waterfall and blocking resources...",
+          "summary": "API latency and headers analysis complete. Transferring payload..."
         },
         "architecture": {
-          "queue": "Aligning cross-route state dependencies with the evidence schema.",
-          "paths": "Located the report-route state boundary. Session-backed audit evidence is still the key prerequisite.",
-          "memory": "Preparing a long-term memory write so remediation planning and reporting cite the same runtime fact.",
-          "summary": "Architecture memory synthesis completed. The stuck runtime gate can now be explained clearly across the product."
+          "queue": "Scanning for third-party scripts and cross-origin dependencies...",
+          "paths": "Validating SSL/TLS certificates and domain constraints...",
+          "memory": "Synthesizing full runtime context into local memory store...",
+          "summary": "Architecture memory synthesis complete."
         },
         "a11y": {
-          "queue": "Queueing full page DOM scan for image elements.",
-          "scan": "Scanning all image elements for missing alt text attributes.",
-          "summary": "Alt text inspection completed. Sending findings to DOM inspector."
+          "queue": "Initializing accessibility tree parsing...",
+          "scan": "Scanning DOM for image elements without alt attributes...",
+          "summary": "Accessibility audit complete. Transferring payload..."
         }
       },
       "memory": {
@@ -421,6 +448,8 @@
     "idleDescription": "The form validates the URL, manages loading state, and falls back to a simulated success path when no endpoint is configured."
   },
   "pricing": {
+    "approvalRequired": "Approval Required",
+    "enterpriseApprovalHint": "Upgrade to this tier requires administrator intervention to verify credentials.",
     "badge": "Transparent pricing",
     "title": "Choose the audit depth that matches your release pressure",
     "description": "Every plan includes a written executive summary, technical findings, and a remediation path sized for delivery teams.",
@@ -922,7 +951,20 @@
       "reports": "Reports",
       "users": "Users",
       "settings": "Settings",
-      "leads": "Leads"
+      "leads": "Leads",
+      "security": "Security"
+    },
+    "security": {
+      "title": "Security & Compliance Policy Overview",
+      "healthCheck": "System Security Diagnostics",
+      "jwt": "JWT Configurations",
+      "bootstrap": "Admin Bootstrap",
+      "egress": "Egress Guard",
+      "statusHealthy": "Healthy",
+      "statusWarning": "Warning",
+      "statusCritical": "Critical",
+      "details": "Details",
+      "runningDiagnostics": "Running Diagnostics..."
     },
     "overview": {
       "title": "System Overview",
@@ -930,7 +972,9 @@
       "totalAudits": "Total Audits",
       "completed": "Completed",
       "pending": "Pending",
-      "loading": "Loading stats..."
+      "loading": "Loading stats...",
+      "statusDistribution": "Audit Status Distribution",
+      "noChartData": "No audit records found to compile distribution."
     },
     "reports": {
       "viewReport": "View Report",
@@ -957,7 +1001,8 @@
       "allowedModels": "Allowed Models",
       "eGModel": "e.g. anthropic/claude-3.5-sonnet",
       "save": "Save Settings",
-      "empty": "No plan settings found."
+      "empty": "No plan settings found.",
+      "exportSettings": "Export Plan Settings"
     },
     "leads": {
       "title": "Leads Management",
@@ -973,6 +1018,7 @@
       "title": "Confirm Action",
       "deleteLead": "Are you sure you want to delete this lead?",
       "deleteAudit": "Are you sure you want to delete this audit?",
+      "deleteBatch": "Are you sure you want to delete the {{count}} selected audits?",
       "cancel": "Cancel",
       "delete": "Delete"
     }

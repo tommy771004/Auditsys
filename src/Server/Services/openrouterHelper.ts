@@ -46,6 +46,47 @@ export interface OpenRouterFallbackResult {
   text: string;
 }
 
+export async function fetchNvidia(apiKey: string, prompt: string, model: string): Promise<OpenRouterFallbackResult> {
+  const client = new OpenAI({
+    apiKey: apiKey,
+    baseURL: 'https://integrate.api.nvidia.com/v1',
+  });
+
+  try {
+    const requestBody: any = {
+      model: model,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 4000,
+    };
+    
+    // Add specific settings for Nemotron 3 Ultra
+    if (model.includes("nemotron-3-ultra")) {
+      requestBody.max_tokens = 16384; 
+      requestBody.temperature = 1;
+      requestBody.top_p = 0.95;
+      requestBody.reasoning_budget = 16384;
+      requestBody.chat_template_kwargs = {"enable_thinking":true};
+    }
+
+    const response = await client.chat.completions.create(requestBody);
+    
+    let text = response.choices?.[0]?.message?.content;
+    const reasoningText = (response.choices?.[0]?.message as any)?.reasoning_content;
+    
+    if (reasoningText) {
+       text = `[Reasoning]\n${reasoningText}\n\n[Answer]\n${text}`;
+    }
+    
+    if (!text) {
+      throw new Error(`NVIDIA API returned empty content for model ${model}`);
+    }
+    
+    return { model, text };
+  } catch (error: any) {
+    throw new Error(`NVIDIA API Error: ${error.message}`);
+  }
+}
+
 export async function fetchOpenRouterWithFallback(apiKey: string, prompt: string, customModels?: string[]): Promise<OpenRouterFallbackResult> {
   let lastError: Error | null = null;
   let rateLimitedCount = 0;

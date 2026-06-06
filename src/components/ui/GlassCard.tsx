@@ -1,37 +1,29 @@
-import type { HTMLAttributes, ReactNode } from "react";
+import React from "react";
 import { motion, type HTMLMotionProps } from "framer-motion";
 
 interface GlassCardProps extends HTMLMotionProps<"div"> {
-  children: ReactNode;
+  children: React.ReactNode;
   glow?: "purple" | "cyan" | "blue" | "none";
 }
 
-const glowClasses: Record<NonNullable<GlassCardProps["glow"]>, string> = {
-  purple: "shadow-violet",
-  cyan: "shadow-cyan",
-  blue: "shadow-[0_0_40px_rgba(29,78,216,0.22)]",
-  none: "",
-};
-
 export default function GlassCard({ children, className, glow = "none", ...props }: GlassCardProps) {
   const isInteractive = props.onClick !== undefined;
-  
+
   return (
     <motion.div
-      whileTap={isInteractive ? { scale: 0.98 } : undefined}
-      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      whileHover={isInteractive ? { y: -2, x: -2, boxShadow: "6px 6px 0px 0px rgba(0,0,0,1)" } : undefined}
+      whileTap={isInteractive ? { y: 0, x: 0, boxShadow: "0px 0px 0px 0px rgba(0,0,0,1)" } : undefined}
+      transition={{ duration: 0.2, ease: "easeOut" }}
       className={[
-        "glass-panel relative overflow-hidden rounded-[24px] bg-white/[0.02] backdrop-blur-[40px] backdrop-saturate-[150%] ring-1 ring-white/10 shadow-2xl shadow-black/50 transition-all duration-300",
-        glowClasses[glow],
+        "relative rounded-sm bg-white text-black border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] transition-all duration-200 ease-out",
+        isInteractive ? "hover:bg-black hover:text-white" : "",
         className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      ].filter(Boolean).join(" ")}
       {...props}
     >
-      <div className="pointer-events-none absolute inset-0 rounded-[24px] border border-white/10 [mask-image:linear-gradient(to_bottom,white,transparent)]" />
-      <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-50" />
-      {children}
+      <div className="relative z-20">
+        {children}
+      </div>
     </motion.div>
   );
 }

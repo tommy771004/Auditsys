@@ -1,4 +1,4 @@
-export type AppRoute = "home" | "pricing" | "intake" | "console" | "live" | "login" | "admin" | "presentation";
+export type AppRoute = "home" | "pricing" | "intake" | "console" | "live" | "login" | "admin" | "presentation" | "funding" | "report";
 export type NavigateTo = (route: AppRoute, section?: string) => void;
 
 export interface NavLinkItem {

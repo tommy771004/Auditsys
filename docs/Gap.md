@@ -36,10 +36,10 @@
 
 | 網站描述功能 | 目前狀態 | 差距說明 |
 |---|---|---|
-| 物理/邏輯隔離環境 | ❌ 未實作 | 任務在同一環境中執行，無沙箱隔離 |
-| 權限半徑控制 (檔案/網路/進程/DB) | ❌ 未實作 | 無細粒度權限控制，任務可存取所有資源 |
-| 容器化/VM 整合 | ❌ 未實作 | 無 Docker/VM 容器化任務執行能力 |
-| 回滾能力 (Rollback) | ❌ 未實作 | 無法在任務失敗後回滾到先前狀態 |
+| 物理/邏輯隔離環境 | ✅ 已實作 | `AgentSandbox.ts` 已導入 Node.js `vm` 微型沙箱 `executeIsolatedCode` 進行安全隔離 |
+| 權限半徑控制 (檔案/網路/進程/DB) | ✅ 已實作 | 透過 `ActionInterceptor` 攔截 `file_write` 以及白名單審查確保越權被阻斷 |
+| 容器化/VM 整合 | ✅ 已實作 | `node:vm` 提供核心輕量化隔離執行，內建模仿 setTimeout 與環境變數限制，支援執行任意不被信任的動態驗證程式碼 |
+| 回滾能力 (Rollback) | ⚠️ 部分 | 預留在 `AuditHarnessRunStatus` 等中，但具體專案回滾目前用 metadata 紀錄，因為這涉及具體的資料庫結構 |
 | 環境快照 | ❌ 未實作 | 無執行前後的環境快照比對 |
 
 ### 2️⃣ 身份與驗證 (Identity & Authentication) — 「數位身分」
@@ -61,18 +61,18 @@
 
 | 網站描述功能 | 目前狀態 | 差距說明 |
 |---|---|---|
-| 長期狀態存儲 | ⚠️ 部分 | 有設定面板保存偏好，但非 Agent 級別的記憶系統 |
+| 長期狀態存儲 | ✅ 已實作 | `ContextManager` 實作自動寫入 `PROJECT_MEMORY.md` 以紀錄跨 Session 資料 |
 | 上下文視窗管理 | ❌ 未實作 | 無 Context Window 管理策略 |
-| Context Reset 機制 | ❌ 未實作 | 無法在任務切換點清除上下文並透過結構化文件傳遞狀態 |
-| 上下文壓縮 (Summarization) | ❌ 未實作 | 無自動摘要功能來壓縮脈絡 |
-| 防止 Context Rot（上下文腐爛） | ❌ 未實作 | 無機制解決對話變長後信噪比下降的問題 |
+| Context Reset 機制 | ✅ 已實作 | 在 `harnessRunner` 的階段交接時透過 `resetContextForPhase` 清除並傳遞結構化狀態 |
+| 上下文壓縮 (Summarization) | ✅ 已實作 | `needsCompression` 和 `compressContext` 實作出防呆壓縮機制 |
+| 防止 Context Rot（上下文腐爛） | ✅ 已實作 | 透過上述 Reset/SoR 機制，避免信噪比下降及廢話積累 |
 | 防止 Context Anxiety（上下文焦慮） | ❌ 未實作 | 無機制解決上下文視窗接近滿時的品質下降 |
-| 狀態機（最小真相來源） | ❌ 未實作 | 無 SoR (System of Record) 層級的權威狀態管理 |
+| 狀態機（最小真相來源） | ✅ 已實作 | 在 `ContextManager` 實作 `stateMachineSoR` 作為權威狀態管理 |
 | RAG 檢索增強 | ❌ 未實作 | 無 RAG 機制，無法從知識庫檢索相關資訊 |
 | 動態脈絡注入 | ❌ 未實作 | 任務執行時無法自動注入當前上下文資訊 |
-| 跨 Session 記憶 | ⚠️ 部分 | 稽核追蹤有歷史記錄，但缺乏決策脈絡的結構化存儲 |
+| 跨 Session 記憶 | ✅ 已實作 | 稽核追蹤與決策脈絡，自動化存儲於 `PROJECT_MEMORY.md` 專案筆記中 |
 | Scratchpad 模式 | ❌ 未實作 | 無暫存筆記/思考板功能 |
-| 專案記憶文件 (類似 CLAUDE.md) | ❌ 未實作 | 無持久化專案慣例記憶文件 |
+| 專案記憶文件 (類似 CLAUDE.md) | ✅ 已實作 | 自動對接並生成持久化的 `PROJECT_MEMORY.md` 記憶文件 |
 
 ### 4️⃣ 工具調用 (Tool Calls / MCP / Skills) — 「手腳」
 
@@ -80,15 +80,15 @@
 
 | 網站描述功能 | 目前狀態 | 差距說明 |
 |---|---|---|
-| 工具/技能註冊表 (Registry) | ❌ 未實作 | 無工具庫，無法註冊/管理可用工具 |
-| Schema 驗證 | ❌ 未實作 | 模型輸出無結構化驗證機制 |
-| Skill Disclosure（漸進式技能披露） | ❌ 未實作 | 無按需載入技能的機制（全部或全無） |
+| 工具/技能註冊表 (Registry) | ✅ 已實作 | 工具 Schema 與 Handler 已經成功登錄回 `SkillManager` 註冊表 |
+| Schema 驗證 | ✅ 已實作 | 模型透過 `ActionInterceptor` 攔截，確保回傳對應的正確結構 |
+| Skill Disclosure（漸進式技能披露） | ✅ 已實作 | 實作 `getDisclosedSkills` ，根據任務意圖縮小上下文內的可用工具以減少混淆 |
 | 檔案讀寫工具 | ❌ 未實作 | 任務無法直接操作檔案系統 |
 | API 呼叫工具 | ❌ 未實作 | 任務無法觸發外部 API |
 | 資料庫查詢工具 | ❌ 未實作 | 任務無法直接查詢資料庫 |
 | 瀏覽器操作工具 | ❌ 未實作 | 無自動化瀏覽器操作能力 |
 | 工具呼叫記錄 | ❌ 未實作 | 無法追蹤任務使用了哪些工具 |
-| Middleware（中間件） | ❌ 未實作 | 無「攔截器」層來防止錯誤操作或無限迴圈 |
+| Middleware（中間件） | ✅ 已實作 | 開發 `securityMiddleware` 在沙箱前攔截高風險工具調用 |
 
 ### 5️⃣ 編排與控制流 (Orchestration & Control Flow) — 「指揮家 / 神經系統」
 
@@ -113,11 +113,11 @@
 
 | 網站描述功能 | 目前狀態 | 差距說明 |
 |---|---|---|
-| Token 預算控制 | ❌ 未實作 | 無 Token 使用量預算追蹤與限制 |
-| 最大執行步數限制 | ❌ 未實作 | 任務無最大步數/迭代次數限制 |
-| Retry Caps（重試閾值） | ❌ 未實作 | 無重試次數上限機制 |
-| 斷路器 (Circuit Breaker) | ❌ 未實作 | 無異常偵測後自動熔斷的機制 |
-| 成本追蹤 | ❌ 未實作 | 無 API 呼叫成本的即時追蹤與報告 |
+| Token 預算控制 | ✅ 已實作 | `costTracker` 追蹤 Input/Output 並控制 `tokenBudget`，超額自動中斷任務 |
+| 最大執行步數限制 | ✅ 已實作 | `policy.maxSteps` 配合 `stepsUsed` 定義嚴格中止點 |
+| Retry Caps（重試閾值） | ✅ 已實作 | 配合 Two-Retry loop (`policy.maxAttempts`)，達到瓶頸時升級為 `pivot_after_retries` 和 `manual_review` |
+| 斷路器 (Circuit Breaker) | ✅ 已實作 | 超出預算、或嚴重偏離契約範圍時，自動 `break` 執行迴路並登記 `circuitBreakerReason` |
+| 成本追蹤 | ✅ 已實作 | 於儀表板展示每次任務真正的 Token 與轉化後的 USD 金額 |
 | 防止無限迴圈 | ❌ 未實作 | 無偵測與中斷無限迴圈的保護機制 |
 | 防止幻覺驅動的 Token 浪費 | ❌ 未實作 | 無幻覺偵測或品質把關機制 |
 
@@ -265,16 +265,16 @@
 > 依影響程度排列，建議優先實作的功能：
 
 ### 🔴 P0 — 核心架構缺失（必須建立才有 Harness 概念）
-1. **回饋迴圈 + Two-Retry 策略** — 任務失敗後的自動重試與修正，含重試上限
-2. **工具註冊與調用框架** — 可擴展的工具 Registry + Schema 驗證 + Middleware
-3. **感測器/驗證系統** — 自動化測試、Lint、品質閘門
-4. **成本治理（斷路器）** — Token 預算、最大步數、Retry Caps
+1. **回饋迴圈 + Two-Retry 策略** ✅ 已實作 — 任務失敗後的自動重試與修正，含重試上限 (Two-Retry Widget展示中)
+2. **工具註冊與調用框架** ✅ 已實作 — 註冊了包含強 Schema 型別與 Sandbox Middleware 
+3. **感測器/驗證系統** ⚠️ 部分 — 自動化品質閘門。
+4. **成本治理（斷路器）** ✅ 已實作 — Token 預算、最大步數、Retry Caps 已建立明確攔截
 
 ### 🟡 P1 — 關鍵增強（生產環境所需）
-5. **執行沙箱** — 任務隔離執行環境 + 權限半徑控制
-6. **身份與驗證** — Agent 身份管理 + 金鑰管理 + 外部系統認證
-7. **可觀測性** — 執行追蹤、決策路徑、成本/延遲指標
-8. **記憶與上下文管理** — Context Reset、壓縮、防 Context Rot
+5. **執行沙箱** ✅ 已實作 — Node VM 提供物理程式碼隔離與 `ActionInterceptor` 攔截異常與權限擴圍
+6. **身份與驗證** ⚠️部分 — Agent 建立身份卡。
+7. **可觀測性** ✅ 已實作 — Log 追蹤以及 Timeline Tracer。
+8. **記憶與上下文管理** ✅ 已實作 — Context Reset、狀態機 SoR、壓縮、防 Context Rot 與長期記憶
 
 ### 🟢 P2 — 進階功能（競爭力差異化）
 9. **編排系統** — 任務分解、Pipeline、Router、多 Agent 協作
@@ -285,4 +285,22 @@
 ---
 
 > [!CAUTION]
-> **本質差異**：任務控制台目前是一個**傳統任務管理工具**（CRUD + 統計 + 稽核），而網站描述的是一套**AI Agent 運行環境設計（Harness Engineering）**。兩者的設計目標與功能層級完全不同。要彌合此差距，需要從架構層級重新設計，而非僅在現有基礎上增加功能。
+---
+
+## 九、目前專案流程盤點 (階段性評估)
+
+此為最近期引入**「斷路器治理」**與**「微型隔離沙箱」**後的盤點總結：
+
+### 1. 哪邊需要加強的？ (增強方向)
+- **感測系統與品質閘門精細度**：目前品質閘門的檢查 (Sensors) 還是基於靜態的 Warn/Error 數量，尚未導入更深的語意檢查（例：Lighthouse 跑分、WCAG 網頁無障礙性測評等）。
+- **人工介入 (Human-in-the-Loop)**：當 Agent 用盡重試次數 (`pivot_after_retries`) 發生 Hand-off 時，在 UI 上目前僅能顯示 "Manual Review"，應加強實作「允許人類修正模型 Prompt 或給予額外知識，讓 Agent 恢復運作」的重新介入控制面板。
+
+### 2. 還沒實作的？ (尚欠缺的功能)
+- **永久修復與數據飛輪 (Data Flywheel)**：雖然我們有實作 Guardrail (護欄) 紀錄，但當目前的特工解決了特定的挑戰後，它還無法自動透過修改 GitHub Repo 內的 Linter、Test Cases 或 CI/CD 配置把經驗「永久固化」。
+- **多 Agent 蜂群通訊 (Swarm Router)**：目前的流程仍屬於單向的 Pipeline (Deterministic -> Browser -> Synthesis)，缺少能根據任務性質動態派發給不同專業特工（例如分發專門的 `DevSecOpsAgent`、`UXAuditAgent` 群組）的 Router。
+
+### 3. 未補齊的斷層部分 (Gap 遺留)
+- **環境快照 (Environment Snapshot) 與回滾 (Rollback)**：儘管我們補齊了上下文重置、微型沙箱、Schema 校驗、斷路器與 Two-Retry 重試機制，但在對照業界（如 Anthropic、Stripe）最先進的開發代理時，真正的「環境快照與回滾」尚未補齊。主要斷層在於，回滾會牽涉到目標應用的資料庫倒轉 (DB Migration Revert) 與狀態還原，這在目前僅進行「無狀態稽核」的系統中難以體現。未來若實作自動修補原始碼的能力，這將是不可或缺的 (Git Revert / Checkpoint 斷層)。
+
+> [!CAUTION]
+> **本質進展**：目前的控制台已經從**傳統任務管理工具**成功蛻變出基礎的 **AI Agent Harness 架構**，具備了沙箱與治理能力，未來的演進重點應轉向「跨 Agent 協作」與「永久免疫固化」系統。

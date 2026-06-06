@@ -1,16 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import { motion } from "framer-motion";
-import { AlertTriangle, Clock3, Code2, Gauge, Globe2, Network, ShieldCheck, Sparkles } from "lucide-react";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { AlertTriangle, Clock3, Code2, Gauge, Globe2, Network, ShieldCheck, Sparkles, MoveRight, ChevronRight, Zap, Target, BrainCircuit } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../components/layout/PageContainer";
 import GlassCard from "../components/ui/GlassCard";
-import GlowingButton from "../components/ui/GlowingButton";
+import SolidButton from "../components/ui/SolidButton";
 import SectionHeader from "../components/ui/SectionHeader";
 import Logos3 from "../components/ui/Logos3";
 import { useAuditForm } from "../hooks/useAuditForm";
 import type { LocalizedContentItem, NavigateTo, TrustPillItem, WorkflowContentItem } from "../types/home";
+import Accordion from "../components/ui/Accordion";
 
 interface FeatureCard extends LocalizedContentItem {
   titleKey: string;
@@ -18,21 +19,90 @@ interface FeatureCard extends LocalizedContentItem {
   icon: LucideIcon;
   glow: "purple" | "cyan" | "blue";
   iconClassName: string;
+  colSpan?: string;
+  rowSpan?: string;
 }
 
 interface WorkflowStep extends WorkflowContentItem {
   glow: "purple" | "cyan" | "blue";
+  icon: LucideIcon;
 }
 
 interface TrustPill extends TrustPillItem {
   icon: LucideIcon;
 }
 
-const heroMotion = {
-  initial: { opacity: 0, y: 32 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, amount: 0.2 },
-  transition: { duration: 0.5 },
+const AmbientOrbs = () => null;
+
+const BentoCard = ({ children, className }: { children: React.ReactNode, className?: string, glow?: string }) => {
+  return (
+    <motion.div
+        whileHover={{ y: -2, x: -2, boxShadow: "6px 6px 0px 0px rgba(0,0,0,1)" }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className={`relative overflow-hidden rounded-sm border border-black bg-white shadow-[4px_4px_0_rgba(0,0,0,1)] p-8 sm:p-10 transition-all duration-200 text-black hover:bg-black hover:text-white ${className}`}
+    >
+      <div className="relative z-10 h-full">
+        {children}
+      </div>
+    </motion.div>
+  );
+};
+
+const RevealWordText = ({ text, className }: { text: string, className?: string }) => {
+  return (
+    <motion.span
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ staggerChildren: 0.12 }}
+      className={className}
+    >
+      {text.split(" ").map((word, index) => (
+         <motion.span
+           key={index}
+           variants={{
+             hidden: { opacity: 0, y: 30, rotateX: 30, filter: "blur(10px)" },
+             visible: { opacity: 1, y: 0, rotateX: 0, filter: "blur(0px)" }
+           }}
+           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+           className="inline-block mr-[0.25em]"
+           style={{ transformStyle: "preserve-3d" }}
+         >
+           {word}
+         </motion.span>
+      ))}
+    </motion.span>
+  );
+};
+
+const InfiniteMarquee = () => {
+  const terms = [
+    { text: "AI Powered" },
+    { text: "Auto Remediation" },
+    { text: "Core Web Vitals" },
+    { text: "Security First" },
+    { text: "Performance Audits" },
+    { text: "Instant Execution" }
+  ];
+
+  return (
+    <div className="relative w-full overflow-hidden flex flex-col py-12 border-y border-black bg-white">
+      <div className="flex animate-marquee whitespace-nowrap w-max opacity-100">
+        {[...Array(2)].map((_, i) => (
+          <div key={i} className="flex gap-16 items-center min-w-max px-8">
+            {terms.map((term, idx) => {
+              return (
+                <div key={idx} className="flex items-center gap-4 text-black">
+                  <span className="text-sm font-bold tracking-wide uppercase font-mono">{term.text}</span>
+                  {idx !== terms.length - 1 && <div className="w-1.5 h-1.5 rounded-full bg-black ml-12" />}
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 interface HomeProps {
@@ -41,8 +111,18 @@ interface HomeProps {
 }
 
 export default function Home({ activeSection, onNavigate }: HomeProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { errorKey, isError, isLoading, isSuccess, submitAudit, updateUrl, url } = useAuditForm();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"],
+  });
+
+  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
 
   useEffect(() => {
     if (isSuccess && url) {
@@ -55,39 +135,24 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
       }
     }
   }, [isSuccess, url, onNavigate]);
+
   const isUrlFieldError = errorKey === "validation.requiredUrl" || errorKey === "validation.invalidUrl";
 
   useEffect(() => {
     if (!activeSection) {
       return;
     }
-
     const animationFrame = window.requestAnimationFrame(() => {
       const target = document.getElementById(activeSection);
       target?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
-
-    return () => {
-      window.cancelAnimationFrame(animationFrame);
-    };
+    return () => window.cancelAnimationFrame(animationFrame);
   }, [activeSection]);
 
   const trustPills: TrustPill[] = [
-    {
-      id: "security",
-      labelKey: "hero.trustPills.security",
-      icon: ShieldCheck,
-    },
-    {
-      id: "turnaround",
-      labelKey: "hero.trustPills.turnaround",
-      icon: Clock3,
-    },
-    {
-      id: "expert",
-      labelKey: "hero.trustPills.expert",
-      icon: Sparkles,
-    },
+    { id: "security", labelKey: "hero.trustPills.security", icon: ShieldCheck },
+    { id: "turnaround", labelKey: "hero.trustPills.turnaround", icon: Clock3 },
+    { id: "expert", labelKey: "hero.trustPills.expert", icon: Target },
   ];
 
   const featureCards: FeatureCard[] = [
@@ -98,6 +163,8 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
       icon: Gauge,
       glow: "purple",
       iconClassName: "text-brand-purple",
+      colSpan: "lg:col-span-2",
+      rowSpan: "lg:row-span-1"
     },
     {
       id: "architecture",
@@ -106,6 +173,8 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
       icon: Network,
       glow: "cyan",
       iconClassName: "text-brand-cyan",
+      colSpan: "lg:col-span-1",
+      rowSpan: "lg:row-span-1"
     },
     {
       id: "remediation",
@@ -114,6 +183,8 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
       icon: Code2,
       glow: "blue",
       iconClassName: "text-blue-300",
+      colSpan: "lg:col-span-3",
+      rowSpan: "lg:row-span-1"
     },
   ];
 
@@ -124,6 +195,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
       titleKey: "workflow.steps.intake.title",
       descriptionKey: "workflow.steps.intake.description",
       glow: "purple",
+      icon: Zap
     },
     {
       id: "analysis",
@@ -131,6 +203,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
       titleKey: "workflow.steps.analysis.title",
       descriptionKey: "workflow.steps.analysis.description",
       glow: "cyan",
+      icon: BrainCircuit
     },
     {
       id: "delivery",
@@ -138,6 +211,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
       titleKey: "workflow.steps.delivery.title",
       descriptionKey: "workflow.steps.delivery.description",
       glow: "blue",
+      icon: Sparkles
     },
   ];
 
@@ -146,7 +220,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
         titleKey: "hero.errorTitle",
         descriptionKey: errorKey ?? "validation.submitFailed",
         icon: AlertTriangle,
-        panelClassName: "border-rose-400/20 bg-rose-400/10",
+        panelClassName: "border-rose-400/30 bg-rose-400/10 backdrop-blur-xl shadow-lg shadow-rose-500/10",
         iconClassName: "text-rose-300",
       }
     : isSuccess
@@ -154,14 +228,14 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
           titleKey: "hero.successTitle",
           descriptionKey: "hero.successDescription",
           icon: ShieldCheck,
-          panelClassName: "border-cyan-400/20 bg-cyan-400/10",
+          panelClassName: "border-cyan-400/30 bg-cyan-400/10 backdrop-blur-xl shadow-lg shadow-cyan-500/10",
           iconClassName: "text-cyan-300",
         }
       : {
           titleKey: "status.idleTitle",
           descriptionKey: "status.idleDescription",
           icon: Sparkles,
-          panelClassName: "border-white/10 bg-white/5",
+          panelClassName: "border-black bg-black/5 backdrop-blur-xl",
           iconClassName: "text-brand-purple",
         };
 
@@ -171,9 +245,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
     event.preventDefault();
     const hasToken = !!localStorage.getItem("auth_token");
     if (!hasToken) {
-      if (url) {
-        localStorage.setItem("intake_submitted_url", url);
-      }
+      if (url) localStorage.setItem("intake_submitted_url", url);
       onNavigate("login");
       return;
     }
@@ -181,188 +253,428 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
   };
 
   return (
-    <div className="relative w-full min-h-screen">
-      <div className="hero-grid-bg pointer-events-none" />
-      <PageContainer className="relative z-10 flex flex-col gap-24 pb-16 pt-28 sm:pt-32 lg:gap-32 lg:pb-24">
-        <section id="overview" className="grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)] lg:items-center">
-          <motion.div {...heroMotion} className="space-y-7">
-            <div className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-brand-cyan backdrop-blur-xl">
-              {t("hero.badge")}
-            </div>
+    <div className="relative w-full min-h-screen overflow-hidden antialiased" ref={containerRef}>
+      <div className="hero-grid-bg transition-opacity duration-300 ease-out" />
+      <AmbientOrbs />
 
-            <div className="space-y-5">
-              <h1 className="max-w-3xl text-4xl font-semibold leading-[1.05] tracking-[-0.04em] text-brand-text sm:text-5xl lg:text-7xl">
-                <span className="block">{t("hero.titleLine1")}</span>
-                <span className="mt-2 block bg-brand-gradient bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(255,179,71,0.2)]">
-                  {t("hero.titleLine2")}
+      <PageContainer className="relative z-10 flex flex-col pt-36 pb-24 sm:pt-44 lg:pb-32">
+        {/* HERO SECTION */}
+        <motion.section 
+          id="overview" 
+          style={{ y: heroY, opacity: heroOpacity, scale: heroScale }}
+          className="grid gap-16 lg:gap-24 lg:grid-cols-[1.15fr_0.85fr] lg:items-center min-h-[75vh]"
+        >
+          <div className="space-y-12 z-20">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="inline-flex items-center rounded-sm border border-black bg-black/5 px-4 py-2 text-[11px] font-mono font-bold uppercase tracking-[0.25em] text-black/70"
+            >
+              <Sparkles className="w-3.5 h-3.5 mr-2 text-black/70" />
+              {t("hero.badge")}
+            </motion.div>
+
+            <div className="space-y-8 relative z-10">
+              <h1 className="max-w-4xl text-[3.25rem] font-black leading-[1.05] tracking-tight text-black sm:text-6xl lg:text-[5.5rem] font-grotesk">
+                <span className="block opacity-95">
+                  <RevealWordText text={t("hero.titleLine1")} />
+                </span>
+                <span className="mt-4 block text-black/40">
+                  <RevealWordText text={t("hero.titleLine2")} />
                 </span>
               </h1>
-              <p className="max-w-2xl text-base leading-8 text-brand-muted sm:text-lg">{t("hero.description")}</p>
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 1, ease: "easeOut" }}
+                className="max-w-2xl text-base sm:text-lg leading-relaxed text-black/60 font-normal tracking-wide"
+              >
+                {t("hero.description")}
+              </motion.p>
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <motion.div 
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.7 } }
+              }}
+              className="flex flex-wrap gap-3 pt-2"
+            >
               {trustPills.map((pill) => {
-                const PillIcon = pill.icon;
-
                 return (
-                  <div key={pill.id} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/40 px-4 py-2 text-sm text-white/[0.85] backdrop-blur-xl">
-                    <PillIcon className="h-4 w-4 text-brand-cyan" />
-                    <span>{t(pill.labelKey)}</span>
-                  </div>
+                  <motion.div 
+                    variants={{
+                      hidden: { opacity: 0, y: 20 },
+                      visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 20 } }
+                    }}
+                    key={pill.id} 
+                    className="inline-flex items-center gap-3 rounded-sm border border-black bg-white/[0.015] px-5 py-2.5 text-[11px] font-mono font-bold uppercase tracking-wider text-black/70 transition-all duration-300 hover:bg-black/10 hover:border-black cursor-default"
+                  >
+                    <span className="tracking-wide">{t(pill.labelKey)}</span>
+                  </motion.div>
                 );
               })}
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
 
-          <motion.div {...heroMotion} transition={{ duration: 0.5, delay: 0.08 }}>
-            <GlassCard glow="purple" className="p-6 sm:p-8">
-              <div className="space-y-6">
-                <div className="space-y-3">
-                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t("hero.panelTitle")}</p>
-                  <p className="text-sm leading-7 text-brand-muted">{t("hero.panelDescription")}</p>
-                </div>
-
-                <form id="scan-form" className="space-y-4" onSubmit={handleSubmit}>
-                  <label className="block space-y-3">
-                    <span className="text-sm font-medium text-white/90">{t("hero.inputLabel")}</span>
-                    <div className="group relative">
-                      <Globe2 className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/60 transition group-focus-within:text-brand-cyan" />
-                      <input
-                        type="url"
-                        inputMode="url"
-                        value={url}
-                        onChange={(event) => {
-                          updateUrl(event.target.value);
-                        }}
-                        placeholder={t("hero.inputPlaceholder")}
-                        aria-invalid={isUrlFieldError}
-                        aria-describedby={isUrlFieldError ? "home-url-error" : undefined}
-                        className={[
-                          "w-full rounded-2xl bg-black/50 min-h-[44px] py-3 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-slate",
-                          isUrlFieldError
-                            ? "border border-brand-danger/40 focus:border-brand-danger focus:ring-brand-danger/50"
-                            : "border border-white/10 focus:border-brand-cyan focus:ring-brand-cyan/50",
-                        ]
-                          .filter(Boolean)
-                          .join(" ")}
-                      />
-                    </div>
-                  </label>
-
-                  {isUrlFieldError ? (
-                    <p id="home-url-error" className="text-sm text-rose-200" aria-live="polite">
-                      {t(errorKey)}
-                    </p>
-                  ) : null}
-
-                  <p className="text-sm leading-7 text-brand-muted">{t("hero.formCaption")}</p>
-
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <GlowingButton className="w-full justify-center" isLoading={isLoading} loadingLabel={t("hero.loading")} type="submit">
-                      {t("hero.submit")}
-                    </GlowingButton>
-                    <GlowingButton
-                      className="w-full justify-center"
-                      loadingLabel={t("hero.loading")}
-                      type="button"
-                      variant="ghost"
-                      onClick={() => onNavigate("console")}
-                    >
-                      {t("hero.secondaryCta")}
-                    </GlowingButton>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, rotateY: -15, x: 20 }}
+            animate={{ opacity: 1, scale: 1, rotateY: 0, x: 0 }}
+            transition={{ duration: 1.2, delay: 0.4, type: "spring", stiffness: 80, damping: 20 }}
+            className="relative z-30"
+          >
+            <div className="relative">
+              
+              <div className="relative rounded-sm overflow-hidden border border-black bg-white p-8 sm:p-10 z-10 hover:border-black transition-all duration-300 shadow-none">
+                <div className="space-y-8">
+                  <div className="space-y-4">
+                    <h3 className="text-2xl font-black tracking-tight text-black mb-2">{t("hero.panelTitle")}</h3>
+                    <p className="text-sm leading-relaxed text-black/60">{t("hero.panelDescription")}</p>
                   </div>
-                </form>
 
-                <div className={["rounded-[1.5rem] border p-4", statusConfig.panelClassName].filter(Boolean).join(" ")} aria-live="polite">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-0.5 rounded-full border border-white/10 bg-slate-950/40 p-2">
-                      <StatusIcon className={["h-5 w-5", statusConfig.iconClassName].join(" ")} />
+                  <form id="scan-form" className="space-y-6 pt-2" onSubmit={handleSubmit}>
+                    <label className="block space-y-3 relative group">
+                      <span className="text-xs font-bold uppercase tracking-[0.2em] text-black/50 ml-2 group-focus-within:text-black transition-colors">{t("hero.inputLabel")}</span>
+                      <div className="relative rounded-sm overflow-hidden p-[1px] transition-all">
+                        <div className="relative flex items-center bg-white rounded-sm border border-black group-focus-within:border-black group-focus-within:shadow-[4px_4px_0_rgba(0,0,0,1)] group-focus-within:-translate-x-[2px] group-focus-within:-translate-y-[2px] transition-all">
+                          <input
+                            type="url"
+                            inputMode="url"
+                            value={url}
+                            onChange={(event) => updateUrl(event.target.value)}
+                            placeholder={t("hero.inputPlaceholder")}
+                            aria-invalid={isUrlFieldError}
+                            aria-describedby={isUrlFieldError ? "home-url-error" : undefined}
+                            className={[
+                              "w-full bg-transparent min-h-[58px] py-3.5 pl-6 pr-6 text-sm text-black outline-none transition-all duration-300 placeholder:text-black/40 font-mono tracking-wider",
+                              isUrlFieldError
+                                ? "border-transparent"
+                                : "border-transparent",
+                            ]
+                              .filter(Boolean)
+                              .join(" ")}
+                          />
+                        </div>
+                      </div>
+                    </label>
+
+                    <AnimatePresence mode="wait">
+                      {isUrlFieldError && (
+                        <motion.p 
+                          initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                          id="home-url-error" className="text-sm text-rose-400 font-medium tracking-wide flex items-center ml-2" aria-live="polite"
+                        >
+                          <AlertTriangle className="w-4 h-4 mr-2" />
+                          {t(errorKey)}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+
+                    <div className="grid gap-4 sm:grid-cols-2 pt-2">
+                      <SolidButton className="w-full justify-center group text-sm h-12 rounded-sm" isLoading={isLoading} loadingLabel={t("hero.loading")} type="submit">
+                        {t("hero.submit")}
+                      </SolidButton>
+                      <SolidButton
+                        className="w-full justify-center text-sm h-12 rounded-sm border border-black bg-white text-black hover:bg-black hover:text-white shadow-[4px_4px_0_rgba(0,0,0,1)] hover:shadow-none translate-y-0 hover:translate-y-[2px] hover:translate-x-[2px] transition-all duration-200"
+                        loadingLabel={t("hero.loading")}
+                        type="button"
+                        variant="secondary"
+                        onClick={() => onNavigate("console")}
+                      >
+                        {t("hero.secondaryCta")}
+                      </SolidButton>
                     </div>
+                  </form>
+
+                  <div className={["rounded-sm border p-5 transition-all duration-200 ease-out", statusConfig.panelClassName].filter(Boolean).join(" ")} aria-live="polite">
                     <div className="space-y-1">
-                      <p className="text-sm font-semibold text-white">{t(statusConfig.titleKey)}</p>
-                      <p className="text-sm leading-7 text-white/70">{t(statusConfig.descriptionKey)}</p>
+                      <p className="text-[15px] font-bold tracking-wide text-black/95">{t(statusConfig.titleKey)}</p>
+                      <p className="text-sm leading-relaxed text-brand-muted">{t(statusConfig.descriptionKey)}</p>
                     </div>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3 rounded-[1.5rem] border border-white/10 bg-white/5 px-4 py-3 text-sm text-brand-muted">
-                  <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-brand-cyan" />
-                  <div className="space-y-1">
-                    <p className="text-white/[0.85]">{t("hero.helper")}</p>
-                    <p>{t("hero.formFootnote")}</p>
                   </div>
                 </div>
               </div>
-            </GlassCard>
+            </div>
           </motion.div>
-        </section>
+        </motion.section>
 
-        <motion.section {...heroMotion}>
+        <motion.section 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.8 }}
+          transition={{ duration: 1 }}
+          className="mt-20 mb-32"
+        >
+          <p className="text-center text-xs font-bold uppercase tracking-[0.3em] text-black/30 mb-8">Trusted by innovaters</p>
           <Logos3 />
         </motion.section>
 
-        <motion.section {...heroMotion} id="features" className="space-y-8">
-          <SectionHeader eyebrow={t("features.sectionEyebrow")} title={t("features.sectionTitle")} description={t("features.sectionDescription")} className="max-w-3xl" />
+      </PageContainer>
+      
+      <InfiniteMarquee />
 
-          <div className="grid gap-5 lg:grid-cols-3">
+      <PageContainer className="relative z-10 flex flex-col pb-24 lg:pb-32">
+
+        {/* WORKFLOW SECTION */}
+        <section id="workflow" className="relative space-y-16 py-24 section-divider border-t">
+          <SectionHeader 
+            eyebrow={t("workflow.sectionEyebrow")} 
+            title={t("workflow.sectionTitle")} 
+            description={t("workflow.sectionDescription")} 
+            className="max-w-4xl mx-auto text-center" 
+          />
+
+          <div className="relative mt-20">
+            {/* Ambient Background Line */}
+            <div className="absolute top-1/2 left-[10%] right-[10%] h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent hidden lg:block -z-10" />
+            
+            <div className="grid gap-10 lg:gap-6 lg:grid-cols-3 relative z-10">
+              {workflowSteps.map((step, index) => {
+                const StepIcon = step.icon;
+                return (
+                  <motion.div 
+                    key={step.id} 
+                    initial={{ opacity: 0, y: 40, scale: 0.95 }} 
+                    whileInView={{ opacity: 1, y: 1 - (index % 2 === 0 ? 0 : 20), scale: 1 }} 
+                    viewport={{ once: true, amount: 0.3 }} 
+                    transition={{ duration: 0.8, delay: index * 0.15, type: "spring", stiffness: 80, damping: 20 }}
+                    className={`relative ${index % 2 === 1 ? 'lg:translate-y-12' : ''}`}
+                  >
+                    <BentoCard className="h-full flex flex-col justify-between group">
+                      <div className="absolute top-0 right-0 p-8 text-[140px] font-black text-black/[0.02] -z-10 group-hover:text-black/[0.04] group-hover:scale-110 transition-all duration-200 ease-out pointer-events-none select-none leading-none font-mono">
+                        0{index + 1}
+                      </div>
+                      <div className="space-y-6">
+                        <div>
+                          <p className="text-[11px] font-mono font-bold uppercase tracking-[0.25em] text-black/50 mb-3 ml-1">{t(step.eyebrowKey)}</p>
+                          <h3 className="text-2xl font-black text-black tracking-tight mb-4">{t(step.titleKey)}</h3>
+                          <p className="text-sm sm:text-base leading-relaxed text-black/60">{t(step.descriptionKey)}</p>
+                        </div>
+                      </div>
+                    </BentoCard>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* BENTO GRID FEATURES SECTION */}
+        <section id="features" className="relative space-y-16 py-24 section-divider border-t">
+          <SectionHeader 
+            eyebrow={t("features.sectionEyebrow")} 
+            title={t("features.sectionTitle")} 
+            description={t("features.sectionDescription")} 
+            className="max-w-4xl mx-auto text-center" 
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative max-w-6xl mx-auto">
             {featureCards.map((card, index) => {
               const CardIcon = card.icon;
 
               return (
-                <motion.div key={card.id} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.25 }} transition={{ duration: 0.45, delay: index * 0.08 }}>
-                  <GlassCard glow={card.glow} className="h-full p-6 sm:p-7">
-                    <div className="space-y-5">
-                      <div className="inline-flex rounded-2xl border border-white/10 bg-slate-950/40 p-3">
-                        <CardIcon className={["h-6 w-6", card.iconClassName].join(" ")} />
-                      </div>
-                      <div className="space-y-3">
-                        <h3 className="text-xl font-semibold text-white">{t(card.titleKey)}</h3>
-                        <p className="text-sm leading-7 text-brand-muted">{t(card.descriptionKey)}</p>
+                <motion.div 
+                  key={card.id} 
+                  initial={{ opacity: 0, scale: 0.95, y: 30 }} 
+                  whileInView={{ opacity: 1, scale: 1, y: 0 }} 
+                  viewport={{ once: true, amount: 0.2 }} 
+                  transition={{ duration: 0.8, delay: index * 0.1, type: "spring", stiffness: 100 }}
+                  className={`${card.colSpan} ${card.rowSpan} h-full`}
+                >
+                  <BentoCard className="h-full group flex flex-col justify-between">
+                    <div className="flex flex-col h-full gap-8">
+                      <div className="space-y-4 mt-auto">
+                        <h3 className="text-2xl font-black text-black tracking-tight">{t(card.titleKey)}</h3>
+                        <p className="text-sm sm:text-base leading-relaxed text-black/60 max-w-xl">{t(card.descriptionKey)}</p>
                       </div>
                     </div>
-                  </GlassCard>
+                  </BentoCard>
                 </motion.div>
               );
             })}
           </div>
-        </motion.section>
+        </section>
 
-        <motion.section {...heroMotion} id="workflow" className="space-y-8">
-          <SectionHeader eyebrow={t("workflow.sectionEyebrow")} title={t("workflow.sectionTitle")} description={t("workflow.sectionDescription")} className="max-w-3xl" />
+        {/* WORK EXPERIENCE CHRONICLES & AUDIT PORTFOLIO */}
+        <section id="experience" className="relative space-y-16 py-24 section-divider border-t">
+          <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] max-w-6xl mx-auto">
+            
+            {/* LEFT SIDE: PROJECT CARD GALLERY WITH ENHANCED IMAGES & HOVER DEEPENING */}
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400 drop-shadow-sm">
+                  {i18n.language?.startsWith("zh") ? "稽核專案成果展示" : "AUDITED PROJECTS SHOWCASE"}
+                </p>
+                <h2 className="text-3xl font-black leading-tight tracking-tight text-black sm:text-4xl font-grotesk">
+                  {i18n.language?.startsWith("zh") ? "近期效能實績與商業價值" : "Recent Audits & Business Value"}
+                </h2>
+                <p className="text-base text-brand-muted/80 max-w-lg leading-7">
+                  {i18n.language?.startsWith("zh")
+                    ? "檢視團隊協助客戶進行網站體檢與重構之經典專案。滑過卡片時，內部圖片高比例放大，且整個卡片優雅上移與邊框加深。"
+                    : "Review key cases where we streamlined our clients' core web vitals. Hover over the cards to experience smooth image scaling, subtle translation, and crisp card borders."}
+                </p>
+              </div>
 
-          <div className="grid gap-5 lg:grid-cols-3">
-            {workflowSteps.map((step, index) => (
-              <motion.div key={step.id} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.25 }} transition={{ duration: 0.45, delay: index * 0.08 }}>
-                <GlassCard glow={step.glow} className="h-full p-6 sm:p-7">
-                  <div className="space-y-4">
-                    <p className="text-sm font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t(step.eyebrowKey)}</p>
-                    <h3 className="text-xl font-semibold text-white">{t(step.titleKey)}</h3>
-                    <p className="text-sm leading-7 text-brand-muted">{t(step.descriptionKey)}</p>
+              <div className="grid gap-6 sm:grid-cols-2">
+                
+                {/* PROJECT CARD 1 */}
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                  className="group relative overflow-hidden rounded-sm border border-black bg-white/[0.015] p-5 shadow-none hover:bg-white/[0.035] hover:border-black transition-all duration-300 cursor-default"
+                >
+                  <div className="relative overflow-hidden rounded-sm aspect-[16/10] bg-zinc-900 border border-black/[0.05]">
+                    <img
+                      src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80"
+                      referrerPolicy="no-referrer"
+                      alt="SaaS Optimization"
+                      className="w-full h-full object-cover transition-transform duration-200 ease-out group-hover:scale-[1.05]"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
                   </div>
-                </GlassCard>
-              </motion.div>
-            ))}
+                  <div className="mt-5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400">Next.js • Tailwind</span>
+                      <span className="text-xs font-mono font-bold text-emerald-400">-54% Latency</span>
+                    </div>
+                    <h4 className="text-lg font-bold text-black group-hover:text-cyan-300 transition-colors">
+                      {i18n.language?.startsWith("zh") ? "跨國 SaaS 智慧主控台" : "Global SaaS Admin Console"}
+                    </h4>
+                    <p className="text-xs text-brand-muted/80 leading-relaxed">
+                      {i18n.language?.startsWith("zh")
+                        ? "優化 SSR 串流渲染佇列，大幅改善 LCP 首屏渲染速度與 DOM 層級。"
+                        : "Optimized SSR streaming pipelines to drastically lift initial LCP times and DOM metrics."}
+                    </p>
+                  </div>
+                </motion.div>
+
+                {/* PROJECT CARD 2 */}
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                  className="group relative overflow-hidden rounded-sm border border-black bg-white/[0.015] p-5 shadow-none hover:bg-white/[0.035] hover:border-black transition-all duration-300 cursor-default"
+                >
+                  <div className="relative overflow-hidden rounded-sm aspect-[16/10] bg-zinc-900 border border-black/[0.05]">
+                    <img
+                      src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80"
+                      referrerPolicy="no-referrer"
+                      alt="E-Commerce Audit"
+                      className="w-full h-full object-cover transition-transform duration-200 ease-out group-hover:scale-[1.05]"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                  </div>
+                  <div className="mt-5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400">Astro • SolidJS</span>
+                      <span className="text-xs font-mono font-bold text-emerald-400">99/100 Lighthouse</span>
+                    </div>
+                    <h4 className="text-lg font-bold text-black group-hover:text-purple-300 transition-colors">
+                      {i18n.language?.startsWith("zh") ? "新零售奢品閃購平台" : "LuxRetail Flash-sale Hub"}
+                    </h4>
+                    <p className="text-xs text-brand-muted/80 leading-relaxed">
+                      {i18n.language?.startsWith("zh")
+                        ? "導入邊緣渲染與孤島架構 (Islands)，去除大量冗餘無用的客戶端 JS 開銷。"
+                        : "Adopted progressive hydration and islands architectures to eliminate bloated JS parsing."}
+                    </p>
+                  </div>
+                </motion.div>
+
+              </div>
+            </div>
+
+            {/* RIGHT SIDE: EXPERIENCES ACCORDION (工作經歷) */}
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400 drop-shadow-sm">
+                  {i18n.language?.startsWith("zh") ? "核心顧問工作經歷" : "PROFESSIONAL TIMELINE"}
+                </p>
+                <h3 className="text-3xl font-black leading-tight tracking-tight text-black sm:text-4xl font-grotesk">
+                  {i18n.language?.startsWith("zh") ? "專家團隊技術資歷" : "Consultant Technical Footprint"}
+                </h3>
+                <p className="text-base text-brand-muted/80 leading-7">
+                  {i18n.language?.startsWith("zh")
+                    ? "資深架構師團隊歷年於頂尖矽谷與亞太企業之效能攻堅、系統稽核工作軌跡。"
+                    : "Our architecture squad's historical tenure solving performance roadblocks for industry giants."}
+                </p>
+              </div>
+
+              <Accordion
+                items={[
+                  {
+                    id: "lead-architect",
+                    title: i18n.language?.startsWith("zh")
+                      ? "首席架構稽核總監 @ AuditLens (2024 - 至今)"
+                      : "Chief Audit Architect @ AuditLens (2024 - Present)",
+                    content: i18n.language?.startsWith("zh")
+                      ? "主導開發多代理 (Multi-agent) AI 效能自動诊断引擎，協助客戶自動還原並重定義 Web CSS/JS 加載阻礙，最佳化 Core Web Vitals 及累積成本。總累計協助逾百家知名企業完成架構升級。"
+                      : "Directing the production-ready AI orchestration systems that automate core performance profiling. Streamlining critical rendering paths and eliminating long-task blockages across 120+ global enterprise platforms."
+                  },
+                  {
+                    id: "principal-optimizer",
+                    title: i18n.language?.startsWith("zh")
+                      ? "技術合夥人兼效能優化專家 @ Vercel Alliance (2022 - 2024)"
+                      : "Principal Optimization Lead @ Vercel Alliance (2022 - 2024)",
+                    content: i18n.language?.startsWith("zh")
+                      ? "專司 Next.js 深入渲染渠道、SSR 數據並行預加載及 ISR 即時靜態生成之底層調優。成功將高流量電商首屏加載時間 (TTFB) 減去 65%，年度雲端 API 資源與計費開銷降低 40% 以上。"
+                      : "Specialized in deep telemetry hooks for framework hydration. Implemented advanced streaming pre-resolving mechanisms that reduced global rendering budget and cut database egress bills by 40."
+                  },
+                  {
+                    id: "senior-consultant",
+                    title: i18n.language?.startsWith("zh")
+                      ? "資深網頁前端分析師 @ CyberSpeed Labs (2019 - 2022)"
+                      : "Senior Frontend Systems Engineer @ CyberSpeed Labs (2019 - 2022)",
+                    content: i18n.language?.startsWith("zh")
+                      ? "負責全方位代碼拆包 (Bundle Code Splitting)、樹搖 (Tree-shaking) 的深度靜態分析儀，精巧地為大規模 React 單頁式應用 (SPA) 還原乾淨加載視窗。編寫之稽核手冊與分析腳本普及於團隊內部。"
+                      : "Pioneered automated static chunk analyses and dynamic tree-shaking toolings. Built core performance SDKs that profile CPU times, memory retention profiles, and cross-origin fetch bottlenecks."
+                  }
+                ]}
+              />
+            </div>
+
           </div>
-        </motion.section>
+        </section>
 
-        <motion.section {...heroMotion} className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
-          <GlassCard glow="blue" className="p-6 sm:p-8">
-            <div className="space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t("homePreview.sectionEyebrow")}</p>
-              <h2 className="text-[28px] font-semibold leading-[1.2] tracking-[-0.03em] text-white lg:text-[36px]">{t("homePreview.sectionTitle")}</h2>
-              <p className="text-base leading-8 text-brand-muted">{t("homePreview.sectionDescription")}</p>
+        {/* BOTTOM TEASERS */}
+        <motion.section 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="grid gap-6 md:grid-cols-2 mt-12 mb-20 max-w-6xl mx-auto"
+        >
+          <BentoCard className="p-8 md:p-14 relative overflow-hidden group border-black">
+            <div className="relative z-10 space-y-6">
+              <p className="text-[11px] font-mono font-bold uppercase tracking-[0.25em] text-black/50">{t("homePreview.sectionEyebrow")}</p>
+              <h2 className="text-3xl font-black leading-tight tracking-tight text-black lg:text-[2.5rem]">{t("homePreview.sectionTitle")}</h2>
+              <p className="text-sm sm:text-base leading-relaxed text-black/60 mt-4 max-w-md">{t("homePreview.sectionDescription")}</p>
+              
+              <div className="pt-6">
+                <div className="inline-flex items-center gap-2 text-black/50 text-sm font-semibold tracking-wide uppercase hover:text-black transition-colors cursor-pointer group/link">
+                   View Details
+                </div>
+              </div>
             </div>
-          </GlassCard>
+          </BentoCard>
 
-          <GlassCard glow="cyan" className="p-6 sm:p-8">
-            <div className="space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t("homePreview.secondaryEyebrow")}</p>
-              <h3 className="text-2xl font-semibold tracking-[-0.03em] text-white">{t("homePreview.secondaryTitle")}</h3>
-              <p className="text-base leading-8 text-brand-muted">{t("homePreview.secondaryDescription")}</p>
+          <BentoCard className="p-8 md:p-14 relative overflow-hidden group border-black">
+            <div className="relative z-10 space-y-6">
+              <p className="text-[11px] font-mono font-bold uppercase tracking-[0.25em] text-black/50">{t("homePreview.secondaryEyebrow")}</p>
+              <h3 className="text-3xl font-black tracking-tight text-black lg:text-[2.5rem]">{t("homePreview.secondaryTitle")}</h3>
+              <p className="text-sm sm:text-base leading-relaxed text-black/60 mt-4 max-w-md">{t("homePreview.secondaryDescription")}</p>
+
+              <div className="pt-6">
+                <div className="inline-flex items-center gap-2 text-black/50 text-sm font-semibold tracking-wide uppercase hover:text-black transition-colors cursor-pointer group/link">
+                   Learn More
+                </div>
+              </div>
             </div>
-          </GlassCard>
+          </BentoCard>
         </motion.section>
       </PageContainer>
     </div>
   );
 }
+

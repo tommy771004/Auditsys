@@ -144,6 +144,27 @@
       "streaming_report": "主代理正在把子代理結果綜整成最終報告，內容會以逐字串流的方式出現在畫面上。",
       "complete": "代理解析模擬流程已完成。你可以直接打開範例報告，比對前端控制台與 evidence-driven report 的銜接。"
     },
+    "tools": {
+      "dom_probe": {
+        "label": "分析 Lighthouse 分數與 DOM 深度"
+      },
+      "api_latency": {
+        "label": "分析 API 延遲與 CSS 指標"
+      },
+      "alt_inspector": {
+        "label": "分析 Accessibility 與無障礙標記"
+      },
+      "memory_synth": {
+        "label": "進行架構記憶合成作業"
+      },
+      "idle": {
+        "label": "分析倉儲結構與環境引導"
+      }
+    },
+    "retryToast": {
+      "title": "Agent 自動修正中",
+      "description": "JSON 解析失敗，代理模型啟動了防禦機制，已將 Parsing 錯誤注入上下文並觸發 Two-Retry 迴圈。"
+    },
     "metrics": {
       "subagents": "子代理",
       "tools": "工具呼叫",
@@ -243,6 +264,12 @@
     "harness": {
       "eyebrow": "Harness Gate",
       "title": "自動化驗證閘門",
+      "retryWidget": {
+        "title": "Two-Retry 修正機制",
+        "totalRetries": "總觸發次數",
+        "resolved": "成功修正",
+        "correctionRate": "修正率"
+      },
       "status": {
         "passed": "通過",
         "manual_review": "需人工複核",
@@ -335,27 +362,27 @@
       },
       "logs": {
         "frontend": {
-          "queue": "正在排入 DOM 深度與 hydration 邊界分析。",
-          "dom": "已完成首頁 DOM 深度採樣，首屏結構沒有出現異常膨脹。",
-          "hydration": "發現報告頁仍依賴先前 audit hydration，runtime gate 尚未完全解除。",
-          "summary": "前端路徑已完成。主要風險集中在報告頁 hydration gate。"
+          "queue": "正在啟動 DOM 深度掃描與 Lighthouse 效能執行序列...",
+          "dom": "正在獲取首次內容繪製 (FCP) 與排版位移 (CLS) 基準...",
+          "hydration": "正在解析 JavaScript 負載大小與執行時長...",
+          "summary": "前端指標準位聚合完成，資料已準備推送至核心..."
         },
         "backend": {
-          "queue": "正在 ping API gateway 並建立延遲水位基線。",
-          "gateway": "API gateway 往返延遲維持在可接受範圍，未見明顯爆量。",
-          "waterfall": "已比對首份文件與後續請求 waterfall，尚未偵測到致命伺服器瓶頸。",
-          "summary": "API latency 檢查完成，目前重點仍在前端 runtime gate，而不是伺服器飽和。"
+          "queue": "正在 Ping API 閘道，建立首個位元組時間 (TTFB) 分析...",
+          "gateway": "正在分析伺服器標頭、Cache-Control 與安全政策...",
+          "waterfall": "正在重建文件請求 Waterfall 與依賴資源...",
+          "summary": "API 延遲與標頭分析完成，資料已準備推送至核心..."
         },
         "architecture": {
-          "queue": "正在把跨頁狀態依賴與 evidence schema 對齊。",
-          "paths": "已定位報告路由的狀態邊界，session-backed audit evidence 是目前的主要前置條件。",
-          "memory": "準備將 runtime gate 寫入長期記憶，讓後續修復優先序與報告層同步。",
-          "summary": "架構記憶綜整完成，已可對外說明是哪個 runtime gate 阻塞完整覆蓋。"
+          "queue": "正在掃描跨域憑證、第三方腳本與追蹤相依性...",
+          "paths": "正在驗證 SSL/TLS 憑證鏈與網域限制狀態...",
+          "memory": "正在將完整 Runtime context 寫入長期記憶存儲庫...",
+          "summary": "架構記憶合成作業完成。"
         },
         "a11y": {
-          "queue": "正在排入全頁 DOM 圖片掃描任務。",
-          "scan": "正在分析所有圖片的 alt 替代文字標籤。",
-          "summary": "替代文字檢查完成。已將結果派送至 DOM Inspector 同步顯示。"
+          "queue": "正在初始無障礙樹 (Accessibility Tree) 解析...",
+          "scan": "正在掃描 DOM 節點中的圖片與 alt 缺失情況...",
+          "summary": "無障礙檢測完成，結果已準備推送至核心..."
         }
       },
       "memory": {
@@ -429,6 +456,8 @@
     "idleDescription": "表單會驗證網址、管理載入狀態，且在尚未設定端點時改用模擬成功流程。"
   },
   "pricing": {
+    "approvalRequired": "需要介入審核",
+    "enterpriseApprovalHint": "升級此方案需要管理員介入並手動進行安全與對接驗證。",
     "badge": "透明定價",
     "title": "依照你的交付壓力，選擇合適的稽核深度",
     "description": "每個方案都包含書面高階摘要、技術發現與可執行的修復路徑，讓交付團隊能快速決策。",
@@ -931,7 +960,20 @@
       "reports": "報告",
       "users": "使用者",
       "settings": "設定",
-      "leads": "潛在客戶"
+      "leads": "潛在客戶",
+      "security": "安全"
+    },
+    "security": {
+      "title": "安全與合規規範總覽",
+      "healthCheck": "系統安全診斷",
+      "jwt": "JWT 設定",
+      "bootstrap": "管理員引導設定",
+      "egress": "出口流量防護",
+      "statusHealthy": "健康",
+      "statusWarning": "警告",
+      "statusCritical": "危急",
+      "details": "詳細說明",
+      "runningDiagnostics": "正在執行診斷..."
     },
     "overview": {
       "title": "系統總覽",
@@ -939,7 +981,9 @@
       "totalAudits": "總稽核次數",
       "completed": "已完成",
       "pending": "待處理",
-      "loading": "載入統計資料中..."
+      "loading": "載入統計資料中...",
+      "statusDistribution": "稽核狀態分佈",
+      "noChartData": "尚無可用於產生統計分佈的稽核紀錄。"
     },
     "reports": {
       "viewReport": "查看報告",
@@ -966,7 +1010,8 @@
       "allowedModels": "允許使用的模型",
       "eGModel": "例如 anthropic/claude-3.5-sonnet",
       "save": "儲存設定",
-      "empty": "找不到方案設定。"
+      "empty": "找不到方案設定。",
+      "exportSettings": "匯出方案設定"
     },
     "leads": {
       "title": "潛在客戶管理",
@@ -982,6 +1027,7 @@
       "title": "確認操作",
       "deleteLead": "確定要刪除這位潛在客戶嗎？",
       "deleteAudit": "確定要刪除這筆稽核紀錄嗎？",
+      "deleteBatch": "確定要刪除選取的 {{count}} 筆稽核紀錄嗎？",
       "cancel": "取消",
       "delete": "刪除"
     }

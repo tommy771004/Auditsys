@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { collectBrowserEvidence } from "./browserCollector";
 import { collectDeterministicEvidence } from "./deterministicCollector";
 import { synthesizeAudit } from "./auditSynthesis";
@@ -31,6 +32,7 @@ export interface AuditHarnessConfig {
   aiProvider?: string;
   agentRouterApiKey?: string;
   openRouterApiKey?: string;
+  nvidiaApiKey?: string;
   apiKey?: string;
   allowedModels?: string[];
 }
@@ -54,9 +56,30 @@ interface AttemptExecution {
   deterministic?: DeterministicCollectorResult;
   browser?: BrowserCollectorResult;
   synthesis?: AuditSynthesisResult;
+  lighthouse?: { performance: number; accessibility: number; seo: number };
   evidence?: AuditEvidenceBundle;
   trace: AuditHarnessTraceEvent[];
   error?: string;
+}
+
+async function fetchLighthouse(url: string): Promise<{ performance: number; accessibility: number; seo: number }> {
+  try {
+    const key = process.env.VITE_PAGESPEED_API_KEY || process.env.PAGESPEED_API_KEY;
+    const urlParam = encodeURIComponent(url);
+    const categoryParams = "&category=performance&category=accessibility&category=seo";
+    const reqUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${urlParam}${categoryParams}&strategy=mobile${key ? `&key=${encodeURIComponent(key)}` : ""}`;
+    const res = await fetch(reqUrl);
+    if (!res.ok) return { performance: 0, accessibility: 0, seo: 0 };
+    const data = await res.json();
+    const categories = data.lighthouseResult?.categories || {};
+    return {
+      performance: Math.round((categories.performance?.score || 0) * 100),
+      accessibility: Math.round((categories.accessibility?.score || 0) * 100),
+      seo: Math.round((categories.seo?.score || 0) * 100),
+    };
+  } catch {
+    return { performance: 0, accessibility: 0, seo: 0 };
+  }
 }
 
 const DEFAULT_POLICY: AuditHarnessPolicy = {
@@ -335,6 +358,37 @@ function buildSensors(execution: AttemptExecution, policy: AuditHarnessPolicy, s
     "non-empty summary",
   ));
 
+  if (execution.lighthouse) {
+    const { performance, accessibility, seo } = execution.lighthouse;
+    sensors.push(createSensor(
+      "lighthouse_performance",
+      "Lighthouse Performance",
+      performance >= 50 ? (performance >= 90 ? "passed" : "warning") : "failed",
+      performance >= 90 ? "low" : (performance >= 50 ? "medium" : "high"),
+      String(performance),
+      `PageSpeed Performance score is ${performance}.`,
+      ">=90",
+    ));
+    sensors.push(createSensor(
+      "lighthouse_accessibility",
+      "Lighthouse Accessibility",
+      accessibility >= 80 ? (accessibility >= 90 ? "passed" : "warning") : "failed",
+      accessibility >= 90 ? "low" : (accessibility >= 80 ? "medium" : "high"),
+      String(accessibility),
+      `PageSpeed Accessibility score is ${accessibility}.`,
+      ">=90",
+    ));
+    sensors.push(createSensor(
+      "lighthouse_seo",
+      "Lighthouse SEO",
+      seo >= 80 ? (seo >= 90 ? "passed" : "warning") : "failed",
+      seo >= 90 ? "low" : (seo >= 80 ? "medium" : "high"),
+      String(seo),
+      `PageSpeed SEO score is ${seo}.`,
+      ">=90",
+    ));
+  }
+
   const totalWarnings = execution.evidence ? getTotalWarningCount(execution.evidence) : 0;
   sensors.push(createSensor(
     "warning_budget",
@@ -454,6 +508,32 @@ async function executeAttempt(
     console.log(`[Middleware] <- ${action.type} completed in ${(performance.now() - start).toFixed(2)}ms`);
     return result;
   };
+
+  const securityMiddleware: MiddlewareHandler = async (id, action, next) => {
+    // 攔截器：在模型嘗試調用有風險的方法前執行驗證
+    if (action.type === 'file_write' || action.payload?.method === 'DELETE') {
+      throw new Error(`[Security Validation] Blocked forbidden action: ${action.type}`);
+    }
+    await id; // Use value to prevent ts checks
+    return await next(action);
+  };
+  
+  const schemaMiddleware: MiddlewareHandler = async (id, action, next) => {
+    // 斷層 3: 引入極嚴格的 Schema 確定性校驗邊界
+    const actionSchema = z.object({
+      type: z.enum(["llm_call", "file_write", "file_read", "network_request", "tool_call", "deterministic", "browser", "synthesis"]),
+      target: z.string(),
+      payload: z.record(z.string(), z.any()).optional()
+    });
+    const parsed = actionSchema.safeParse(action);
+    if (!parsed.success) {
+      throw new Error(`[Schema Validation] Strict boundary violation: ${parsed.error.message}`);
+    }
+    return await next(action);
+  };
+  
+  sandbox.useMiddleware(schemaMiddleware);
+  sandbox.useMiddleware(securityMiddleware);
   sandbox.useMiddleware(telemetryMiddleware);
 
   try {
@@ -469,6 +549,23 @@ async function executeAttempt(
       );
       tracer.logPhaseEnd("Deterministic Collector", detStart);
     }
+    
+    // Swarm Router: determine subagents based on discovered headers + stack
+    if (execution.deterministic) {
+        taskPlan.subagents = orchestrator.routeSwarm(payload.stack, execution.deterministic.headers);
+        sandbox.setContext("taskPlan", taskPlan);
+    }
+    
+    // Analyzing Phase: Lighthouse Sensor
+    const analyzingStart = tracer.logPhaseStart("Lighthouse Analysis");
+    execution.lighthouse = await traceStep(
+      execution.trace,
+      index,
+      "tool_call",
+      "Run Lighthouse PageSpeed analysis",
+      () => fetchLighthouse(payload.url),
+    );
+    tracer.logPhaseEnd("Lighthouse Analysis", analyzingStart);
 
     if (taskPlan.steps.includes("browser") && execution.deterministic) {
       const brwStart = tracer.logPhaseStart("Browser Collector");
@@ -491,10 +588,19 @@ async function executeAttempt(
     // P1: Context Management
     let safeEvidence = execution.evidence;
     const evidenceStr = JSON.stringify(safeEvidence);
+    let resetEvidenceContext = evidenceStr;
+    
     if (contextManager.needsCompression(evidenceStr)) {
       const compressed = contextManager.compressContext(evidenceStr);
       safeEvidence = JSON.parse(compressed);
-      tracer.logDecisionPath("Context Compression", `Original size: ${evidenceStr.length}`, `Compressed size: ${compressed.length}`);
+      
+      // Perform Context Reset to hand off clean information to Synthesis
+      resetEvidenceContext = contextManager.resetContextForPhase(safeEvidence, "Synthesize the provided collected trace and generate actionable findings.", "evidenceCollection");
+      
+      tracer.logDecisionPath("Context Reset / Compression", `Original size: ${evidenceStr.length}`, `Reset context ready for synthesis. Compressed size: ${compressed.length}`);
+    } else {
+      // Still use Context Reset even without compression to ensure the SoR updates
+      resetEvidenceContext = contextManager.resetContextForPhase(safeEvidence, "Synthesize the provided collected trace and generate actionable findings.", "evidenceCollection");
     }
 
     if (taskPlan.steps.includes("synthesis")) {
@@ -505,12 +611,15 @@ async function executeAttempt(
         index,
         "tool_call",
         "Run evidence-grounded synthesis",
-        () => sandbox.executeLlmCall("synthesis", evidenceStr.length, () => dependencies.synthesizeAudit(payload, safeEvidence as AuditEvidenceBundle, config)),
+        () => sandbox.executeLlmCall("synthesis", resetEvidenceContext.length, () => dependencies.synthesizeAudit(payload, safeEvidence as AuditEvidenceBundle, config)),
       );
       tracer.logPhaseEnd("Audit Synthesis", synStart);
       
       if (execution.synthesis.summary) {
          tracer.logDecisionPath("Synthesis Output", "evidence provided", execution.synthesis.summary);
+         
+         // Persist cross-session long term memory at the end of synthesis
+         await contextManager.persistLongTermMemory(payload.url, execution.synthesis.summary);
       }
     }
   } catch (error) {
@@ -606,10 +715,23 @@ export async function runAuditHarness(
   const guardrails = new GuardrailKnowledgeBase();
   const flywheel = new FlywheelCollector();
 
-  // Register skills so they can be lazily loaded by SkillManager
-  skillManager.registerSkill("deterministic", "Deterministic Evidence Collector", async () => { /* lazy load logic */ });
-  skillManager.registerSkill("browser", "Browser Flow Collector", async () => { /* lazy load logic */ });
-  skillManager.registerSkill("synthesis", "Audit Synthesis", async () => { /* lazy load logic */ });
+  // 動態技能與工具註冊表 (Toolset & Skill Disclosure) 
+  // 只註冊各自的 Schema
+  skillManager.registerSkill("deterministic", "Deterministic Evidence Collector", async () => { /* lazy load logic */ }, {
+    name: "run_deterministic_collector",
+    description: "Fetches target payload statically.",
+    parameters: { type: "object", properties: { url: { type: "string" } }, required: ["url"] }
+  });
+  skillManager.registerSkill("browser", "Browser Flow Collector", async () => { /* lazy load logic */ }, {
+    name: "run_browser_collector",
+    description: "Evaluates the page interactively via headless browser.",
+    parameters: { type: "object", properties: { url: { type: "string" } }, required: ["url"] }
+  });
+  skillManager.registerSkill("synthesis", "Audit Synthesis", async () => { /* lazy load logic */ }, {
+    name: "run_audit_synthesis",
+    description: "Synthesize collected evidence into an audit report.",
+    parameters: { type: "object", properties: { url: { type: "string" } }, required: ["url"] }
+  });
 
   for (let index = 1; index <= policy.maxAttempts; index += 1) {
     const result = await executeAttempt(payload, config, dependencies, policy, index, retryReason, orchestrator, skillManager, guardrails);

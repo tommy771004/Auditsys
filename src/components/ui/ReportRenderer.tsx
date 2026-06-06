@@ -21,14 +21,14 @@ const CollapsibleCard: React.FC<{
 }> = ({ title, icon, colorClass, borderColorClass, children, defaultOpen = true }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   return (
-    <div className={`rounded-[28px] border bg-slate-950/40 shadow-lg shadow-black/20 overflow-hidden transition-colors ${borderColorClass}`}>
+    <div className={`rounded-sm border bg-white shadow-lg shadow-black/20 overflow-hidden transition-colors ${borderColorClass}`}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-5 sm:p-6 text-left hover:bg-white/[0.02]"
+        className="w-full flex items-center justify-between p-5 sm:p-6 text-left hover:bg-black/5"
       >
         <div className="flex items-center gap-3">
           {icon}
-          <h3 className="text-sm font-bold uppercase tracking-widest text-white/90">{title}</h3>
+          <h3 className="text-sm font-bold uppercase tracking-widest text-black/90">{title}</h3>
         </div>
         <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
           <ChevronDown className={`h-5 w-5 ${colorClass}`} />
@@ -42,7 +42,7 @@ const CollapsibleCard: React.FC<{
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="px-5 pb-5 sm:px-6 sm:pb-6 border-t border-white/5 pt-4">
+            <div className="px-5 pb-5 sm:px-6 sm:pb-6 border-t border-black/5 pt-4">
               {children}
             </div>
           </motion.div>
@@ -57,14 +57,14 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
   
   const isZh = i18n.language === "zh-TW";
   
-  if (!reportText) return <p className="text-white/60">{isZh ? "尚無報告內容" : "No report content available."}</p>;
+  if (!reportText) return <p className="text-black/60">{isZh ? "尚無報告內容" : "No report content available."}</p>;
 
   let parsed: ParsedReport;
   try {
     parsed = JSON.parse(reportText);
   } catch {
     return (
-      <pre className="mt-5 min-h-[20rem] whitespace-pre-wrap rounded-[24px] border border-white/10 bg-white/[0.03] p-4 font-mono text-[13px] leading-7 text-white/86">
+      <pre className="mt-5 min-h-[20rem] whitespace-pre-wrap rounded-sm border border-black bg-black/5 p-4 font-mono text-[13px] leading-7 text-black/86">
         {reportText}
       </pre>
     );
@@ -81,14 +81,14 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
   return (
     <div className="mt-6 flex flex-col gap-6 w-full">
       {parsed.executiveSummary && (
-        <div className="relative overflow-hidden rounded-[32px] border border-brand-cyan/30 bg-gradient-to-br from-brand-cyan/10 via-slate-900/50 to-slate-950/80 p-5 sm:p-8 shadow-2xl shadow-brand-cyan/5">
+        <div className="relative overflow-hidden rounded-sm border border-brand-cyan/30 bg-gradient-to-br from-brand-cyan/10 via-slate-900/50 to-slate-950/80 p-5 sm:p-8 shadow-2xl shadow-brand-cyan/5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-cyan/20 text-brand-cyan shadow-inner">
+            <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-brand-cyan/20 text-brand-cyan shadow-inner">
               <LayoutDashboard className="h-6 w-6" />
             </div>
-            <h3 className="text-xl font-bold tracking-tight text-white">{isZh ? "執行摘要" : "Executive Summary"}</h3>
+            <h3 className="text-xl font-bold tracking-tight text-black">{isZh ? "執行摘要" : "Executive Summary"}</h3>
           </div>
-          <p className="text-base leading-relaxed text-white/90">{parsed.executiveSummary}</p>
+          <p className="text-base leading-relaxed text-black/90">{parsed.executiveSummary}</p>
         </div>
       )}
 
@@ -103,12 +103,12 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
           >
             <div className="grid gap-4 md:grid-cols-2">
               {parsed.deterministicFindings.map((item, i) => (
-                <div key={i} className="rounded-2xl bg-white/[0.02] p-4 border border-white/[0.05] hover:bg-white/[0.04] transition-colors">
+                <div key={i} className="rounded-sm bg-black/5 p-4 border border-black/[0.05] hover:bg-black/10 transition-colors">
                   <div className="flex justify-between items-start mb-2 gap-2">
-                    <p className="text-sm font-semibold text-white leading-snug">{item.issue}</p>
+                    <p className="text-sm font-semibold text-black leading-snug">{item.issue}</p>
                     <SeverityBadge severity={item.severity} />
                   </div>
-                  <p className="text-xs text-white/60 leading-relaxed">{item.impact}</p>
+                  <p className="text-xs text-black/60 leading-relaxed">{item.impact}</p>
                 </div>
               ))}
             </div>
@@ -125,12 +125,12 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
           >
             <div className="grid gap-4 md:grid-cols-2">
               {parsed.browserFlowGaps.map((item, i) => (
-                <div key={i} className="rounded-2xl bg-white/[0.02] p-4 border border-white/[0.05] hover:bg-white/[0.04] transition-colors">
+                <div key={i} className="rounded-sm bg-black/5 p-4 border border-black/[0.05] hover:bg-black/10 transition-colors">
                   <div className="flex justify-between items-start mb-2 gap-2">
-                    <p className="text-sm font-semibold text-white leading-snug">{item.issue}</p>
+                    <p className="text-sm font-semibold text-black leading-snug">{item.issue}</p>
                     <SeverityBadge severity={item.severity} />
                   </div>
-                  <p className="text-xs text-white/60 leading-relaxed">{item.impact}</p>
+                  <p className="text-xs text-black/60 leading-relaxed">{item.impact}</p>
                 </div>
               ))}
             </div>
@@ -147,12 +147,12 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
           >
             <div className="grid gap-4 md:grid-cols-2">
               {parsed.architectureRisks.map((item, i) => (
-                <div key={i} className="rounded-2xl bg-white/[0.02] p-4 border border-white/[0.05] hover:bg-white/[0.04] transition-colors">
+                <div key={i} className="rounded-sm bg-black/5 p-4 border border-black/[0.05] hover:bg-black/10 transition-colors">
                   <div className="flex justify-between items-start mb-2 gap-2">
-                    <p className="text-sm font-semibold text-white leading-snug">{item.issue}</p>
+                    <p className="text-sm font-semibold text-black leading-snug">{item.issue}</p>
                     <SeverityBadge severity={item.severity} />
                   </div>
-                  <p className="text-xs text-white/60 leading-relaxed">{item.impact}</p>
+                  <p className="text-xs text-black/60 leading-relaxed">{item.impact}</p>
                 </div>
               ))}
             </div>
@@ -169,13 +169,13 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
           >
             <div className="grid gap-4 md:grid-cols-2">
               {parsed.nextActions.map((item, i) => (
-                <div key={i} className="flex gap-4 rounded-2xl bg-white/[0.02] p-4 border border-semantic-warning/10 hover:bg-white/[0.04] transition-colors">
+                <div key={i} className="flex gap-4 rounded-sm bg-black/5 p-4 border border-semantic-warning/10 hover:bg-black/10 transition-colors">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-semantic-warning/20 text-semantic-warning font-bold text-sm">
                     {i + 1}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-white leading-snug">{item.action}</p>
-                    <p className="mt-1 text-xs text-white/60 leading-relaxed">{item.impact}</p>
+                    <p className="text-sm font-semibold text-black leading-snug">{item.action}</p>
+                    <p className="mt-1 text-xs text-black/60 leading-relaxed">{item.impact}</p>
                   </div>
                 </div>
               ))}

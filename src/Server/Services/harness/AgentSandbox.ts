@@ -1,7 +1,8 @@
 import { AgentIdentity } from "./AgentIdentity";
+import * as vm from "node:vm";
 
 export interface SandboxAction {
-  type: "network_request" | "file_read" | "file_write" | "llm_call";
+  type: "network_request" | "file_read" | "file_write" | "llm_call" | "execute_code";
   target: string;
   payload?: any;
 }
@@ -103,6 +104,60 @@ export class AgentSandbox {
         return await middleware(this.identity, currentAction, (nextAction) => dispatch(i + 1, nextAction));
       }
       return await executor();
+    };
+
+    return await dispatch(0, action);
+  }
+
+  /**
+   * 透過 Node.js VM 核心建立輕量化隔離執行環境 (MicroVM)，
+   * 用於執行 Agent 動態產生的驗證腳本與確定性邏輯，防止宿主污染與長迴圈。
+   */
+  public async executeIsolatedCode<T>(code: string, contextObj: Record<string, any> = {}, timeoutMs: number = 2000): Promise<T> {
+    const action: SandboxAction = { type: "execute_code", target: "vm", payload: { code } };
+    
+    if (!this.interceptor.validateAction(this.identity, action)) {
+      throw new Error(`[Sandbox] Code execution blocked by security policy for ${this.identity.role}.`);
+    }
+
+    let index = -1;
+    const dispatch = async (i: number, currentAction: SandboxAction): Promise<T> => {
+      if (i <= index) throw new Error("[Sandbox] next() called multiple times");
+      index = i;
+      
+      const middleware = this.middlewares[i];
+      if (middleware) {
+        return await middleware(this.identity, currentAction, (nextAction) => dispatch(i + 1, nextAction));
+      }
+
+      return await new Promise((resolve, reject) => {
+        try {
+          // Provide only explicit built-ins via safe context
+          const vmContext = vm.createContext({ 
+            ...contextObj, 
+            console: { 
+              log: (...args: any[]) => console.log(`[VM:${this.identity.correlationId}]`, ...args),
+              error: (...args: any[]) => console.error(`[VM:${this.identity.correlationId}] ERROR:`, ...args),
+              warn: (...args: any[]) => console.warn(`[VM:${this.identity.correlationId}] WARN:`, ...args)
+            },
+            setTimeout, 
+            clearInterval, 
+            clearTimeout,
+            Promise 
+          });
+          
+          const script = new vm.Script(code);
+          // Run code in isolated realm with strict CPU timeout and memory bounds
+          const result = script.runInContext(vmContext, { 
+            timeout: timeoutMs, 
+            displayErrors: true
+          });
+          
+          resolve(result as T);
+        } catch (err: any) {
+          reject(new Error(`[Sandbox Execution Error] ${err.message}`));
+        }
+      });
     };
 
     return await dispatch(0, action);

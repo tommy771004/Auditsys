@@ -43,10 +43,10 @@ export default function SubagentCard({ subagent, toolCalls }: SubagentCardProps)
   const statusLabel = t(`auditConsole.subagentStatus.${subagent.status}`);
   const statusToneClassName =
     subagent.status === "done"
-      ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-100"
+      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700"
       : subagent.status === "active"
-        ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-100"
-        : "border-white/15 bg-white/5 text-white/72";
+        ? "border-cyan-500/30 bg-cyan-500/10 text-cyan-700"
+        : "border-black/15 bg-black/5 text-black/72";
 
   return (
     <motion.article
@@ -64,15 +64,16 @@ export default function SubagentCard({ subagent, toolCalls }: SubagentCardProps)
           : { y: 0, boxShadow: "0 18px 48px rgba(15, 23, 42, 0.42)" }
       }
       transition={{ duration: 2.8, repeat: subagent.status === "active" ? Infinity : 0, ease: "easeInOut" }}
-      className="relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl"
+      className="group relative overflow-hidden rounded-sm border border-black bg-black/10 p-5 backdrop-blur-xl transition-colors hover:bg-black/5"
     >
-      <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-      <div className="space-y-5">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+      <div className="relative space-y-5">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/48">{t("auditConsole.subagentCard.eyebrow")}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-700">{t("auditConsole.subagentCard.eyebrow")}</p>
             <div>
-              <h3 className="text-lg font-semibold text-white">{subagent.role}</h3>
+              <h3 className="text-lg font-semibold text-black tracking-tight">{subagent.role}</h3>
               <p className="mt-1 text-sm text-brand-muted">{t("auditConsole.subagentCard.toolCount", { count: toolCalls.length })}</p>
             </div>
           </div>
@@ -82,19 +83,19 @@ export default function SubagentCard({ subagent, toolCalls }: SubagentCardProps)
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-[22px] border border-white/10 bg-slate-950/35 px-4 py-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/48">{t("auditConsole.subagentCard.executionTimeLabel")}</p>
-            <p className="mt-2 text-base font-semibold text-white">{t("auditConsole.subagentCard.executionTime", { value: subagent.executionTimeMs })}</p>
+          <div className="rounded-sm border border-black bg-white px-4 py-3 transition-colors hover:bg-white">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/48">{t("auditConsole.subagentCard.executionTimeLabel")}</p>
+            <p className="mt-2 text-base font-semibold text-black tracking-tight">{t("auditConsole.subagentCard.executionTime", { value: subagent.executionTimeMs })}</p>
           </div>
-          <div className="rounded-[22px] border border-white/10 bg-slate-950/35 px-4 py-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/48">{t("auditConsole.subagentCard.activeToolLabel")}</p>
-            <p className="mt-2 text-base font-semibold text-white">{toolCalls[0] ? t(`auditConsole.tools.${toolCalls[0].name}.label`) : t("auditConsole.subagentCard.noTool")}</p>
+          <div className="rounded-sm border border-black bg-white px-4 py-3 transition-colors hover:bg-white">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/48">{t("auditConsole.subagentCard.activeToolLabel")}</p>
+            <p className="mt-2 text-base font-semibold text-black tracking-tight">{toolCalls[0] ? t(`auditConsole.tools.${toolCalls[0].name}.label`) : t("auditConsole.subagentCard.noTool")}</p>
           </div>
         </div>
 
-        <div className="space-y-3 rounded-[24px] border border-white/10 bg-slate-950/55 p-4">
+        <div className="space-y-3 rounded-sm border border-black bg-white p-4 shadow-inner shadow-black/5">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/90">{t("auditConsole.subagentCard.terminalTitle")}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/60">{t("auditConsole.subagentCard.terminalTitle")}</p>
             <div className="flex gap-2">
               {toolCalls.map((toolCall) => (
                 <span
@@ -102,10 +103,10 @@ export default function SubagentCard({ subagent, toolCalls }: SubagentCardProps)
                   className={[
                     "rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]",
                     toolCall.status === "success"
-                      ? "border-emerald-400/25 bg-emerald-400/10 text-emerald-100"
+                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700"
                       : toolCall.status === "failed"
-                        ? "border-rose-400/25 bg-rose-400/10 text-rose-100"
-                        : "border-cyan-400/25 bg-cyan-400/10 text-cyan-100",
+                        ? "border-rose-500/30 bg-rose-500/10 text-rose-700"
+                        : "border-cyan-500/30 bg-cyan-500/10 text-cyan-700",
                   ].join(" ")}
                 >
                   {t(`auditConsole.toolStatus.${toolCall.status}`)}
@@ -113,28 +114,28 @@ export default function SubagentCard({ subagent, toolCalls }: SubagentCardProps)
               ))}
             </div>
           </div>
-          <div ref={terminalRef} className="max-h-56 space-y-2 overflow-y-auto pr-1 font-mono text-[12px] leading-6 text-cyan-50/88">
+          <div ref={terminalRef} className="max-h-56 space-y-2 overflow-y-auto pr-1 font-mono text-[12px] leading-6 text-black/60 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-black/10">
             {terminalLines.length > 0 ? (
               terminalLines.map((line) => (
-                <div key={line.id} className="rounded-2xl border border-white/5 bg-white/[0.03] px-3 py-2">
-                  <span className="mr-2 text-cyan-200">[{line.toolName}]</span>
+                <motion.div initial={{opacity:0, x: -10}} animate={{opacity:1, x:0}} key={line.id} className="rounded-sm border border-black/5 bg-black/5 px-3 py-2 transition-colors hover:bg-black/5">
+                  <span className="mr-2 text-cyan-600 font-medium">[{line.toolName}]</span>
                   <span>{line.text}</span>
-                </div>
+                </motion.div>
               ))
             ) : (
-              <p className="rounded-2xl border border-dashed border-white/10 px-3 py-3 text-white/60">{t("auditConsole.subagentCard.emptyLogs")}</p>
+              <p className="rounded-sm border border-dashed border-black px-3 py-3 text-black/60">{t("auditConsole.subagentCard.emptyLogs")}</p>
             )}
           </div>
         </div>
 
-        <div className="space-y-3 rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/48">{t("auditConsole.subagentCard.argsTitle")}</p>
-          <div className="grid gap-2 text-sm text-white/76">
+        <div className="space-y-3 rounded-sm border border-black bg-black/5 p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/48">{t("auditConsole.subagentCard.argsTitle")}</p>
+          <div className="grid gap-2 text-sm text-black/76">
             {toolCalls.flatMap((toolCall) =>
               Object.entries(toolCall.args).map(([key, value]) => (
-                <div key={`${toolCall.id}-${key}`} className="flex items-start justify-between gap-4 rounded-2xl border border-white/5 px-3 py-2">
-                  <span className="text-white/52">{t(`auditConsole.argKeys.${key}`)}</span>
-                  <span className="max-w-[60%] break-all text-right text-white/86">{formatArgumentValue(value)}</span>
+                <div key={`${toolCall.id}-${key}`} className="flex items-start justify-between gap-4 rounded-sm border border-black/5 px-3 py-2 transition-colors hover:bg-black/5">
+                  <span className="text-black/52 font-mono text-xs">{t(`auditConsole.argKeys.${key}`)}</span>
+                  <span className="max-w-[60%] break-all text-right text-black/86 font-mono text-xs">{formatArgumentValue(value)}</span>
                 </div>
               )),
             )}

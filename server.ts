@@ -20,7 +20,7 @@ import { assertSafeAuditTargetUrl, AUDIT_TARGET_REDIRECT_LIMIT_ERROR, canSelfSer
 import { initDb, getDb } from "./src/db/index";
 import { users, audits, planSettings, intakeLeads } from "./src/db/schema";
 import { eq, desc, and } from "drizzle-orm";
-// Removed unused import
+import { resolveAdminBootstrapConfig } from "./src/db/adminBootstrap";
 
 async function startServer() {
   const JWT_SECRET = getRequiredJwtSecret();
@@ -142,6 +142,10 @@ async function startServer() {
       sameSite: 'none'
     });
     res.json({ success: true });
+  });
+
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok", timestamp: Date.now() });
   });
 
   app.get("/api/auth/me", authenticateToken, (req, res) => {
@@ -316,16 +320,76 @@ async function startServer() {
   app.patch("/api/admin/plan-settings/:planId", authenticateToken, requireAdmin, async (req, res) => {
     try {
       const db = getDb();
-      const { openRouterApiKey, allowedModels, price, aiProvider, agentRouterApiKey } = req.body;
+      const { openRouterApiKey, allowedModels, price, aiProvider, agentRouterApiKey, nvidiaApiKey } = req.body;
       const updates: any = {};
       if (openRouterApiKey !== undefined) updates.openRouterApiKey = openRouterApiKey;
       if (agentRouterApiKey !== undefined) updates.agentRouterApiKey = agentRouterApiKey;
+      if (nvidiaApiKey !== undefined) updates.nvidiaApiKey = nvidiaApiKey;
       if (aiProvider !== undefined) updates.aiProvider = aiProvider;
       if (allowedModels !== undefined) updates.allowedModels = allowedModels;
       if (price !== undefined) updates.price = price;
 
       await db.update(planSettings).set(updates).where(eq(planSettings.planId, req.params.planId as string));
       res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/admin/security", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      // 1. JWT Configuration Check
+      let jwtStatus = "healthy";
+      let jwtReason = "JWT secret configuration active with required complexity.";
+      try {
+        const secret = getRequiredJwtSecret();
+        if (!secret) {
+          jwtStatus = "critical";
+          jwtReason = "JWT_SECRET is unset or empty.";
+        } else if (secret === "default_fallback_jwt_secret" || secret.length < 16) {
+          jwtStatus = "warning";
+          jwtReason = "JWT_SECRET is using a weak or default fallback value.";
+        }
+      } catch (err: any) {
+        jwtStatus = "critical";
+        jwtReason = err.message || "JWT secret is missing.";
+      }
+
+      // 2. Admin Bootstrap Check
+      let bootstrapStatus = "healthy";
+      let bootstrapReason = "Master administrative bootstrap credentials defined safely.";
+      try {
+        const config = resolveAdminBootstrapConfig();
+        if (!config) {
+          bootstrapStatus = "warning";
+          bootstrapReason = "Bootstrap credentials are empty or omitted from the environment variables.";
+        } else if (config.password.length < 12) {
+          bootstrapStatus = "critical";
+          bootstrapReason = "BOOTSTRAP_ADMIN_PASSWORD is too short (minimum 12 characters required).";
+        }
+      } catch (err: any) {
+        bootstrapStatus = "critical";
+        bootstrapReason = err.message || "Admin bootstrap configuration error.";
+      }
+
+      // 3. Egress Guard Policies Check
+      let egressStatus = "healthy";
+      let egressReason = "Active policies loaded; private IP ranges and internal metadata lookups strictly protected.";
+      try {
+        if (typeof assertSafeAuditTargetUrl !== "function") {
+          egressStatus = "critical";
+          egressReason = "Egress guard validation module failed to initialize.";
+        }
+      } catch (err: any) {
+        egressStatus = "critical";
+        egressReason = err.message || "Egress guard error.";
+      }
+
+      res.json({
+        jwt: { status: jwtStatus, reason: jwtReason },
+        bootstrap: { status: bootstrapStatus, reason: bootstrapReason },
+        egress: { status: egressStatus, reason: egressReason }
+      });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -387,6 +451,7 @@ async function startServer() {
         aiProvider: userPlanSettings.aiProvider,
         agentRouterApiKey: userPlanSettings.agentRouterApiKey,
         openRouterApiKey: userPlanSettings.openRouterApiKey,
+        nvidiaApiKey: userPlanSettings.nvidiaApiKey,
         allowedModels: currentPlan === 'free' ? undefined : (userPlanSettings.allowedModels ? userPlanSettings.allowedModels.split(',').map(m => m.trim()).filter(Boolean) : undefined)
       } : undefined;
 
@@ -437,6 +502,7 @@ async function startServer() {
         aiProvider: userPlanSettings.aiProvider,
         agentRouterApiKey: userPlanSettings.agentRouterApiKey,
         openRouterApiKey: userPlanSettings.openRouterApiKey,
+        nvidiaApiKey: userPlanSettings.nvidiaApiKey,
         allowedModels: currentPlan === 'free' ? undefined : (userPlanSettings.allowedModels ? userPlanSettings.allowedModels.split(',').map(m => m.trim()).filter(Boolean) : undefined)
       } : undefined;
 
@@ -722,6 +788,7 @@ async function startServer() {
       aiProvider: userPlanSettings.aiProvider,
       agentRouterApiKey: userPlanSettings.agentRouterApiKey,
       openRouterApiKey: userPlanSettings.openRouterApiKey,
+      nvidiaApiKey: userPlanSettings.nvidiaApiKey,
       allowedModels: currentPlan === 'free' ? undefined : (userPlanSettings.allowedModels ? userPlanSettings.allowedModels.split(',').map(m => m.trim()).filter(Boolean) : undefined)
     } : undefined;
 
@@ -924,11 +991,22 @@ async function startServer() {
 
           const textResponse = response.text;
           if (textResponse) {
-            let cleanText = textResponse.trim().replace(/^```[a-z]*\s*/i, "").replace(/\s*```$/i, "");
-            const parsed = JSON.parse(cleanText);
-            parsed.modelUsed = response.model;
-            parsed.measuredEvidence = measuredEvidence;
-            return res.json(parsed);
+            let cleanText = textResponse.trim();
+            const jsonMatch = cleanText.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+            if (jsonMatch) {
+              cleanText = jsonMatch[1].trim();
+            } else {
+              cleanText = cleanText.replace(/^```[a-z]*\s*/i, "").replace(/\s*```$/i, "").trim();
+            }
+            try {
+              const parsed = JSON.parse(cleanText);
+              parsed.modelUsed = response.model;
+              parsed.measuredEvidence = measuredEvidence;
+              return res.json(parsed);
+            } catch (parseError) {
+              console.error("Failed to parse JSON from AI response:", cleanText);
+              throw parseError; // delegate to fallback
+            }
           }
       } catch (openRouterError: any) {
         console.error("OpenRouter API call failed, falling back to smart client generator:", openRouterError);

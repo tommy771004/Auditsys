@@ -25,14 +25,14 @@ export default function PageIntro({
 
   return (
     <div className={["space-y-5", alignmentClassName, className].filter(Boolean).join(" ")}>
-      <p className="inline-flex rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan backdrop-blur-xl">
+      <p className="inline-flex rounded-full border border-black bg-black/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan backdrop-blur-xl">
         {eyebrow}
       </p>
-      <div className="space-y-4">
-        <h1 className={["text-[40px] font-semibold leading-[1.1] tracking-[-0.04em] text-brand-text lg:text-[56px]", titleClassName].filter(Boolean).join(" ")}>
+      <div className="space-y-6">
+        <h1 className={["text-[44px] font-bold leading-[1.05] tracking-tight text-black lg:text-[64px] font-grotesk drop-shadow-xl", titleClassName].filter(Boolean).join(" ")}>
           {title}
         </h1>
-        <p className={["text-base leading-8 text-brand-muted sm:text-lg", descriptionClassName].filter(Boolean).join(" ")}>
+        <p className={["text-lg leading-relaxed text-brand-muted/90 font-medium sm:text-xl", descriptionClassName].filter(Boolean).join(" ")}>
           {description}
         </p>
       </div>

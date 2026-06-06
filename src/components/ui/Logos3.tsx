@@ -68,7 +68,7 @@ export function Logos3({ heading, logos = DEFAULT_LOGOS, className }: Logos3Prop
   return (
     <section className={["w-full", className].filter(Boolean).join(" ")}>
       <div className="mx-auto flex max-w-5xl flex-col items-center px-6 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">{resolvedHeading}</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-black/55">{resolvedHeading}</p>
       </div>
 
       <div className="group relative mx-auto mt-8 flex max-w-6xl items-center overflow-hidden">
@@ -82,15 +82,12 @@ export function Logos3({ heading, logos = DEFAULT_LOGOS, className }: Logos3Prop
                 loading="lazy"
                 className={[
                   logo.className ?? "h-6 w-auto",
-                  "opacity-60 brightness-0 invert transition duration-300 hover:opacity-100",
+                  "opacity-60 brightness-0 transition duration-300 hover:opacity-100",
                 ].join(" ")}
               />
             </div>
           ))}
         </div>
-
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[var(--bg)] to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[var(--bg)] to-transparent" />
       </div>
     </section>
   );

@@ -1,10 +1,10 @@
 import { type FormEvent, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle2, Mail, MessageSquareText, Users, Waypoints, Workflow } from "lucide-react";
+import { CheckCircle2, Mail, MessageSquareText, Users, Waypoints, Workflow, AlertTriangle, ShieldCheck, HelpCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../components/layout/PageContainer";
 import GlassCard from "../components/ui/GlassCard";
-import GlowingButton from "../components/ui/GlowingButton";
+import SolidButton from "../components/ui/SolidButton";
 import PageIntro from "../components/ui/PageIntro";
 import { useIntakeWizard } from "../hooks/useIntakeWizard";
 import type { NavigateTo } from "../types/home";
@@ -37,6 +37,161 @@ const stepContentMotion = {
   exit: { opacity: 0, x: -18 },
   transition: { duration: 0.22, ease: "easeOut" },
 };
+
+function TargetSafetyChecklist({ url }: { url: string }) {
+  const { t } = useTranslation();
+
+  // Parse URL safely
+  let isValidUrl = false;
+  let parsedUrl: URL | null = null;
+  try {
+    parsedUrl = new URL(url);
+    isValidUrl = true;
+  } catch (e) {
+    // Attempt with https if missing protocol for visual check
+    if (url && !url.includes("://")) {
+      try {
+        parsedUrl = new URL(`https://${url}`);
+      } catch (_) {}
+    }
+  }
+
+  const hostname = parsedUrl?.hostname || "";
+
+  // 1. Protocol Validation
+  let protocolStatus: "pending" | "valid" | "invalid" = "pending";
+  if (!url) {
+    protocolStatus = "pending";
+  } else if (parsedUrl && (parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:")) {
+    protocolStatus = "valid";
+  } else {
+    protocolStatus = "invalid";
+  }
+
+  // 2. Host Validation
+  let hostStatus: "pending" | "valid" | "invalid" = "pending";
+  const blockedHosts = [
+    "localhost",
+    "metadata.google.internal",
+  ];
+  const isBlocked = url && (
+    blockedHosts.includes(hostname.toLowerCase()) ||
+    hostname.toLowerCase().endsWith(".localhost") ||
+    hostname.toLowerCase().endsWith(".local") ||
+    hostname.toLowerCase().endsWith(".internal")
+  );
+
+  if (!url || !hostname) {
+    hostStatus = "pending";
+  } else if (isBlocked) {
+    hostStatus = "invalid";
+  } else {
+    hostStatus = "valid";
+  }
+
+  // 3. Network Address / IP Validation
+  let ipStatus: "pending" | "valid" | "invalid" = "pending";
+  const isPrivateIp = (ip: string) => {
+    // Simple client-side private IP check
+    if (!ip) return false;
+    if (ip === "127.0.0.1" || ip === "0.0.0.0" || ip === "::1" || ip === "::") return true;
+    
+    // Check RFC 1918 Class A, B, C
+    const parts = ip.split(".").map(Number);
+    if (parts.length === 4 && parts.every(p => !isNaN(p))) {
+      const [first, second] = parts;
+      if (first === 10) return true;
+      if (first === 172 && second >= 16 && second <= 31) return true;
+      if (first === 192 && second === 168) return true;
+      if (first === 169 && second === 254) return true;
+      if (first >= 224) return true; // multicast / reserved
+    }
+    return false;
+  };
+
+  const isIpAddress = url && /^[0-9.:a-fA-F]+$/.test(hostname);
+  if (!url || !hostname) {
+    ipStatus = "pending";
+  } else if (isIpAddress && isPrivateIp(hostname)) {
+    ipStatus = "invalid";
+  } else {
+    ipStatus = "valid";
+  }
+
+  const getStatusIcon = (status: "pending" | "valid" | "invalid") => {
+    switch (status) {
+      case "valid":
+        return <CheckCircle2 className="h-4 w-4 text-emerald-400 animate-pulse" />;
+      case "invalid":
+        return <AlertTriangle className="h-4 w-4 text-brand-danger" />;
+      case "pending":
+      default:
+        return <HelpCircle className="h-4 w-4 text-brand-muted" />;
+    }
+  };
+
+  const getStatusTextClass = (status: "pending" | "valid" | "invalid") => {
+    switch (status) {
+      case "valid":
+        return "text-emerald-400 font-medium";
+      case "invalid":
+        return "text-brand-danger font-medium";
+      case "pending":
+      default:
+        return "text-brand-muted";
+    }
+  };
+
+  return (
+    <div id="target-safety-checklist" className="p-4 rounded-sm bg-black/5 border border-black/5 space-y-3 mt-4">
+      <div className="flex items-center justify-between border-b border-black/5 pb-2 mb-2">
+        <span className="text-xs font-semibold uppercase tracking-wider text-brand-muted flex items-center">
+          <ShieldCheck className="h-4 w-4 mr-1.5 text-brand-purple" /> Target Safety Preflight
+        </span>
+        {url && (
+          <span className="text-[10px] font-mono text-brand-cyan bg-brand-cyan/15 border border-brand-cyan/20 px-2 py-0.5 rounded-full">
+            Active Scan
+          </span>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 gap-2 text-xs">
+        {/* Protocol Preflight */}
+        <div className="flex items-center justify-between">
+          <span className="text-black/85">Protocol Restriction (HTTP/HTTPS)</span>
+          <div className="flex items-center space-x-2">
+            <span className={getStatusTextClass(protocolStatus)}>
+              {protocolStatus === "valid" ? "HTTP/HTTPS Verified" : protocolStatus === "invalid" ? "Protocol Rejected" : "Awaiting URL"}
+            </span>
+            {getStatusIcon(protocolStatus)}
+          </div>
+        </div>
+
+        {/* Host Preflight */}
+        <div className="flex items-center justify-between">
+          <span className="text-black/85">Host Lookup Restriction (Blocked Domains)</span>
+          <div className="flex items-center space-x-2">
+            <span className={getStatusTextClass(hostStatus)}>
+              {hostStatus === "valid" ? "Public Host Verified" : hostStatus === "invalid" ? "Domain Restricted" : "Awaiting URL"}
+            </span>
+            {getStatusIcon(hostStatus)}
+          </div>
+        </div>
+
+        {/* IP Preflight */}
+        <div className="flex items-center justify-between">
+          <span className="text-black/85">Network Destination Protection</span>
+          <div className="flex items-center space-x-2">
+            <span className={getStatusTextClass(ipStatus)}>
+              {ipStatus === "valid" ? "External Range Check" : ipStatus === "invalid" ? "Private Range Blocked" : "Awaiting Host"}
+            </span>
+            {getStatusIcon(ipStatus)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Intake({ onNavigate }: IntakePageProps) {
   const { t } = useTranslation();
@@ -131,7 +286,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
           <div className="space-y-5">
             <label className="block space-y-3">
-              <span className="text-sm font-medium text-white/90">{t("intake.fields.companyName")}</span>
+              <span className="text-sm font-medium text-black/90">{t("intake.fields.companyName")}</span>
               <input
                 type="text"
                 value={formState.companyName}
@@ -142,10 +297,10 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                 aria-invalid={isCompanyError}
                 aria-describedby={isCompanyError ? "intake-company-error" : undefined}
                 className={[
-                  "w-full rounded-2xl bg-black/50 min-h-[44px] px-4 py-3 text-base text-white outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950",
+                  "w-full rounded-sm bg-black/50 min-h-[44px] px-4 py-3 text-base text-black outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950",
                   isCompanyError
                     ? "border border-rose-300/40 focus:border-rose-400 focus:ring-rose-400/50"
-                    : "border border-white/10 focus:border-brand-cyan focus:ring-brand-cyan/50",
+                    : "border border-black focus:border-brand-cyan focus:ring-brand-cyan/50",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -159,9 +314,9 @@ export default function Intake({ onNavigate }: IntakePageProps) {
             ) : null}
 
             <label className="block space-y-3">
-              <span className="text-sm font-medium text-white/90">{t("intake.fields.url")}</span>
+              <span className="text-sm font-medium text-black/90">{t("intake.fields.url")}</span>
               <div className="relative">
-                <Waypoints className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/60" />
+                <Waypoints className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-black/60" />
                 <input
                   type="url"
                   value={formState.url}
@@ -172,10 +327,10 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                   aria-invalid={isUrlError}
                   aria-describedby={isUrlError ? "intake-url-error" : undefined}
                   className={[
-                  "w-full rounded-2xl bg-black/50 min-h-[44px] py-3 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-slate",
+                  "w-full rounded-sm bg-black/50 min-h-[44px] py-3 pl-12 pr-4 text-base text-black outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-slate",
                     isUrlError
                       ? "border border-brand-danger/40 focus:border-brand-danger focus:ring-brand-danger/50"
-                      : "border border-white/10 focus:border-brand-cyan focus:ring-brand-cyan/50",
+                      : "border border-black focus:border-brand-cyan focus:ring-brand-cyan/50",
                   ]
                     .filter(Boolean)
                     .join(" ")}
@@ -188,11 +343,13 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                 {t(errorKey)}
               </p>
             ) : null}
+
+            <TargetSafetyChecklist url={formState.url} />
           </div>
 
           <div className="space-y-4">
             <div className="space-y-3">
-              <p className="text-sm font-medium text-white/90">{t("intake.fields.goals")}</p>
+              <p className="text-sm font-medium text-black/90">{t("intake.fields.goals")}</p>
               <div className="grid gap-3">
                 {goalOptions.map((option) => {
                   const isSelected = formState.goals.includes(option.id);
@@ -202,12 +359,12 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                       key={option.id}
                       type="button"
                       className={[
-                        "rounded-[22px] border px-4 py-4 text-left text-sm transition",
+                        "rounded-sm border px-4 py-4 text-left text-sm transition",
                         isSelected
-                          ? "border-cyan-300/30 bg-cyan-300/10 text-white shadow-[0_0_24px_rgba(34,211,238,0.14)]"
+                          ? "border-cyan-300/30 bg-cyan-300/10 text-black shadow-[0_0_24px_rgba(34,211,238,0.14)]"
                           : isGoalsError
-                            ? "border-rose-300/30 bg-rose-300/[0.08] text-white/85 hover:bg-rose-300/[0.12]"
-                            : "border-white/10 bg-white/[0.04] text-white/75 hover:bg-white/[0.08] hover:text-white",
+                            ? "border-rose-300/30 bg-rose-300/[0.08] text-black/85 hover:bg-rose-300/[0.12]"
+                            : "border-black bg-black/10 text-black/75 hover:bg-black/5 hover:text-black",
                       ]
                         .filter(Boolean)
                         .join(" ")}
@@ -235,7 +392,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
       return (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
           <div className="space-y-4">
-            <p className="text-sm font-medium text-white/90">{t("intake.fields.stack")}</p>
+            <p className="text-sm font-medium text-black/90">{t("intake.fields.stack")}</p>
             <div className="grid gap-3 sm:grid-cols-2">
               {stackOptions.map((option) => {
                 const isSelected = formState.stack.includes(option.id);
@@ -245,12 +402,12 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                     key={option.id}
                     type="button"
                     className={[
-                      "rounded-[22px] border px-4 py-4 text-left text-sm transition",
+                      "rounded-sm border px-4 py-4 text-left text-sm transition",
                       isSelected
-                        ? "border-cyan-300/30 bg-cyan-300/10 text-white shadow-[0_0_24px_rgba(34,211,238,0.14)]"
+                        ? "border-cyan-300/30 bg-cyan-300/10 text-black shadow-[0_0_24px_rgba(34,211,238,0.14)]"
                         : isStackError
-                          ? "border-rose-300/30 bg-rose-300/[0.08] text-white/85 hover:bg-rose-300/[0.12]"
-                          : "border-white/10 bg-white/[0.04] text-white/75 hover:bg-white/[0.08] hover:text-white",
+                          ? "border-rose-300/30 bg-rose-300/[0.08] text-black/85 hover:bg-rose-300/[0.12]"
+                          : "border-black bg-black/10 text-black/75 hover:bg-black/5 hover:text-black",
                     ]
                       .filter(Boolean)
                       .join(" ")}
@@ -272,7 +429,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
 
           <GlassCard className="p-5">
             <div className="space-y-4">
-              <p className="text-sm font-medium text-white/90">{t("intake.fields.teamSize")}</p>
+              <p className="text-sm font-medium text-black/90">{t("intake.fields.teamSize")}</p>
               <div className="grid gap-3">
                 {teamSizeOptions.map((option) => {
                   const isSelected = formState.teamSize === option.id;
@@ -282,8 +439,8 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                       key={option.id}
                       type="button"
                       className={[
-                        "rounded-[20px] border px-4 py-4 text-left text-sm transition",
-                        isSelected ? "border-white/20 bg-white/[0.1] text-white shadow-[0_0_24px_rgba(139,92,246,0.12)]" : "border-white/10 bg-white/[0.04] text-white/70 hover:bg-white/[0.08] hover:text-white",
+                        "rounded-sm border px-4 py-4 text-left text-sm transition",
+                        isSelected ? "border-black bg-white/[0.1] text-black shadow-[0_0_24px_rgba(139,92,246,0.12)]" : "border-black bg-black/10 text-black/70 hover:bg-black/5 hover:text-black",
                       ]
                         .filter(Boolean)
                         .join(" ")}
@@ -306,9 +463,9 @@ export default function Intake({ onNavigate }: IntakePageProps) {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
         <div className="space-y-5">
           <label className="block space-y-3">
-            <span className="text-sm font-medium text-white/90">{t("intake.fields.contactEmail")}</span>
+            <span className="text-sm font-medium text-black/90">{t("intake.fields.contactEmail")}</span>
             <div className="relative">
-              <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/60" />
+              <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-black/60" />
               <input
                 type="email"
                 value={formState.contactEmail}
@@ -319,10 +476,10 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                 aria-invalid={isEmailError}
                 aria-describedby={isEmailError ? "intake-email-error" : undefined}
                 className={[
-                  "w-full rounded-2xl bg-black/50 min-h-[44px] py-3 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-slate",
+                  "w-full rounded-sm bg-black/50 min-h-[44px] py-3 pl-12 pr-4 text-base text-black outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-slate",
                   isEmailError
                     ? "border border-brand-danger/40 focus:border-brand-danger focus:ring-brand-danger/50"
-                    : "border border-white/10 focus:border-brand-cyan focus:ring-brand-cyan/50",
+                    : "border border-black focus:border-brand-cyan focus:ring-brand-cyan/50",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -337,9 +494,9 @@ export default function Intake({ onNavigate }: IntakePageProps) {
           ) : null}
 
           <label className="block space-y-3">
-            <span className="text-sm font-medium text-white/90">{t("intake.fields.notes")}</span>
+            <span className="text-sm font-medium text-black/90">{t("intake.fields.notes")}</span>
             <div className="relative">
-              <MessageSquareText className="pointer-events-none absolute left-4 top-5 h-5 w-5 text-white/60" />
+              <MessageSquareText className="pointer-events-none absolute left-4 top-5 h-5 w-5 text-black/60" />
               <textarea
                 value={formState.notes}
                 onChange={(event) => {
@@ -347,7 +504,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                 }}
                 placeholder={t("intake.placeholders.notes")}
                 rows={6}
-                className="w-full rounded-[1.4rem] border border-white/10 bg-black/50 py-4 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-brand-muted focus:border-brand-purple focus:ring-4 focus:ring-brand-purple/15"
+                className="w-full rounded-sm border border-black bg-black/50 py-4 pl-12 pr-4 text-base text-black outline-none transition placeholder:text-brand-muted focus:border-brand-purple focus:ring-4 focus:ring-brand-purple/15"
               />
             </div>
           </label>
@@ -356,9 +513,9 @@ export default function Intake({ onNavigate }: IntakePageProps) {
         <GlassCard glow="cyan" className="p-5">
           <div className="space-y-4">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t("intake.summaryEyebrow")}</p>
-            <h3 className="text-xl font-semibold text-white">{t("intake.summaryTitle")}</h3>
+            <h3 className="text-xl font-semibold text-black">{t("intake.summaryTitle")}</h3>
             <p className="text-sm leading-7 text-brand-muted">{t("intake.summaryDescription")}</p>
-            <div className="space-y-3 text-sm text-white/85">
+            <div className="space-y-3 text-sm text-black/85">
               <div className="flex items-start gap-3">
                 <Users className="mt-0.5 h-4 w-4 shrink-0 text-brand-cyan" />
                 <span>{t(`intake.options.teamSize.${formState.teamSize}`)}</span>
@@ -397,25 +554,25 @@ export default function Intake({ onNavigate }: IntakePageProps) {
               <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div className="space-y-2">
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t("intake.progressEyebrow")}</p>
-                  <h2 className="text-[28px] font-semibold leading-[1.2] tracking-[-0.03em] text-white lg:text-[36px]">{t("intake.panelTitle")}</h2>
+                  <h2 className="text-[28px] font-semibold leading-[1.2] tracking-[-0.03em] text-black lg:text-[36px]">{t("intake.panelTitle")}</h2>
                 </div>
                 <p className="text-sm text-brand-muted">{t("intake.progressLabel", { current: currentStep, total: stepItems.length })}</p>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-white/8">
-                <div className="h-full rounded-full bg-brand-gradient transition-[width] duration-500" style={{ width: `${progressValue}%` }} />
+                <div className="h-full rounded-full bg-brand-gradient transition-[width] duration-200 ease-out" style={{ width: `${progressValue}%` }} />
               </div>
             </div>
 
             {isSuccess ? (
               <div className="space-y-6">
-                <div className="rounded-[28px] border border-cyan-300/20 bg-cyan-300/10 p-6 text-left">
+                <div className="rounded-sm border border-cyan-300/20 bg-cyan-300/10 p-6 text-left">
                   <div className="flex items-start gap-4">
-                    <div className="rounded-full border border-white/10 bg-slate-950/40 p-3">
+                    <div className="rounded-full border border-black bg-white p-3">
                       <CheckCircle2 className="h-5 w-5 text-cyan-300" />
                     </div>
                     <div className="space-y-2">
-                      <p className="text-lg font-semibold text-white">{t("intake.successTitle")}</p>
-                      <p className="text-sm leading-7 text-white/75">{t("intake.successDescription")}</p>
+                      <p className="text-lg font-semibold text-black">{t("intake.successTitle")}</p>
+                      <p className="text-sm leading-7 text-black/75">{t("intake.successDescription")}</p>
                     </div>
                   </div>
                 </div>
@@ -424,12 +581,12 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                   <GlassCard className="p-5">
                     <div className="space-y-3">
                       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t("intake.followupEyebrow")}</p>
-                      <h3 className="text-xl font-semibold text-white">{t("intake.followupTitle")}</h3>
+                      <h3 className="text-xl font-semibold text-black">{t("intake.followupTitle")}</h3>
                       <p className="text-sm leading-7 text-brand-muted">{t("intake.followupDescription")}</p>
                     </div>
                   </GlassCard>
                   <div className="flex flex-col gap-3">
-                    <GlowingButton
+                    <SolidButton
                       className="justify-center"
                       loadingLabel={t("hero.loading")}
                       onClick={() => {
@@ -444,9 +601,9 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                       }}
                     >
                       {t("intake.buttons.launchConsole")}
-                    </GlowingButton>
+                    </SolidButton>
 
-                    <GlowingButton
+                    <SolidButton
                       className="justify-center"
                       loadingLabel={t("hero.loading")}
                       variant="ghost"
@@ -455,7 +612,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                       }}
                     >
                       {t("intake.buttons.viewPricing")}
-                    </GlowingButton>
+                    </SolidButton>
                   </div>
                 </div>
               </div>
@@ -470,19 +627,19 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                       <div
                         key={step.id}
                         className={[
-                          "rounded-[24px] border px-4 py-4 text-left transition",
+                          "rounded-sm border px-4 py-4 text-left transition",
                           isActive
-                            ? "border-white/20 bg-white/[0.08] shadow-[0_0_30px_rgba(139,92,246,0.14)]"
+                            ? "border-black bg-black/5 shadow-[0_0_30px_rgba(139,92,246,0.14)]"
                             : isCompleted
                               ? "border-cyan-300/20 bg-cyan-300/[0.08]"
-                              : "border-white/10 bg-white/[0.04]",
+                              : "border-black bg-black/10",
                         ].join(" ")}
                       >
                         <div className="flex items-center justify-between gap-3">
                           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">0{step.id}</p>
                           {isCompleted ? <CheckCircle2 className="h-4 w-4 text-cyan-300" /> : null}
                         </div>
-                        <p className="mt-3 text-base font-semibold text-white">{t(step.titleKey)}</p>
+                        <p className="mt-3 text-base font-semibold text-black">{t(step.titleKey)}</p>
                         <p className="mt-2 text-sm leading-7 text-brand-muted">{t(step.descriptionKey)}</p>
                       </div>
                     );
@@ -496,27 +653,27 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                 </AnimatePresence>
 
                 {isError && showSubmitError && errorKey ? (
-                  <div className="rounded-[24px] border border-rose-300/20 bg-rose-300/10 px-4 py-4 text-sm text-white/85" aria-live="polite">
+                  <div className="rounded-sm border border-rose-300/20 bg-rose-300/10 px-4 py-4 text-sm text-black/85" aria-live="polite">
                     {t(errorKey)}
                   </div>
                 ) : null}
 
-                <div className="flex flex-col gap-3 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-3 border-t border-black pt-6 sm:flex-row sm:items-center sm:justify-between">
                   <div className="text-sm leading-7 text-brand-muted">{t("intake.helper")}</div>
                   <div className="flex flex-col gap-3 sm:flex-row">
                     {currentStep > 1 ? (
-                      <GlowingButton className="justify-center" loadingLabel={t("hero.loading")} variant="ghost" onClick={previousStep}>
+                      <SolidButton className="justify-center" loadingLabel={t("hero.loading")} variant="ghost" onClick={previousStep}>
                         {t("intake.buttons.previous")}
-                      </GlowingButton>
+                      </SolidButton>
                     ) : null}
                     {currentStep < 3 ? (
-                      <GlowingButton className="justify-center" loadingLabel={t("hero.loading")} onClick={nextStep}>
+                      <SolidButton className="justify-center" loadingLabel={t("hero.loading")} onClick={nextStep}>
                         {t("intake.buttons.next")}
-                      </GlowingButton>
+                      </SolidButton>
                     ) : (
-                      <GlowingButton className="justify-center" isLoading={isLoading} loadingLabel={t("hero.loading")} type="submit">
+                      <SolidButton className="justify-center" isLoading={isLoading} loadingLabel={t("hero.loading")} type="submit">
                         {t("intake.buttons.submit")}
-                      </GlowingButton>
+                      </SolidButton>
                     )}
                   </div>
                 </div>

@@ -73,12 +73,12 @@ export default function ExecutionTerminal({ logs, status }: ExecutionTerminalPro
   }, [isActive, logs.length]);
 
   return (
-    <div className="overflow-hidden rounded-[24px] border border-white/10 bg-slate-950/60 backdrop-blur-md">
-      <div className="flex items-center gap-2 border-b border-white/10 bg-white/[0.03] px-4 py-3">
+    <div className="overflow-hidden rounded-sm border border-black bg-white backdrop-blur-md">
+      <div className="flex items-center gap-2 border-b border-black bg-black/5 px-4 py-3">
         <span className="h-3 w-3 rounded-full bg-rose-400/80" />
         <span className="h-3 w-3 rounded-full bg-amber-400/80" />
         <span className="h-3 w-3 rounded-full bg-emerald-400/80" />
-        <div className="ml-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/55">
+        <div className="ml-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-black/55">
           <Terminal className="h-4 w-4" />
           {t("liveAudit.terminal.title")}
         </div>

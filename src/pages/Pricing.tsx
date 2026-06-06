@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Sparkles, Cpu } from "lucide-react";
+import { Check, Sparkles, Cpu, ShieldAlert } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import PageContainer from "../components/layout/PageContainer";
 import GlassCard from "../components/ui/GlassCard";
-import GlowingButton from "../components/ui/GlowingButton";
+import SolidButton from "../components/ui/SolidButton";
 import StatusBadge from "../components/ui/StatusBadge";
 import PageIntro from "../components/ui/PageIntro";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import SectionHeader from "../components/ui/SectionHeader";
 import type { NavigateTo } from "../types/home";
+import Accordion from "../components/ui/Accordion";
 
 interface PricingPageProps {
   onNavigate: NavigateTo;
@@ -183,7 +184,7 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
           descriptionClassName="max-w-3xl"
         />
         {statusMessage && (
-          <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-brand-cyan backdrop-blur-md">
+          <div className="mt-6 rounded-sm border border-black bg-black/5 px-4 py-3 text-sm text-brand-cyan backdrop-blur-md">
             {statusMessage}
           </div>
         )}
@@ -197,118 +198,160 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
           className="max-w-3xl"
         />
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {plans.map((plan, index) => (
-            <motion.div key={plan.id} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.45, delay: index * 0.08 }}>
-              <GlassCard glow={plan.glow} className="h-full p-6 sm:p-8 transition-transform hover:-translate-y-1 duration-300">
-                <div className="flex h-full flex-col gap-6">
-                  <div className="space-y-4">
-                    {plan.badgeKey ? (
-                      <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">
-                        <Sparkles className="h-3.5 w-3.5" />
-                        <span>{t(plan.badgeKey)}</span>
+        <div className="grid gap-6 md:grid-cols-3 items-stretch">
+          {plans.map((plan, index) => {
+            const isFeatured = plan.id === "optimization";
+            const isCurrentPlan = user?.subscriptionPlan === plan.planIdMap;
+            
+            return (
+              <motion.div 
+                key={plan.id} 
+                initial={{ opacity: 0, y: 20 }} 
+                whileInView={{ opacity: 1, y: 0 }} 
+                viewport={{ once: true, amount: 0.15 }} 
+                transition={{ duration: 0.4, delay: index * 0.05 }}
+                className={`flex flex-col h-full ${isFeatured ? "md:-translate-y-3 z-10" : "z-0"}`}
+              >
+                <div 
+                  className={[
+                    "flex flex-col h-full rounded-sm border p-6 sm:p-8 transition-colors duration-300 bg-white",
+                    isFeatured 
+                      ? "border-black ring-1 ring-white/10" 
+                      : "border-black"
+                  ].join(" ")}
+                >
+                  <div className="flex h-full flex-col justify-between gap-8">
+                    <div className="space-y-6">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-[10px] font-mono font-bold uppercase tracking-[0.25em] text-black/50 mb-1">
+                            {t(plan.nameKey)}
+                          </p>
+                          <h3 className="text-2xl font-black text-black tracking-tight">
+                            {isFeatured ? "PRO PLAN" : plan.id.toUpperCase()}
+                          </h3>
+                        </div>
+                        {isFeatured && (
+                          <span className="rounded bg-black/5 border border-black px-2.5 py-1 text-[10px] font-mono font-bold uppercase tracking-widest text-black/80">
+                            {t("pricing.plans.optimization.badge") || "POPULAR"}
+                          </span>
+                        )}
                       </div>
-                    ) : null}
-                    <StatusBadge
-                      className="self-start"
-                      status={user?.subscriptionPlan === plan.planIdMap ? "success" : "default"}
-                      leftIcon={user?.subscriptionPlan === plan.planIdMap ? Check : Sparkles}
-                      leftLabel={t(plan.nameKey)}
-                      rightLabel={user?.subscriptionPlan === plan.planIdMap ? t("misc.activePlan") : t(plan.ctaKey)}
-                    />
-                    <div className="space-y-2">
-                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">{t(plan.nameKey)}</p>
-                      <div className="flex flex-wrap items-baseline gap-3">
-                        <span className="text-4xl font-semibold tracking-[-0.04em] text-white">
-                          {(() => {
-                            const apiPlan = plansData.find(p => p.planId === plan.planIdMap);
-                            return apiPlan?.price || t(plan.priceKey);
-                          })()}
-                        </span>
-                        <span className="text-sm text-brand-muted">{t(plan.cadenceKey)}</span>
+
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap items-baseline gap-2">
+                          <span className="text-4xl font-black tracking-tight text-black font-mono">
+                            {(() => {
+                              const apiPlan = plansData.find(p => p.planId === plan.planIdMap);
+                              return apiPlan?.price || t(plan.priceKey);
+                            })()}
+                          </span>
+                          <span className="text-xs font-mono text-black/40">{t(plan.cadenceKey)}</span>
+                        </div>
+                        <p className="text-xs sm:text-sm leading-relaxed text-black/60">{t(plan.descriptionKey)}</p>
+                      </div>
+
+                      <div className="h-px bg-black/5" />
+
+                      <div className="space-y-3.5">
+                        {(() => {
+                          const apiPlan = plansData.find(p => p.planId === plan.planIdMap);
+                          const models = apiPlan?.allowedModels?.split(",").map((m: string) => m.trim()).filter(Boolean) || [];
+                          return models.map((model: string) => (
+                            <div key={model} className="flex items-center gap-3 text-xs font-mono text-black/50">
+                              <span className="w-1.5 h-1.5 bg-white/30 rounded-none shrink-0" />
+                              <span>{t("misc.provides", { model })}</span>
+                            </div>
+                          ));
+                        })()}
+                        {plan.featureKeys.map((featureKey) => (
+                          <div key={featureKey} className="flex items-start gap-3 text-xs sm:text-sm text-black/80">
+                            <span className="mt-2 w-1.5 h-px bg-white shrink-0" />
+                            <span>{t(featureKey)}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                    <p className="text-sm leading-7 text-brand-muted">{t(plan.descriptionKey)}</p>
-                  </div>
 
-                  <div className="space-y-3">
-                    {(() => {
-                      const apiPlan = plansData.find(p => p.planId === plan.planIdMap);
-                      const models = apiPlan?.allowedModels?.split(",").map((m: string) => m.trim()).filter(Boolean) || [];
-                      return models.map((model: string) => (
-                        <div key={model} className="flex items-start gap-3 text-sm text-brand-purple">
-                          <Cpu className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" />
-                          <span>{t("misc.provides", { model })}</span>
-                        </div>
-                      ));
-                    })()}
-                    {plan.featureKeys.map((featureKey) => (
-                      <div key={featureKey} className="flex items-start gap-3 text-sm text-white/85">
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-cyan" />
-                        <span>{t(featureKey)}</span>
-                      </div>
-                    ))}
-                  </div>
+                    <div className="pt-4 border-t border-black/[0.06] mt-auto">
+                      {(() => {
+                        const requiresApproval = user && (plan.planIdMap === "enterprise" && user.subscriptionPlan !== "enterprise");
 
-                  {(() => {
-                    const isCurrentPlan = user?.subscriptionPlan === plan.planIdMap;
-                    return (
-                      <GlowingButton
-                        className="mt-auto w-full justify-center min-h-[44px] transition-transform active:scale-[0.98]"
-                        isLoading={upgradingPlan === plan.planIdMap}
-                        loadingLabel={t("misc.upgrading")}
-                        variant={isCurrentPlan ? "ghost" : "primary"}
-                        onClick={() => {
-                          if (isCurrentPlan) {
-                            onNavigate("console");
-                          } else {
-                            handleUpgrade(plan.planIdMap);
-                          }
-                        }}
-                      >
-                        {isCurrentPlan ? t("misc.activePlan") : t(plan.ctaKey)}
-                      </GlowingButton>
-                    );
-                  })()}
+                        if (requiresApproval) {
+                          return (
+                            <div id="enterprise-approval-badge" className="w-full flex flex-col items-center gap-2">
+                              <div className="w-full inline-flex items-center justify-center gap-1.5 rounded-sm border border-black bg-black/5 py-2.5 text-xs font-mono font-bold uppercase tracking-wider text-black">
+                                <span>{t("pricing.approvalRequired") || "APPROVAL REQUIRED"}</span>
+                              </div>
+                              <p className="text-[10px] text-black/45 text-center leading-normal">
+                                {t("pricing.enterpriseApprovalHint") || "Upgrade to this tier requires administrator intervention."}
+                              </p>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <SolidButton
+                            className="w-full justify-center text-xs font-mono font-bold tracking-wider uppercase h-10 rounded-sm active:scale-[0.99] transition-transform"
+                            isLoading={upgradingPlan === plan.planIdMap}
+                            loadingLabel={t("misc.upgrading")}
+                            variant={isCurrentPlan ? "ghost" : (isFeatured ? "primary" : "secondary")}
+                            onClick={() => {
+                              if (isCurrentPlan) {
+                                onNavigate("console");
+                              } else {
+                                handleUpgrade(plan.planIdMap);
+                              }
+                            }}
+                          >
+                            {isCurrentPlan ? t("misc.activePlan") : t(plan.ctaKey)}
+                          </SolidButton>
+                        );
+                      })()}
+                    </div>
+                  </div>
                 </div>
-              </GlassCard>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       </motion.section>
 
-      <motion.section {...pageMotion} className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-        <GlassCard glow="cyan" className="p-6 sm:p-8">
-          <div className="space-y-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t("pricing.deliveryEyebrow")}</p>
-            <h2 className="text-[28px] font-semibold leading-[1.2] tracking-[-0.03em] text-white lg:text-[36px]">{t("pricing.deliveryTitle")}</h2>
-            <p className="text-base leading-8 text-brand-muted">{t("pricing.deliveryDescription")}</p>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <GlowingButton
-                className="justify-center"
-                loadingLabel={t("hero.loading")}
-                onClick={() => {
-                  onNavigate("intake");
-                }}
-              >
-                {t("pricing.primaryCta")}
-              </GlowingButton>
-
-            </div>
+      <motion.section {...pageMotion} className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] items-start border-t border-black pt-12">
+        <div className="rounded-sm border border-black bg-white p-8 sm:p-10 space-y-6">
+          <div className="space-y-4">
+            <p className="text-[10px] font-mono font-bold uppercase tracking-[0.25em] text-black/50">{t("pricing.deliveryEyebrow")}</p>
+            <h2 className="text-3xl font-black text-black tracking-tight leading-tight">{t("pricing.deliveryTitle")}</h2>
+            <p className="text-sm leading-relaxed text-black/60">{t("pricing.deliveryDescription")}</p>
           </div>
-        </GlassCard>
+          <div className="flex flex-col gap-3 sm:flex-row pt-2">
+            <SolidButton
+              className="justify-center h-11 px-6 rounded-sm text-xs tracking-wider font-mono font-bold uppercase"
+              loadingLabel={t("hero.loading")}
+              onClick={() => {
+                onNavigate("intake");
+              }}
+            >
+              {t("pricing.primaryCta")}
+            </SolidButton>
+          </div>
+        </div>
 
-        <div className="space-y-4">
-          <SectionHeader eyebrow={t("pricing.faqEyebrow")} title={t("pricing.faqTitle")} description={t("pricing.faqDescription")} />
+        <div className="space-y-6">
+          <SectionHeader 
+            eyebrow={t("pricing.faqEyebrow")} 
+            title={t("pricing.faqTitle")} 
+            description={t("pricing.faqDescription")} 
+            titleClassName="text-2xl lg:text-3xl"
+          />
 
-          {faqItems.map((item) => (
-            <GlassCard key={item.id} className="p-5">
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-white">{t(item.questionKey)}</h3>
-                <p className="text-sm leading-7 text-brand-muted">{t(item.answerKey)}</p>
-              </div>
-            </GlassCard>
-          ))}
+          <Accordion 
+            items={faqItems.map((item) => ({
+              id: item.id,
+              title: t(item.questionKey),
+              content: t(item.answerKey)
+            }))} 
+          />
         </div>
       </motion.section>
     </PageContainer>

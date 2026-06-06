@@ -1,5 +1,6 @@
 export interface AuditTaskPlan {
   steps: string[];
+  subagents?: string[];
 }
 
 /**
@@ -35,7 +36,6 @@ export class AgentOrchestrator {
     } else {
       // 若未指定目標，預設啟動全部流程
       steps.add("browser");
-      // Add other default skills here as they become available
     }
 
     // 確保即使規則匹配到未實作的 skill，系統依然能執行 (未來擴充點)
@@ -44,6 +44,34 @@ export class AgentOrchestrator {
     
     const finalSteps = Array.from(steps);
     console.log(`[Orchestrator] Decided Execution Pipeline: ${finalSteps.join(" -> ")}`);
+    
     return { steps: finalSteps };
+  }
+
+  /**
+   * Swarm Router: Dispatch to specialized subagents based on tech stack identified in the deterministic phase
+   */
+  public routeSwarm(stack?: string[], headers?: { server: string | null, poweredBy: string | null }): string[] {
+    const subagents = new Set<string>();
+    const stackStr = (stack || []).join(" ").toLowerCase();
+    const serverHeader = (headers?.server || "").toLowerCase();
+    const poweredByHeader = (headers?.poweredBy || "").toLowerCase();
+    
+    if (stackStr.includes("react") || stackStr.includes("vue") || stackStr.includes("angular") || stackStr.includes("svelte")) {
+      subagents.add("UXAuditAgent");
+    }
+    if (stackStr.includes("node") || stackStr.includes("express") || stackStr.includes("php") || stackStr.includes("django") || stackStr.includes("spring") || poweredByHeader.includes("express") || poweredByHeader.includes("php")) {
+      subagents.add("DevSecOpsAgent");
+    }
+    if (stackStr.includes("next") || stackStr.includes("nuxt") || stackStr.includes("vercel") || stackStr.includes("astro") || poweredByHeader.includes("next.js") || serverHeader.includes("vercel")) {
+      subagents.add("PerformanceAgent");
+    }
+    if (subagents.size === 0) {
+      subagents.add("GeneralAuditAgent"); // fallback subagent
+    }
+
+    const finalSubagents = Array.from(subagents);
+    console.log(`[Orchestrator] Swarm Router Dispatched Active Subagents: ${finalSubagents.join(", ")}`);
+    return finalSubagents;
   }
 }

@@ -20,9 +20,10 @@ export const audits = pgTable('audit_records', {
 
 export const planSettings = pgTable('audit_plan_settings', {
   planId: text('plan_id').primaryKey(),
-  aiProvider: text('ai_provider').default('openrouter'),
+  aiProvider: text('ai_provider').default('openrouter'), // 'openrouter', 'agentrouter', 'nvidia'
   openRouterApiKey: text('openrouter_api_key').default(''),
   agentRouterApiKey: text('agentrouter_api_key').default(''),
+  nvidiaApiKey: text('nvidia_api_key').default(''),
   allowedModels: text('allowed_models').default('google/gemini-2.5-flash'),
   price: text('price').default('$0'),
 });

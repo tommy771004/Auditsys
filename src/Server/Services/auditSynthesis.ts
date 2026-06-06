@@ -1,5 +1,5 @@
 import type { AuditEvidenceBundle, AuditRequestPayload, AuditSynthesisResult, BrowserCollectorTimelineStep, DeterministicCollectorResult } from "./auditPipelineTypes";
-import { fetchOpenRouterWithFallback, fetchAgentRouter } from "./openrouterHelper";
+import { fetchOpenRouterWithFallback, fetchAgentRouter, fetchNvidia } from "./openrouterHelper";
 
 function buildEvidenceLines(payload: AuditRequestPayload, deterministic: DeterministicCollectorResult): string[] {
   const lines = [
@@ -183,30 +183,41 @@ function buildFallbackSummary(payload: AuditRequestPayload, evidence: AuditEvide
   });
 }
 
-export async function synthesizeAudit(payload: AuditRequestPayload, evidence: AuditEvidenceBundle, config?: { aiProvider?: string, agentRouterApiKey?: string, openRouterApiKey?: string, apiKey?: string, allowedModels?: string[] }): Promise<AuditSynthesisResult> {
+export async function synthesizeAudit(payload: AuditRequestPayload, evidence: AuditEvidenceBundle, config?: { aiProvider?: string, agentRouterApiKey?: string, openRouterApiKey?: string, nvidiaApiKey?: string, apiKey?: string, allowedModels?: string[] }): Promise<AuditSynthesisResult> {
   const provider = config?.aiProvider || 'openrouter';
-  const apiKey = provider === 'agentrouter'
-    ? (config?.agentRouterApiKey || process.env.AGENT_ROUTER_TOKEN)
-    : (config?.openRouterApiKey || config?.apiKey || process.env.OPENROUTER_API_KEY);
+  
+  let apiKey = config?.apiKey || process.env.OPENROUTER_API_KEY;
+  if (provider === 'agentrouter') {
+    apiKey = config?.agentRouterApiKey || process.env.AGENT_ROUTER_TOKEN;
+  } else if (provider === 'nvidia') {
+    apiKey = config?.nvidiaApiKey || process.env.NVIDIA_API_KEY;
+  } else {
+    apiKey = config?.openRouterApiKey || config?.apiKey || process.env.OPENROUTER_API_KEY;
+  }
 
   if (!apiKey) {
     return {
       provider: "fallback",
       queued: false,
-      reason: "missing_openrouter_api_key",
-      summary: buildFallbackSummary(payload, evidence, "missing_openrouter_api_key"),
+      reason: "missing_api_key",
+      summary: buildFallbackSummary(payload, evidence, "missing_api_key"),
     };
   }
 
   try {
     const prompt = buildAuditPrompt(payload, evidence);
 
-    const response = provider === 'agentrouter'
-      ? await fetchAgentRouter(apiKey, prompt, config?.allowedModels?.[0] || 'gpt-4o')
-      : await fetchOpenRouterWithFallback(apiKey, prompt, config?.allowedModels);
+    let response;
+    if (provider === 'agentrouter') {
+      response = await fetchAgentRouter(apiKey, prompt, config?.allowedModels?.[0] || 'gpt-4o');
+    } else if (provider === 'nvidia') {
+      response = await fetchNvidia(apiKey, prompt, config?.allowedModels?.[0] || 'nvidia/nemotron-3-super-120b-a12b:free');
+    } else {
+      response = await fetchOpenRouterWithFallback(apiKey, prompt, config?.allowedModels);
+    }
 
     return {
-      provider: provider === 'agentrouter' ? 'agentrouter' : 'openrouter',
+      provider: provider,
       queued: false,
       summary: response.text ?? "",
       model: response.model,
@@ -216,8 +227,8 @@ export async function synthesizeAudit(payload: AuditRequestPayload, evidence: Au
     return {
       provider: "fallback",
       queued: false,
-      reason: "openrouter_api_error",
-      summary: buildFallbackSummary(payload, evidence, "openrouter_api_error"),
+      reason: "api_error",
+      summary: buildFallbackSummary(payload, evidence, "api_error"),
     };
   }
 }

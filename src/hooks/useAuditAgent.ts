@@ -277,22 +277,149 @@ export function buildLiveReportContent(report: AuditIntelligenceResult, t: TFunc
   return report.summary?.trim() || "{}";
 }
 
-function buildReportContent(targetUrl: string, t: TFunction): string {
-  return [
-    t("auditConsole.mock.report.title"),
-    "",
-    t("auditConsole.mock.report.lead", { url: targetUrl }),
-    "",
-    `• ${t("auditConsole.mock.report.point1")}`,
-    `• ${t("auditConsole.mock.report.point2")}`,
-    `• ${t("auditConsole.mock.report.point3")}`,
-    "",
-    t("auditConsole.mock.report.closing"),
-  ].join("\n");
+export interface CustomSubagentDef {
+  id: string;
+  role: string;
+  toolName: string;
+  args: Record<string, any>;
+  logKeys: string[];
+  intervalMs: number;
 }
 
-async function* createAgentWorkflow(targetUrl: string, t: TFunction): AsyncGenerator<AgentWorkflowEvent> {
-  const plan = buildMockPlan(targetUrl);
+function hashCode(str: string): number {
+  let hash = 0;
+  for (let i = 0, len = str.length; i < len; i++) {
+    const chr = str.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
+    hash |= 0; 
+  }
+  return Math.abs(hash);
+}
+
+function buildReportContent(targetUrl: string, t: TFunction, hitlInstructions?: string): string {
+  const isZh = t("auditConsole.mock.report.title").includes("報告") || t("auditConsole.mock.report.lead").includes("目標網址");
+  
+  const hash = hashCode(targetUrl);
+  
+  const allDeterministicFindings = [
+    {
+      issue: isZh ? "伺服器 HSTS 傳輸金鑰防禦缺失" : "Server HSTS Telemetry Key Deferral",
+      impact: isZh ? "系統缺少 Strict-Transport-Security (HSTS) 防禦配置，可能使敏感傳輸面臨連線劫持風險。" : "Absence of Strict-Transport-Security constraints exposes connection handshakes to intermediate routing interception.",
+      severity: "High"
+    },
+    {
+      issue: isZh ? "SEO 解析：缺少結構化資料與 Open Graph 標籤" : "SEO Analysis: Missing JSON-LD & Open Graph Metadata",
+      impact: isZh ? "頁面缺乏 JSON-LD 結構化資料庫與 OG 標籤，搜尋引擎無法精確擷取特徵片段，降低社群分享轉化率及 SERP 點擊率。" : "Missing JSON-LD structured data and Open Graph tags impair search engine feature extraction, reducing social sharing conversions and SERP visibility.",
+      severity: "High"
+    },
+    {
+      issue: isZh ? "SEO 深度優化：標題標籤與 Canonical 規範連結未定" : "SEO Discovery: Missing Canonical Links & Semantic Title Hierarchy",
+      impact: isZh ? "因缺乏 Canonical 標籤與不連貫的 H1-H3 標籤結構，導致爬蟲檢索時可能會發生內容重複懲罰(Duplicate Content)，且未優化的 Metadata 將影響整體排名韌性。" : "Absence of canonical tags and broken H1-H3 semantic hierarchies exposes the site to duplicate content penalties and degraded ranking resilience during crawler indexing.",
+      severity: "Medium"
+    },
+    {
+      issue: isZh ? "資源壓縮快取效能待加強" : "Resource Brotli Cache Optimization Gaps",
+      impact: isZh ? "文字腳本與樣式檔案未啟用 Brotli 高壓縮規則，增加了連線擁塞時的 TTFB 載入時長。" : "Payload scripts lack Gzip/Brotli compression tags, degrading optimal rendering during intense bandwidth congestion.",
+      severity: "Medium"
+    },
+    {
+      issue: isZh ? "過度使用阻塞渲染的腳本" : "Render-Blocking Scripts Detected",
+      impact: isZh ? "主頁面載入時有多個同步腳本阻擋了 HTML 的解析，導致首圖渲染時間過長。" : "Multiple synchronous scripts block the critical rendering path, increasing LCP.",
+      severity: "High"
+    },
+    {
+      issue: isZh ? "CORS 跨來源資源共用設定過度寬鬆" : "Overly Permissive CORS Policies",
+      impact: isZh ? "API 端點的 CORS 標頭允許了任意來源 (Access-Control-Allow-Origin: *)，可能導致資料外洩風險。" : "API endpoints allow arbitrary origins (*), exposing potential data leakage to unauthorized third parties.",
+      severity: "High"
+    }
+  ];
+
+  const allBrowserFlowGaps = [
+    {
+      issue: isZh ? "動態部分重繪與生命週期延遲" : "Dynamic Lifecycle Reflow Hydration Gaps",
+      impact: isZh ? "客戶端主 Bundle 檔未啟用非同步延遲載入，核心互動按鍵在首次繪製完成前無法回應點擊。" : "Client-side hydrate bundles block single-threaded processors, preventing key buttons from early click registration.",
+      severity: "Medium"
+    },
+    {
+      issue: isZh ? "首屏畫面版框位移 (CLS)" : "Cumulative Layout Shift (CLS) on Render",
+      impact: isZh ? "橫幅圖片未預設寬高佔位符，導致載入完成後會將下方文字推擠，影響使用者點擊體驗。" : "Hero images lack explicit dimensions, causing layout thrashing after payload delivery.",
+      severity: "Medium"
+    },
+    {
+      issue: isZh ? "無障礙焦點陷阱 (Focus Trap)" : "Accessibility Keyboard Focus Trap",
+      impact: isZh ? "導覽列開啟後，鍵盤操作無法跳出選單區域，影響依賴鍵盤導覽的使用者。" : "Keyboard navigation becomes locked within the expanded navigation drawer.",
+      severity: "High"
+    }
+  ];
+
+  // Pick pseudo-random issues based on URL hash
+  const detIndex1 = hash % allDeterministicFindings.length;
+  const detIndex2 = (hash + 1) % allDeterministicFindings.length;
+  const bfIndex = hash % allBrowserFlowGaps.length;
+
+  // Ensure unique picks if array is large enough
+  const selectedDet = detIndex1 !== detIndex2 ? [allDeterministicFindings[detIndex1], allDeterministicFindings[detIndex2]] : [allDeterministicFindings[detIndex1]];
+  
+  const baseJson = {
+    executiveSummary: hitlInstructions 
+      ? (isZh 
+          ? `[人工介入方針已整合] 針對目標網址 ${targetUrl} 的稽核任務。在引入人類修復指南（「${hitlInstructions}」）後，多代理蜂群已繞過標準阻礙，直接重構沙箱規則，並在全系統中完成安全性與效能優化校驗。`
+          : `[Human Guidance Integrated] Successfully accomplished the diagnostics swarm for ${targetUrl} incorporating handoff instruction: "${hitlInstructions}". Safe boundary overrides verified, compiling optimal mitigation paths.`)
+      : (isZh
+          ? `[自動稽核分析完成] 主代理多核蜂群已針對目標對象 ${targetUrl} 進行全面深層感測。偵測到部分與架構相容性、標頭安全防禦、以及前端效能相關的問題。`
+          : `[Automated Diagnostics Swarm Complete] General comprehensive telemetry sensor scan completed for target: ${targetUrl}. Discovered potential optimization gaps across transmission layers, document templates, and performance bounds.`),
+    deterministicFindings: selectedDet,
+    browserFlowGaps: [allBrowserFlowGaps[bfIndex]],
+    architectureRisks: [
+      {
+        issue: isZh ? "不被信任的動態與沙箱繞過保護" : "Sandbox Untrusted Script Boundary Isolation Gaps",
+        impact: hitlInstructions 
+          ? (isZh 
+              ? `已註冊人工專屬編譯指令：「${hitlInstructions}」。免疫防護規則已動態回寫入沙箱，原高風險現已安全排除。`
+              : `Registered HITL custom override action: "${hitlInstructions}". Safe-compile parameters committed to Sandboxed Container context.`)
+          : (isZh 
+              ? "稽核引擎偵測到未經防禦隔離的程式碼段，在未配置 custom whitelists 時可能觸發環境安全例外。" 
+              : "Standard policies enforce rigid container limits. Live crawlers attempting page reads may hit policy rule exceptions."),
+        severity: hitlInstructions ? "Low" : "High"
+      }
+    ],
+    nextActions: [
+      {
+        action: hitlInstructions 
+          ? (isZh ? `依據方針重新部署編譯任務：「${hitlInstructions}」` : `Redeploy following policy task: "${hitlInstructions}"`)
+          : (isZh ? "配置邊緣安全標頭 (CSP、HSTS、CORS)" : "Configure edge defense headers (CSP, HSTS)"),
+        impact: isZh ? "保障傳輸協議安全性，阻絕跨站腳本與中間人篡改" : "Validates TLS bindings and blocks cross-site script pollution"
+      },
+      {
+        action: isZh ? "設定永久防禦規則與自動飛輪固化" : "Trigger Permanent Flywheel Guardrail Commits",
+        impact: isZh ? "實自主回寫免疫系統，防止後續代碼偏離標準防護" : "Hardens CI/CD pipeline preventing future lint quality regressions"
+      }
+    ]
+  };
+
+  return JSON.stringify(baseJson, null, 2);
+}
+
+async function* createAgentWorkflow(
+  targetUrl: string, 
+  t: TFunction,
+  enabledAgentIds: string[],
+  customAgentDefs: CustomSubagentDef[],
+  hitlInstructions?: string
+): AsyncGenerator<AgentWorkflowEvent> {
+  const basePlan = buildMockPlan(targetUrl);
+  const plan = basePlan
+    .filter((item) => enabledAgentIds.includes(item.id))
+    .concat(
+      customAgentDefs.map((c) => ({
+        id: c.id,
+        roleKey: c.role,
+        toolName: c.toolName,
+        args: c.args,
+        logKeys: c.logKeys,
+        intervalMs: c.intervalMs,
+      }))
+    );
 
   yield { type: "phase", phase: "analyzing_context" };
   await delay(650);
@@ -314,13 +441,24 @@ async function* createAgentWorkflow(targetUrl: string, t: TFunction): AsyncGener
   yield { type: "phase", phase: "synthesizing_memory" };
   await delay(260);
 
-  yield { type: "memory", update: buildMemoryUpdate(t) };
+  yield { 
+    type: "memory", 
+    update: hitlInstructions 
+      ? {
+          key: "Human Intervene Ruleset",
+          fact: t("auditConsole.hitl.memoryApplied", {
+            defaultValue: `Manual override resolved. Human policy compiled: "${hitlInstructions}". Safe sandbox locked.`
+          }),
+          type: "tech_stack"
+        }
+      : buildMemoryUpdate(t) 
+  };
   await delay(760);
 
   yield { type: "phase", phase: "streaming_report" };
   await delay(160);
 
-  yield { type: "report", content: buildReportContent(targetUrl, t) };
+  yield { type: "report", content: buildReportContent(targetUrl, t, hitlInstructions) };
   await delay(120);
 
   yield { type: "phase", phase: "complete" };
@@ -339,6 +477,35 @@ export function useAuditAgent(): UseAgentResult {
   const [latestAuditResult, setLatestAuditResult] = useState<AuditIntelligenceResult | null>(null);
   const [reportSource, setReportSource] = useState<AgentReportSource | null>(null);
   const [errorKey, setErrorKey] = useState<string | null>(null);
+
+  // Dynamic extensions for HITL, Swarm Router, and Flywheel Engine
+  const [enabledAgentIds, setEnabledAgentIds] = useState<string[]>([
+    "frontend-speed",
+    "api-latency",
+    "a11y-scanner",
+    "memory-synth"
+  ]);
+  const [customAgentDefs, setCustomAgentDefs] = useState<CustomSubagentDef[]>([]);
+  const [hitlInstructions, setHitlInstructions] = useState<string>("");
+  const [immunizedRules, setImmunizedRules] = useState<string[]>([]);
+
+  const addCustomAgent = (role: string, toolName: string) => {
+    const id = `custom-agent-${Date.now()}`;
+    const newAgent: CustomSubagentDef = {
+      id,
+      role,
+      toolName,
+      args: { target: "custom" },
+      logKeys: [
+        `Initializing custom microservice agent: ${role}.`,
+        `Analyzing site infrastructure with modular dynamic tool: ${toolName}.`,
+        `Synthesizing telemetry data stream. Checks passed.`,
+        `Task completed. Integration metrics compiled successfully.`
+      ],
+      intervalMs: 500,
+    };
+    setCustomAgentDefs((prev) => [...prev, newAgent]);
+  };
 
   const intervalIdsRef = useRef<number[]>([]);
   const memoryBadgeTimeoutRef = useRef<number | null>(null);
@@ -420,18 +587,29 @@ export function useAuditAgent(): UseAgentResult {
     await Promise.all(
       plan.map(
         (item) =>
-          new Promise<void>((resolve) => {
+          new Promise<void>(async (resolve) => {
             let logIndex = 0;
             const startedAt = window.performance.now();
             const toolCallId = `${item.id}-tool`;
-            const intervalId = window.setInterval(() => {
+            
+            while (logIndex < item.logKeys.length) {
               if (token !== runTokenRef.current) {
-                window.clearInterval(intervalId);
                 resolve();
                 return;
               }
 
-              const nextLog = t(item.logKeys[logIndex], { url: activeTargetUrl });
+              // Add organic jitter to the interval (±40%)
+              const jitter = (Math.random() * 0.8 + 0.6);
+              const delayMs = Math.round(item.intervalMs * jitter);
+              await delay(delayMs);
+
+              if (token !== runTokenRef.current) {
+                resolve();
+                return;
+              }
+
+              const rawLog = item.logKeys[logIndex];
+              const nextLog = rawLog.includes(".") ? t(rawLog, { url: activeTargetUrl }) : rawLog;
               const isLastLog = logIndex === item.logKeys.length - 1;
               const status: ToolCallStatus = isLastLog ? "success" : "running";
               const executionTimeMs = Math.round(window.performance.now() - startedAt);
@@ -440,16 +618,12 @@ export function useAuditAgent(): UseAgentResult {
               updateSubagent(item.id, isLastLog ? "done" : "active", executionTimeMs);
 
               if (isLastLog) {
-                window.clearInterval(intervalId);
-                intervalIdsRef.current = intervalIdsRef.current.filter((registeredId) => registeredId !== intervalId);
                 resolve();
                 return;
               }
 
-              logIndex += 1;
-            }, item.intervalMs);
-
-            intervalIdsRef.current.push(intervalId);
+              logIndex++;
+            }
           }),
       ),
     );
@@ -476,7 +650,7 @@ export function useAuditAgent(): UseAgentResult {
     return Promise.resolve();
   };
 
-  const startAudit = async (url: string, intakeData?: any) => {
+  const startAudit = async (url: string, intakeData?: any, isHitlOverride?: boolean) => {
     const normalizedUrl = url.trim();
     const token = runTokenRef.current + 1;
     let resolvedAuditResult: AuditIntelligenceResult | null = null;
@@ -539,9 +713,15 @@ export function useAuditAgent(): UseAgentResult {
       return null;
     })();
 
-    let pendingPlan: MockSubagentDefinition[] = [];
+    let pendingPlan: any[] = [];
 
-    for await (const event of createAgentWorkflow(normalizedUrl, t)) {
+    for await (const event of createAgentWorkflow(
+      normalizedUrl,
+      t,
+      enabledAgentIds,
+      customAgentDefs,
+      isHitlOverride ? hitlInstructions : undefined
+    )) {
       if (token !== runTokenRef.current) {
         return;
       }
@@ -625,5 +805,13 @@ export function useAuditAgent(): UseAgentResult {
     errorKey,
     startAudit,
     reset,
+    enabledAgentIds,
+    setEnabledAgentIds,
+    customAgentDefs,
+    addCustomAgent,
+    hitlInstructions,
+    setHitlInstructions,
+    immunizedRules,
+    setImmunizedRules,
   };
 }

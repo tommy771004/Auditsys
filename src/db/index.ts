@@ -107,6 +107,14 @@ export async function initDb() {
       ) THEN
         ALTER TABLE audit_plan_settings ADD COLUMN agentrouter_api_key TEXT DEFAULT '';
       END IF;
+
+      IF NOT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name='audit_plan_settings' AND column_name='nvidia_api_key'
+      ) THEN
+        ALTER TABLE audit_plan_settings ADD COLUMN nvidia_api_key TEXT DEFAULT '';
+      END IF;
     END
     $$;
 

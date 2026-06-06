@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,28 +6,28 @@
 
 @layer base {
   :root {
-    --bg: #0a0e16;
-    --bg-alt: #0e131e;
-    --surface: #141b29;
-    --surface-2: #1a2233;
-    --border: rgba(255, 255, 255, 0.10);
-    --border-strong: rgba(255, 255, 255, 0.18);
-    --text: #e9eef6;
-    --muted: #9aa7bc;
-    --faint: #6b7689;
-    --amber: #ffb347;
-    --teal: #3ad6c3;
-    --violet: #9d8bff;
-    --green: #5fd28a;
-    --red: #ff6b6b;
-    --blue: #5b8def;
-    --radius: 18px;
-    --radius-sm: 12px;
+    --bg: #ffffff;
+    --bg-alt: #f3f4f6;
+    --surface: #ffffff;
+    --surface-2: #f9fafb;
+    --border: #e5e7eb;
+    --border-strong: #000000;
+    --text: #000000;
+    --muted: #4b5563;
+    --faint: #9ca3af;
+    --amber: #f59e0b;
+    --teal: #14b8a6;
+    --violet: #8b5cf6;
+    --green: #10b981;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --radius: 2px;
+    --radius-sm: 2px;
     --maxw: 1140px;
-    --shadow: 0 20px 55px -22px rgba(0, 0, 0, 0.75);
-    --grad: linear-gradient(135deg, #ffb347 0%, #ff7eb6 48%, #9d8bff 100%);
-    --fz: "Noto Sans TC", system-ui, sans-serif;
-    --fe: "Space Grotesk", "Noto Sans TC", sans-serif;
+    --shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+    --grad: none;
+    --fz: "Inter", system-ui, sans-serif;
+    --fe: "Inter", "Space Grotesk", sans-serif;
     --fm: "JetBrains Mono", monospace;
   }
 
@@ -46,22 +46,61 @@
     color: var(--text);
     line-height: 1.8;
   }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="url"],
+  input[type="password"],
+  input[type="number"],
+  textarea {
+    @apply border border-black bg-white text-black px-4 py-2 rounded-sm outline-none transition-all duration-200 placeholder-gray-500;
+  }
+  
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="url"]:focus,
+  input[type="password"]:focus,
+  input[type="number"]:focus,
+  textarea:focus {
+    @apply shadow-[4px_4px_0_0_rgba(0,0,0,1)] border-black translate-x-[-2px] translate-y-[-2px];
+  }
 }
 
 @layer components {
-  .glass-panel {
-    @apply border border-white/10 shadow-[0_20px_55px_-22px_rgba(0,0,0,0.75)] backdrop-blur-2xl bg-[#141b29]/85 rounded-[18px];
-  }
-
   .hero-grid-bg {
     position: absolute;
     inset: 0;
-    background-image: linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
-    background-size: 52px 52px;
-    mask-image: radial-gradient(ellipse 75% 65% at 60% 35%, #000 30%, transparent 80%);
-    opacity: 0.55;
+    pointer-events: none;
+    background-image: 
+      linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+    background-size: 30px 30px;
+    opacity: 1;
     z-index: 0;
+  }
+
+  .glass-panel {
+    @apply border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] bg-white rounded-sm text-black;
+  }
+
+  .bg-noise {
+    display: none;
+  }
+
+  .brand-gradient-text {
+    @apply text-black font-extrabold;
+  }
+
+  .section-divider {
+    @apply border-b border-black w-full;
+  }
+
+  .animate-float {
+    animation: none;
+  }
+
+  .animate-float-delayed {
+    animation: none;
   }
 }
 
