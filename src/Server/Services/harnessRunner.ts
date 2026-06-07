@@ -44,6 +44,8 @@ interface AuditHarnessPolicy {
   maxSteps: number;
   warningBudget: number;
   tokenBudget: number;
+  /** Dollar ceiling for the cost circuit breaker (CostTracker.budgetLimit is in USD). */
+  costBudgetUsd: number;
 }
 
 interface AuditHarnessDependencies {
@@ -99,6 +101,7 @@ const DEFAULT_POLICY: AuditHarnessPolicy = {
   maxSteps: 12,
   warningBudget: 12,
   tokenBudget: 12000,
+  costBudgetUsd: 1.0,
 };
 
 const DEFAULT_DEPENDENCIES: AuditHarnessDependencies = {
@@ -117,6 +120,35 @@ function createRunId(): string {
 
 function durationMs(startedAtMs: number): number {
   return Math.max(0, Date.now() - startedAtMs);
+}
+
+/**
+ * Builds a well-formed "skipped" browser evidence object. Used as a defensive
+ * fallback so synthesis and the quality-gate sensors never dereference an
+ * undefined browser result if the browser step did not execute for any reason.
+ */
+function createSkippedBrowserResult(payload: AuditRequestPayload, reason: string): BrowserCollectorResult {
+  const ts = nowIso();
+  return {
+    stage: "browser",
+    status: "skipped",
+    mode: "stub",
+    startedAt: ts,
+    completedAt: ts,
+    runtime: {
+      runner: "stub",
+      instruction: `Browser collection skipped: ${reason}`,
+      startUrl: payload.url,
+    },
+    pages: [],
+    flows: [],
+    timeline: [],
+    observations: [],
+    warnings: [`Browser evidence unavailable: ${reason}`],
+    screenshots: [],
+    artifacts: { screenshotPaths: [], logPaths: [] },
+    reason,
+  };
 }
 
 function getAttemptStrategy(index: number, policy: AuditHarnessPolicy): AuditHarnessAttempt["strategy"] {
@@ -369,11 +401,15 @@ function buildSensors(execution: AttemptExecution, policy: AuditHarnessPolicy, s
   ));
 
   if (execution.lighthouse) {
+    // Lighthouse scores describe the target site's quality — a low score is a
+    // finding to report, not a harness failure. These sensors therefore cap at
+    // "warning" (manual review) and never "failed", so a slow external site
+    // cannot push the run into retries that can't possibly change the score.
     const { performance, accessibility, seo } = execution.lighthouse;
     sensors.push(createSensor(
       "lighthouse_performance",
       "Lighthouse Performance",
-      performance >= 50 ? (performance >= 90 ? "passed" : "warning") : "failed",
+      performance >= 90 ? "passed" : "warning",
       performance >= 90 ? "low" : (performance >= 50 ? "medium" : "high"),
       String(performance),
       `PageSpeed Performance score is ${performance}.`,
@@ -382,7 +418,7 @@ function buildSensors(execution: AttemptExecution, policy: AuditHarnessPolicy, s
     sensors.push(createSensor(
       "lighthouse_accessibility",
       "Lighthouse Accessibility",
-      accessibility >= 80 ? (accessibility >= 90 ? "passed" : "warning") : "failed",
+      accessibility >= 90 ? "passed" : "warning",
       accessibility >= 90 ? "low" : (accessibility >= 80 ? "medium" : "high"),
       String(accessibility),
       `PageSpeed Accessibility score is ${accessibility}.`,
@@ -391,7 +427,7 @@ function buildSensors(execution: AttemptExecution, policy: AuditHarnessPolicy, s
     sensors.push(createSensor(
       "lighthouse_seo",
       "Lighthouse SEO",
-      seo >= 80 ? (seo >= 90 ? "passed" : "warning") : "failed",
+      seo >= 90 ? "passed" : "warning",
       seo >= 90 ? "low" : (seo >= 80 ? "medium" : "high"),
       String(seo),
       `PageSpeed SEO score is ${seo}.`,
@@ -497,7 +533,15 @@ async function executeAttempt(
 
   // P1: Observability (Execution Tracer)
   const tracer = new ExecutionTracer(identity.correlationId, identity.role);
-  const sandbox = new AgentSandbox(identity, [new URL(payload.url).hostname]);
+  // Allowlist the audit target plus the external services the pipeline is
+  // permitted to reach, so the sandbox's network checks enforce a real boundary.
+  const allowedHosts = [
+    new URL(payload.url).hostname,
+    "www.googleapis.com",          // PageSpeed / Lighthouse
+    "chromeuxreport.googleapis.com", // CrUX
+    "openrouter.ai",               // synthesis LLM
+  ];
+  const sandbox = new AgentSandbox(identity, allowedHosts);
   const contextManager = new ContextManager();
   
   // P2: Orchestration & Guardrails
@@ -555,7 +599,10 @@ async function executeAttempt(
         index,
         "tool_call",
         "Run deterministic collector",
-        () => sandbox.executeLlmCall("deterministic", 0, () => dependencies.collectDeterministicEvidence(payload)),
+        () => sandbox.execute(
+          { type: "network_request", target: payload.url, payload: { stage: "deterministic" } },
+          () => dependencies.collectDeterministicEvidence(payload),
+        ),
       );
       tracer.logPhaseEnd("Deterministic Collector", detStart);
     }
@@ -566,16 +613,22 @@ async function executeAttempt(
         sandbox.setContext("taskPlan", taskPlan);
     }
     
-    // Analyzing Phase: Lighthouse Sensor
-    const analyzingStart = tracer.logPhaseStart("Lighthouse Analysis");
-    execution.lighthouse = await traceStep(
-      execution.trace,
-      index,
-      "tool_call",
-      "Run Lighthouse PageSpeed analysis",
-      () => fetchLighthouse(payload.url),
-    );
-    tracer.logPhaseEnd("Lighthouse Analysis", analyzingStart);
+    // Analyzing Phase: Lighthouse Sensor. Only run when a PageSpeed key is
+    // configured and only on the first attempt — it is an external call that
+    // does not change between retries (it measures the target site, not our run),
+    // so re-running it on every retry just wastes quota.
+    const pagespeedKey = process.env.VITE_PAGESPEED_API_KEY || process.env.PAGESPEED_API_KEY;
+    if (pagespeedKey && index === 1) {
+      const analyzingStart = tracer.logPhaseStart("Lighthouse Analysis");
+      execution.lighthouse = await traceStep(
+        execution.trace,
+        index,
+        "tool_call",
+        "Run Lighthouse PageSpeed analysis",
+        () => fetchLighthouse(payload.url),
+      );
+      tracer.logPhaseEnd("Lighthouse Analysis", analyzingStart);
+    }
 
     if (taskPlan.steps.includes("browser") && execution.deterministic) {
       const brwStart = tracer.logPhaseStart("Browser Collector");
@@ -585,14 +638,20 @@ async function executeAttempt(
         index,
         "tool_call",
         "Run browser flow collector",
-        () => sandbox.executeLlmCall("browser", 0, () => dependencies.collectBrowserEvidence(payload, execution.deterministic as DeterministicCollectorResult)),
+        () => sandbox.execute(
+          { type: "network_request", target: payload.url, payload: { stage: "browser" } },
+          () => dependencies.collectBrowserEvidence(payload, execution.deterministic as DeterministicCollectorResult),
+        ),
       );
       tracer.logPhaseEnd("Browser Collector", brwStart);
     }
 
     execution.evidence = {
       deterministic: execution.deterministic,
-      browser: execution.browser,
+      // Defensive: guarantee a well-formed browser object even if the browser
+      // step was not part of the plan or returned nothing, so synthesis and the
+      // sensors below can never read properties of undefined.
+      browser: execution.browser ?? createSkippedBrowserResult(payload, "browser_step_not_executed"),
     };
 
     // P1: Context Management
@@ -627,9 +686,15 @@ async function executeAttempt(
       
       if (execution.synthesis.summary) {
          tracer.logDecisionPath("Synthesis Output", "evidence provided", execution.synthesis.summary);
-         
-         // Persist cross-session long term memory at the end of synthesis
-         await contextManager.persistLongTermMemory(payload.url, execution.synthesis.summary);
+
+         // Persist cross-session long-term memory only when explicitly opted in.
+         // Previously this appended every audit (URL + full report) to a
+         // git-tracked PROJECT_MEMORY.md on disk on EVERY run, causing unbounded
+         // file growth and leaking each audited target into a shared file. It is
+         // now off by default and gated behind HARNESS_PERSIST_MEMORY=true.
+         if (process.env.HARNESS_PERSIST_MEMORY === "true") {
+           await contextManager.persistLongTermMemory(payload.url, execution.synthesis.summary);
+         }
       }
     }
   } catch (error) {
@@ -714,8 +779,8 @@ export async function runAuditHarness(
   let latestExecution: AttemptExecution | null = null;
   let latestQualityGate: AuditHarnessQualityGate | null = null;
   
-  // P1: Observability Cost Tracker
-  let costTracker = new CostTracker(policy.tokenBudget);
+  // P1: Observability Cost Tracker (budget is in USD, not tokens)
+  let costTracker = new CostTracker(policy.costBudgetUsd);
   let retryReason: string | undefined;
   let circuitBreakerReason: string | undefined;
 
@@ -749,8 +814,12 @@ export async function runAuditHarness(
     latestExecution = result.execution;
     latestQualityGate = result.qualityGate;
     
-    // Add cost record for this attempt
-    const activeModel = config?.allowedModels?.[0] || "google/gemini-1.5-flash";
+    // Add cost record for this attempt. Use the model synthesis actually reported
+    // so the figure reflects reality (free models -> $0, fallback path -> $0)
+    // instead of always pricing a paid default model that may never have run.
+    const activeModel = result.execution.synthesis?.model
+      || config?.allowedModels?.[0]
+      || "deterministic-fallback:free";
     const attemptCost = calculateModelCost(activeModel, result.estimatedTokenSpend * 2, result.estimatedTokenSpend);
     costTracker = costTracker.add({
       model: activeModel,

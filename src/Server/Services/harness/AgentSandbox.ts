@@ -84,13 +84,16 @@ export class AgentSandbox {
   }
 
   /**
-   * 透過沙箱執行 LLM 呼叫 (攔截與驗證 + Middleware 鏈)
+   * 透過沙箱執行任意受管動作 (攔截與驗證 + Middleware 鏈)
+   *
+   * Runs the interceptor validation and the middleware chain around `executor`.
+   * Callers must declare the real action `type` and `target` so the sandbox
+   * enforces something meaningful (e.g. a `network_request` is checked against
+   * the domain allowlist) rather than mislabelling everything as an LLM call.
    */
-  public async executeLlmCall<T>(modelName: string, promptSize: number, executor: () => Promise<T>): Promise<T> {
-    const action: SandboxAction = { type: "llm_call", target: modelName, payload: { promptSize } };
-    
+  public async execute<T>(action: SandboxAction, executor: () => Promise<T>): Promise<T> {
     if (!this.interceptor.validateAction(this.identity, action)) {
-      throw new Error(`[Sandbox] LLM Call action blocked by security policy for ${this.identity.role}.`);
+      throw new Error(`[Sandbox] ${action.type} action blocked by security policy for ${this.identity.role}.`);
     }
 
     // Middleware execution chain
@@ -98,7 +101,7 @@ export class AgentSandbox {
     const dispatch = async (i: number, currentAction: SandboxAction): Promise<T> => {
       if (i <= index) throw new Error("[Sandbox] next() called multiple times");
       index = i;
-      
+
       const middleware = this.middlewares[i];
       if (middleware) {
         return await middleware(this.identity, currentAction, (nextAction) => dispatch(i + 1, nextAction));
@@ -107,6 +110,13 @@ export class AgentSandbox {
     };
 
     return await dispatch(0, action);
+  }
+
+  /**
+   * 透過沙箱執行 LLM 呼叫 (攔截與驗證 + Middleware 鏈)
+   */
+  public async executeLlmCall<T>(modelName: string, promptSize: number, executor: () => Promise<T>): Promise<T> {
+    return this.execute({ type: "llm_call", target: modelName, payload: { promptSize } }, executor);
   }
 
   /**

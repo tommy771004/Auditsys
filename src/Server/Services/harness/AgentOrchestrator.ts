@@ -8,44 +8,43 @@ export interface AuditTaskPlan {
  * 負責解析 Audit Request，進行任務分解，並路由至對應的 Agent/Skill 執行。
  */
 export class AgentOrchestrator {
-  private skillRules = [
-    { skill: "browser", keywords: ["seo", "performance", "visual", "ui", "ux", "accessibility", "a11y", "frontend"] },
-    { skill: "security", keywords: ["security", "auth", "vuln", "sql", "xss"] }, // Future proofing
-    { skill: "content", keywords: ["copy", "content", "marketing", "wording", "text"] } // Future proofing
+  // Focus-area keywords used to derive advisory subagent labels from the request
+  // goals. These influence the focus surfaced to the UI, NOT the executable
+  // pipeline — only deterministic/browser/synthesis are real steps the harness runs.
+  private focusRules = [
+    { focus: "UXAuditAgent", keywords: ["seo", "performance", "visual", "ui", "ux", "accessibility", "a11y", "frontend"] },
+    { focus: "DevSecOpsAgent", keywords: ["security", "auth", "vuln", "sql", "xss"] },
+    { focus: "ContentStrategyAgent", keywords: ["copy", "content", "marketing", "wording", "text"] },
   ];
 
   /**
    * 根據使用者的 Request 動態拆解任務並決定 Pipeline 路徑
+   *
+   * The pipeline always runs deterministic -> browser -> synthesis. `browser` is
+   * mandatory: synthesis and the quality-gate sensors consume a well-formed
+   * BrowserCollectorResult (even when it resolves to a skipped/stub result), so
+   * dropping it would leave downstream code dereferencing undefined evidence.
+   * Goal keywords only add advisory subagent focus labels — they never add or
+   * remove executable steps.
    */
   public planTask(url: string, goals?: string[]): AuditTaskPlan {
     console.log(`[Orchestrator] Planning task for URL: ${url}`);
-    
-    // 預設一定要執行核心的 deterministic
-    const steps = new Set<string>();
-    steps.add("deterministic");
-    
+
+    const steps = ["deterministic", "browser", "synthesis"];
+
+    const focus = new Set<string>();
     if (goals && goals.length > 0) {
       const goalsStr = goals.join(" ").toLowerCase();
-      
-      // 基於規則的路由決策 (Rule-based Router)
-      for (const rule of this.skillRules) {
+      for (const rule of this.focusRules) {
         if (rule.keywords.some(keyword => goalsStr.includes(keyword))) {
-          steps.add(rule.skill);
+          focus.add(rule.focus);
         }
       }
-    } else {
-      // 若未指定目標，預設啟動全部流程
-      steps.add("browser");
     }
 
-    // 確保即使規則匹配到未實作的 skill，系統依然能執行 (未來擴充點)
-    // 最終必定交由 synthesis 產出報告
-    steps.add("synthesis");
-    
-    const finalSteps = Array.from(steps);
-    console.log(`[Orchestrator] Decided Execution Pipeline: ${finalSteps.join(" -> ")}`);
-    
-    return { steps: finalSteps };
+    console.log(`[Orchestrator] Decided Execution Pipeline: ${steps.join(" -> ")}`);
+
+    return { steps, subagents: focus.size > 0 ? Array.from(focus) : undefined };
   }
 
   /**
@@ -56,7 +55,7 @@ export class AgentOrchestrator {
     const stackStr = (stack || []).join(" ").toLowerCase();
     const serverHeader = (headers?.server || "").toLowerCase();
     const poweredByHeader = (headers?.poweredBy || "").toLowerCase();
-    
+
     if (stackStr.includes("react") || stackStr.includes("vue") || stackStr.includes("angular") || stackStr.includes("svelte")) {
       subagents.add("UXAuditAgent");
     }
