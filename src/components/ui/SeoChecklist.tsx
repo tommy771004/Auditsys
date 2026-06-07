@@ -100,11 +100,11 @@ export default function SeoChecklist({ documentEvidence }: SeoChecklistProps) {
                     {isPass ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
                   </div>
                   <div>
-                    <h5 className="font-semibold text-black/90">{item.label}</h5>
+                    <h5 className="font-semibold text-[var(--text)]">{item.label}</h5>
                     <p className={`text-xs ${isPass ? 'text-emerald-200/70' : 'text-rose-200/70'}`}>{item.value}</p>
                   </div>
                 </div>
-                <ChevronDown className={`h-4 w-4 text-black/40 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`h-4 w-4 text-brand-faint transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
               </button>
               
               <AnimatePresence>
@@ -115,7 +115,7 @@ export default function SeoChecklist({ documentEvidence }: SeoChecklistProps) {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="border-t border-black/5 px-4 pb-4 pt-3 text-sm text-black/70">
+                    <div className="border-t border-[var(--border)] px-4 pb-4 pt-3 text-sm text-brand-muted">
                       {item.message}
                     </div>
                   </motion.div>

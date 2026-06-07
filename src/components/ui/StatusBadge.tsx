@@ -36,7 +36,7 @@ export function StatusBadge({
   return (
     <span
       className={[
-        "inline-flex items-center gap-x-2.5 rounded-full border border-black bg-black/10 px-2.5 py-1.5 text-xs backdrop-blur-xl",
+        "inline-flex items-center gap-x-2.5 rounded-full border border-[var(--border)] bg-black/10 px-2.5 py-1.5 text-xs backdrop-blur-xl",
         className,
       ]
         .filter(Boolean)

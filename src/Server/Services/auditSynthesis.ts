@@ -223,12 +223,15 @@ export async function synthesizeAudit(payload: AuditRequestPayload, evidence: Au
       model: response.model,
     };
   } catch (error) {
-    // If it's a rate limit or similar error, we can still return a fallback
+    // Surface the real provider failure so nvidia/agentrouter errors are diagnosable
+    // instead of collapsing every failure into an opaque "api_error".
+    const detail = error instanceof Error ? error.message : String(error);
+    const reason = `api_error: ${detail}`;
     return {
       provider: "fallback",
       queued: false,
-      reason: "api_error",
-      summary: buildFallbackSummary(payload, evidence, "api_error"),
+      reason,
+      summary: buildFallbackSummary(payload, evidence, reason),
     };
   }
 }

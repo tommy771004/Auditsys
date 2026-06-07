@@ -156,7 +156,7 @@ export default function CoreWebVitalsCard({ targetUrl, active }: CoreWebVitalsCa
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="group rounded-sm border border-black bg-black/10 p-5 backdrop-blur-xl relative overflow-hidden transition-colors hover:bg-black/5"
+      className="group rounded-sm border border-[var(--border)] bg-black/10 p-5 backdrop-blur-xl relative overflow-hidden transition-colors hover:bg-black/5"
     >
       
       <div className="relative z-10 flex items-start justify-between gap-3">
@@ -165,7 +165,7 @@ export default function CoreWebVitalsCard({ targetUrl, active }: CoreWebVitalsCa
             <Gauge className="h-5 w-5 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-black tracking-tight">{t("liveAudit.vitals.title")}</p>
+            <p className="text-sm font-semibold text-[var(--text)] tracking-tight">{t("liveAudit.vitals.title")}</p>
             <p className="text-xs text-brand-muted">
               {phase === "field" ? t("liveAudit.vitals.fieldSubtitle") : t("liveAudit.vitals.subtitle")}
             </p>
@@ -188,7 +188,7 @@ export default function CoreWebVitalsCard({ targetUrl, active }: CoreWebVitalsCa
 
       <div className="mt-5 relative z-10">
         {phase === "idle" ? (
-          <p className="rounded-sm border border-dashed border-black px-4 py-6 text-center text-sm text-black/60">
+          <p className="rounded-sm border border-dashed border-[var(--border)] px-4 py-6 text-center text-sm text-black/60">
             {t("liveAudit.vitals.pending")}
           </p>
         ) : phase === "error" ? (
@@ -213,7 +213,7 @@ export default function CoreWebVitalsCard({ targetUrl, active }: CoreWebVitalsCa
                   animate={{ opacity: 1, x: 0 }} 
                   transition={{ delay: idx * 0.1 }}
                   key={id} 
-                  className="rounded-sm border border-black bg-white px-4 py-3 transition-colors hover:bg-white"
+                  className="rounded-sm border border-[var(--border)] bg-[var(--surface)] px-4 py-3 transition-colors hover:bg-[var(--surface)]"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-black/55">{label}</p>
@@ -248,7 +248,7 @@ export default function CoreWebVitalsCard({ targetUrl, active }: CoreWebVitalsCa
                 initial={{ scale: 0.85, opacity: 0, rotate: -20 }}
                 animate={{ scale: 1, opacity: 1, rotate: 0 }}
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                className="relative inline-flex h-24 w-24 items-center justify-center rounded-full border border-black bg-white shadow-inner shadow-black/20"
+                className="relative inline-flex h-24 w-24 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] shadow-inner shadow-black/20"
               >
                 <div className="absolute inset-0 rounded-full border-2 border-black/5 border-t-brand-cyan opacity-50 animate-[spin_4s_linear_infinite] mix-blend-overlay" />
                 <span className={`text-3xl font-semibold tracking-tight ${scoreToneClass(lab.score)}`}>{lab.score}</span>
@@ -261,10 +261,10 @@ export default function CoreWebVitalsCard({ targetUrl, active }: CoreWebVitalsCa
                   initial={{ opacity: 0, scale: 0.9 }} 
                   animate={{ opacity: 1, scale: 1 }} 
                   transition={{ delay: idx * 0.1 }}
-                  key={metric.id} className="rounded-sm border border-black bg-white px-3 py-3 text-center transition-colors hover:bg-white"
+                  key={metric.id} className="rounded-sm border border-[var(--border)] bg-[var(--surface)] px-3 py-3 text-center transition-colors hover:bg-[var(--surface)]"
                 >
                   <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-black/50">{metric.label}</p>
-                  <p className="mt-1 text-sm font-semibold text-black tracking-tight">{lab[metric.id]}</p>
+                  <p className="mt-1 text-sm font-semibold text-[var(--text)] tracking-tight">{lab[metric.id]}</p>
                 </motion.div>
               ))}
             </div>

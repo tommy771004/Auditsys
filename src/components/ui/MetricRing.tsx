@@ -62,7 +62,7 @@ export default function MetricRing({
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5, delay: delay + 0.5 }}
-        className="text-[13px] text-black"
+        className="text-[13px] text-[var(--text)]"
       >
         {value}
       </motion.span>

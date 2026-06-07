@@ -291,7 +291,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
   const reportSourceClassName = reportSource === "live"
     ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700"
     : reportSource === "mock"
-      ? "border-black bg-black/5 text-black/70"
+      ? "border-[var(--border)] bg-black/5 text-black/70"
       : "border-brand-cyan/25 bg-brand-cyan/10 text-brand-cyan";
   const primaryRuntimeGate = latestAuditResult ? getPrimaryRuntimeGate(latestAuditResult.evidence.browser.timeline) : undefined;
   const liveEvidenceItems = latestAuditResult
@@ -400,7 +400,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
             <div className="w-16 h-16 rounded-full bg-cyan-50 border border-cyan-200 flex items-center justify-center mb-2">
               <Cpu className="w-8 h-8 text-cyan-700 opacity-60" />
             </div>
-            <p className="text-sm font-semibold text-black">
+            <p className="text-sm font-semibold text-[var(--text)]">
               {isZh ? "系統待命中，等待分析任務啟動" : "System Idle, Awaiting Audit Mission"}
             </p>
             <p className="text-sm text-brand-muted leading-relaxed">
@@ -444,13 +444,13 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
           </div>
 
           <div className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
-            <div className="rounded-sm border border-black bg-white p-5">
+            <div className="rounded-sm border border-[var(--border)] bg-[var(--surface)] p-5">
               <div className="flex items-center gap-3">
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-violet-300/20 bg-violet-400/10 text-violet-100">
                   <Terminal className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-black">{t("auditConsole.sections.reportTitle")}</p>
+                  <p className="text-sm font-semibold text-[var(--text)]">{t("auditConsole.sections.reportTitle")}</p>
                   <p className="text-sm text-brand-muted">
                     {reportSource === "live"
                       ? t("auditConsole.sections.reportDescriptionLive")
@@ -467,7 +467,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
               {(() => {
                 if (!streamedReport) {
                   return (
-                    <div className="mt-6 flex flex-col min-h-[20rem] rounded-sm border border-black/[0.06] bg-white p-8 shadow-inner">
+                    <div className="mt-6 flex flex-col min-h-[20rem] rounded-sm border border-black/[0.06] bg-[var(--surface)] p-8 shadow-inner">
                       <div className="flex items-center gap-4 mb-8">
                         <div className="h-10 w-10 animate-pulse rounded-full bg-black/10" />
                         <div className="space-y-2">
@@ -508,15 +508,15 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
 
             <div className="space-y-4">
               {harness ? (
-                <div className="rounded-sm border border-black bg-white/[0.015] p-5">
+                <div className="rounded-sm border border-[var(--border)] bg-white/[0.015] p-5">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-black bg-white text-black/85">
+                      <div className="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-[var(--border)] bg-[var(--surface)] text-black/85">
                         <HarnessStatusIcon className="h-5 w-5" />
                       </div>
                       <div>
                         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/60">{t("auditConsole.harness.eyebrow")}</p>
-                        <p className="text-sm font-semibold text-black">{t("auditConsole.harness.title")}</p>
+                        <p className="text-sm font-semibold text-[var(--text)]">{t("auditConsole.harness.title")}</p>
                       </div>
                     </div>
                     <span className={["rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]", getHarnessStatusClassName(harness.status)].join(" ")}>
@@ -528,7 +528,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                     {harnessStats.map((item) => (
                       <div key={item.id} className="rounded-sm border border-black/[0.06] bg-white/35 px-3 py-3">
                         <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-black/45">{item.label}</p>
-                        <p className="mt-2 text-sm font-semibold text-black">{item.value}</p>
+                        <p className="mt-2 text-sm font-semibold text-[var(--text)]">{item.value}</p>
                       </div>
                     ))}
                   </div>
@@ -553,7 +553,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                     {harnessChecks.map((check) => (
                       <div key={check.id} className="rounded-sm border border-black/[0.06] bg-white/35 px-3 py-3">
                         <div className="flex items-start justify-between gap-3">
-                          <p className="text-sm font-semibold text-black">{check.label}</p>
+                          <p className="text-sm font-semibold text-[var(--text)]">{check.label}</p>
                           <span className={["shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em]", getHarnessCheckClassName(check.status)].join(" ")}>
                             {t(`auditConsole.harness.checkStatus.${check.status}`)}
                           </span>
@@ -572,7 +572,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                   {harness.retrospective ? (
                     <div className="mt-4">
                       <SolidButton
-                        className="w-full justify-center !bg-neutral-100/50 hover:!bg-neutral-100/80 !border-black"
+                        className="w-full justify-center !bg-neutral-100/50 hover:!bg-neutral-100/80 !border-[var(--border)]"
                         variant="ghost"
                         loadingLabel={t("auditConsole.harness.viewRetrospective")}
                         onClick={() => setShowLiveRetrospective(true)}
@@ -589,7 +589,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
 
               {harness && <TwoRetryGovernance harness={harness} />}
 
-              <div className="rounded-sm border border-black bg-white/[0.015] p-5">
+              <div className="rounded-sm border border-[var(--border)] bg-white/[0.015] p-5">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/60">{t("auditConsole.live.snapshot.title")}</p>
                 <div className="mt-4 space-y-3">
                   {liveEvidenceItems.length > 0 ? (
@@ -600,28 +600,28 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                       </div>
                     ))
                   ) : (
-                    <p className="rounded-sm border border-dashed border-black px-4 py-3 text-sm text-black/55">{t("auditConsole.live.snapshot.empty")}</p>
+                    <p className="rounded-sm border border-dashed border-[var(--border)] px-4 py-3 text-sm text-black/55">{t("auditConsole.live.snapshot.empty")}</p>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-sm border border-black bg-white/[0.015] p-5">
+              <div className="rounded-sm border border-[var(--border)] bg-white/[0.015] p-5">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/60">{t("auditConsole.sections.memoryTitle")}</p>
                 <div className="mt-4 space-y-3">
                   {memoryUpdates.length > 0 ? (
                     memoryUpdates.map((update) => (
                       <div key={`${update.key}-${update.fact}`} className="rounded-sm border border-black/[0.06] bg-white/35 px-4 py-3">
-                        <p className="text-sm font-semibold text-black">{update.fact}</p>
+                        <p className="text-sm font-semibold text-[var(--text)]">{update.fact}</p>
                         <p className="mt-1 text-xs text-black/55">{t("auditConsole.memoryBadge.type", { value: t(`auditConsole.memoryType.${update.type}`) })}</p>
                       </div>
                     ))
                   ) : (
-                    <p className="rounded-sm border border-dashed border-black px-4 py-3 text-sm text-black/55">{t("auditConsole.sections.memoryEmpty")}</p>
+                    <p className="rounded-sm border border-dashed border-[var(--border)] px-4 py-3 text-sm text-black/55">{t("auditConsole.sections.memoryEmpty")}</p>
                   )}
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3 rounded-sm border border-black bg-white p-5">
+              <div className="flex flex-col gap-3 rounded-sm border border-[var(--border)] bg-[var(--surface)] p-5">
                 <SolidButton
                   className="w-full justify-center"
                   loadingLabel={t("auditConsole.submitLoading")}
@@ -639,7 +639,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
 
           <div className="space-y-4 pt-4 border-t border-black/10 mt-6">
             <div className="space-y-2">
-              <p className="text-sm font-semibold text-black">{isZh ? "蜂群子代理任務駐留紀錄" : t("auditConsole.sections.parallelTitle")}</p>
+              <p className="text-sm font-semibold text-[var(--text)]">{isZh ? "蜂群子代理任務駐留紀錄" : t("auditConsole.sections.parallelTitle")}</p>
               <p className="text-sm text-brand-muted">{isZh ? "以下為各個子代理在稍早階段所執行的具體軌跡與日誌。" : t("auditConsole.sections.parallelDescription")}</p>
             </div>
             <div className="grid gap-4 xl:grid-cols-2">
@@ -666,7 +666,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
           <Office3DScene subagents={subagents} toolCalls={toolCalls} isZh={isZh} />
 
           <div className="space-y-2 border-t border-black/10 pt-6">
-            <p className="text-sm font-semibold text-black">{isZh ? "蜂群子代理任務監控與日誌" : t("auditConsole.sections.parallelTitle")}</p>
+            <p className="text-sm font-semibold text-[var(--text)]">{isZh ? "蜂群子代理任務監控與日誌" : t("auditConsole.sections.parallelTitle")}</p>
             <p className="text-sm text-brand-muted">{t("auditConsole.sections.parallelDescription")}</p>
           </div>
           <div className="grid gap-4 xl:grid-cols-2">
@@ -688,7 +688,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
         className="space-y-4"
       >
         <div className="space-y-2">
-          <p className="text-sm font-semibold text-black">{t("auditConsole.sections.spawningTitle")}</p>
+          <p className="text-sm font-semibold text-[var(--text)]">{t("auditConsole.sections.spawningTitle")}</p>
           <p className="text-sm text-brand-muted">{t(`auditConsole.phaseDescriptions.${phase}`)}</p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
@@ -699,12 +699,12 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.08, duration: 0.28 }}
-              className="rounded-sm border border-black bg-black/10 p-4"
+              className="rounded-sm border border-[var(--border)] bg-black/10 p-4"
             >
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-sm border border-black bg-white/35 text-black/85">
+              <div className="inline-flex h-11 w-11 items-center justify-center rounded-sm border border-[var(--border)] bg-white/35 text-black/85">
                 <Bot className="h-5 w-5" />
               </div>
-              <p className="mt-4 text-sm font-semibold text-black">{role}</p>
+              <p className="mt-4 text-sm font-semibold text-[var(--text)]">{role}</p>
               <p className="mt-2 text-sm text-brand-muted">{t("auditConsole.sections.spawningCardDescription")}</p>
               <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/8">
                 <motion.div
@@ -760,7 +760,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
               {t("auditConsole.badge")}
             </div>
             <div className="space-y-3">
-              <h1 className="text-4xl font-semibold tracking-tight text-black sm:text-5xl">{t("auditConsole.title")}</h1>
+              <h1 className="text-4xl font-semibold tracking-tight text-[var(--text)] sm:text-5xl">{t("auditConsole.title")}</h1>
               <p className="text-base leading-8 text-brand-muted sm:text-lg">{t("auditConsole.description")}</p>
             </div>
           </Reveal>
@@ -770,14 +770,14 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
             hidden: { opacity: 0, y: 30 },
             visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 350, damping: 30 } }
           }} className="space-y-8">
-            <div className="flex flex-col gap-6 border-b border-black pb-6">
+            <div className="flex flex-col gap-6 border-b border-[var(--border)] pb-6">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div className="space-y-2">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-700">{t("auditConsole.missionEyebrow")}</p>
-                  <h2 className="text-2xl font-semibold text-black tracking-tight">{t("auditConsole.missionTitle")}</h2>
+                  <h2 className="text-2xl font-semibold text-[var(--text)] tracking-tight">{t("auditConsole.missionTitle")}</h2>
                   <p className="max-w-2xl text-sm leading-7 text-brand-muted">{t(`auditConsole.phaseDescriptions.${phase}`)}</p>
                 </div>
-                <div className="inline-flex items-center gap-2 self-start rounded-full border border-black bg-black/10 px-4 py-2 text-sm text-black/72 sm:self-auto shadow-inner shadow-black/20">
+                <div className="inline-flex items-center gap-2 self-start rounded-full border border-[var(--border)] bg-black/10 px-4 py-2 text-sm text-black/72 sm:self-auto shadow-inner shadow-black/20">
                   <Workflow className="h-4 w-4 text-cyan-700" />
                   <span>{t("auditConsole.phaseLabel", { value: t(`auditConsole.phases.${phase}`) })}</span>
                 </div>
@@ -827,15 +827,15 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 <label className="text-sm font-medium text-black/86 ml-1" htmlFor="audit-console-url">
                   {t("auditConsole.inputLabel")}
                 </label>
-                <div className="group rounded-sm border border-black bg-white p-2 backdrop-blur-xl transition-all duration-300 shadow-inner shadow-black/20 focus-within:border-brand-cyan focus-within:bg-white hover:bg-white">
+                <div className="group rounded-sm border border-[var(--border)] bg-[var(--surface)] p-2 backdrop-blur-xl transition-all duration-300 shadow-inner shadow-black/20 focus-within:border-brand-cyan focus-within:bg-[var(--surface)] hover:bg-[var(--surface)]">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                     <div className="flex min-w-0 flex-1 items-center gap-3 rounded-sm px-3 py-2.5">
-                      <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-black bg-black/10 text-black/84 transition-transform group-focus-within:scale-105 group-focus-within:bg-brand-cyan/10 group-focus-within:text-brand-cyan group-focus-within:border-brand-cyan/20">
+                      <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-[var(--border)] bg-black/10 text-black/84 transition-transform group-focus-within:scale-105 group-focus-within:bg-brand-cyan/10 group-focus-within:text-brand-cyan group-focus-within:border-brand-cyan/20">
                         <Terminal className="h-4.5 w-4.5" />
                       </div>
                       <input
                         id="audit-console-url"
-                        className="min-h-[44px] w-full border-0 bg-transparent text-sm text-black outline-none placeholder-white/30"
+                        className="min-h-[44px] w-full border-0 bg-transparent text-sm text-[var(--text)] outline-none placeholder-white/30"
                         value={urlInput}
                         placeholder={t("auditConsole.inputPlaceholder")}
                         onChange={(event) => {
@@ -874,12 +874,12 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
 
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {metrics.map((metric) => (
-                <motion.div key={metric.id} layout className="rounded-sm border border-black bg-black/10 px-4 py-4">
+                <motion.div key={metric.id} layout className="rounded-sm border border-[var(--border)] bg-black/10 px-4 py-4">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/60">{metric.label}</p>
                   <p
                     className={[
                       "mt-3 text-lg font-semibold",
-                      metric.tone === "success" ? "text-emerald-700" : metric.tone === "warning" ? "text-amber-700" : "text-black",
+                      metric.tone === "success" ? "text-emerald-700" : metric.tone === "warning" ? "text-amber-700" : "text-[var(--text)]",
                     ].join(" ")}
                   >
                     {metric.value}
@@ -892,11 +892,11 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
           {/* Layer 2.5: Lighthouse Real-time Telemetry (精細指標感測器) */}
           <GlassContainer accent="cyan" className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-sm border border-black bg-black/10 text-black">
+              <div className="inline-flex h-11 w-11 items-center justify-center rounded-sm border border-[var(--border)] bg-black/10 text-[var(--text)]">
                 <Gauge className="h-5 w-5 text-brand-cyan" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-black">
+                <p className="text-sm font-semibold text-[var(--text)]">
                   {isZh ? "Lighthouse 精細語意感測器 (Lighthouse Telemetry Sensors)" : "Lighthouse Telemetry Sensors"}
                 </p>
                 <p className="text-sm text-brand-muted">
@@ -945,7 +945,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
 
                 return (
                   <Tooltip key={dial.id} content={dial.tooltip} showIcon={false}>
-                    <div className="flex flex-col flex-1 items-center gap-3 p-4 rounded-sm border border-black/5 bg-white relative group overflow-hidden w-full h-full">
+                    <div className="flex flex-col flex-1 items-center gap-3 p-4 rounded-sm border border-black/5 bg-[var(--surface)] relative group overflow-hidden w-full h-full">
                       <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
                       <div className="relative h-24 w-24 flex items-center justify-center">
                       <svg className={`h-full w-full -rotate-90 ${isScanning ? "animate-[spin_4s_linear_infinite]" : ""}`}>
@@ -968,7 +968,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                         {isScanning ? (
                           <RefreshCcw className="h-5 w-5 text-brand-cyan animate-spin" />
                         ) : (
-                          <span className="text-xl font-bold font-mono text-black tracking-tighter">
+                          <span className="text-xl font-bold font-mono text-[var(--text)] tracking-tighter">
                             {phase === "complete" || phase === "streaming_report" ? `${dial.val}` : "--"}
                           </span>
                         )}
@@ -984,13 +984,13 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
 
           {/* Layer 3: Mission Stream (The Active Execution) */}
           <GlassContainer accent="cyan" className="min-h-[500px]">
-             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black pb-4 mb-6">
+             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] pb-4 mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="inline-flex h-11 w-11 items-center justify-center rounded-sm border border-black bg-black/10 text-black/84">
+                  <div className="inline-flex h-11 w-11 items-center justify-center rounded-sm border border-[var(--border)] bg-black/10 text-black/84">
                     <Cpu className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-black">{t("auditConsole.sections.missionStreamTitle")}</p>
+                    <p className="text-sm font-semibold text-[var(--text)]">{t("auditConsole.sections.missionStreamTitle")}</p>
                     <p className="text-sm text-brand-muted">{t("auditConsole.sections.missionStreamDescription", { url: missionTarget })}</p>
                   </div>
                 </div>
@@ -1021,7 +1021,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                     <Network className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-black">
+                    <p className="text-sm font-semibold text-[var(--text)]">
                       {isZh ? "蜂群子代理解析與路由 (Swarm Router)" : "Swarm Routing Engine"}
                     </p>
                     <p className="text-xs text-brand-muted">
@@ -1047,12 +1047,12 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                   ].map((chk) => {
                     const isChecked = enabledAgentIds.includes(chk.id);
                     return (
-                      <label key={chk.id} className="flex items-center gap-3 p-2.5 rounded-sm border border-black/5 bg-white/20 hover:bg-white cursor-pointer select-none transition-colors">
+                      <label key={chk.id} className="flex items-center gap-3 p-2.5 rounded-sm border border-black/5 bg-white/20 hover:bg-[var(--surface)] cursor-pointer select-none transition-colors">
                         <input
                           type="checkbox"
                           checked={isChecked}
                           disabled={isRunning}
-                          className="h-4 w-4 bg-neutral-100 border-black rounded accent-brand-purple cursor-pointer focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
+                          className="h-4 w-4 bg-neutral-100 border-[var(--border)] rounded accent-brand-purple cursor-pointer focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
                           onChange={() => {
                             if (isChecked) {
                               setEnabledAgentIds(enabledAgentIds.filter(id => id !== chk.id));
@@ -1061,7 +1061,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                             }
                           }}
                         />
-                        <span className={`text-xs ${isChecked ? "text-black" : "text-black/40"}`}>{chk.label}</span>
+                        <span className={`text-xs ${isChecked ? "text-[var(--text)]" : "text-black/40"}`}>{chk.label}</span>
                       </label>
                     );
                   })}
@@ -1092,14 +1092,14 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                       value={customRoleInput}
                       onChange={(e) => setCustomRoleInput(e.target.value)}
                       disabled={isRunning}
-                      className="w-full bg-neutral-100/80 border border-black text-black p-2 rounded-sm outline-none focus:border-brand-purple/50 focus:ring-1 focus:ring-brand-purple/50"
+                      className="w-full bg-neutral-100/80 border border-[var(--border)] text-[var(--text)] p-2 rounded-sm outline-none focus:border-brand-purple/50 focus:ring-1 focus:ring-brand-purple/50"
                     />
                     <input
                       placeholder={isZh ? "綁定工具 (例如：unused_css_detector)" : "Bound Tool (e.g., css_checker)"}
                       value={customToolInput}
                       onChange={(e) => setCustomToolInput(e.target.value)}
                       disabled={isRunning}
-                      className="w-full bg-neutral-100/80 border border-black text-black p-2 rounded-sm outline-none focus:border-brand-purple/50 focus:ring-1 focus:ring-brand-purple/50"
+                      className="w-full bg-neutral-100/80 border border-[var(--border)] text-[var(--text)] p-2 rounded-sm outline-none focus:border-brand-purple/50 focus:ring-1 focus:ring-brand-purple/50"
                     />
                     {customFormError && <p className="text-[10px] text-rose-600 font-semibold leading-none">{customFormError}</p>}
                   </div>
@@ -1118,7 +1118,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
               </div>
 
               {/* Dynamic Swarm Router Node Map */}
-              <div className="relative border border-black/5 bg-white p-5 rounded-sm overflow-hidden">
+              <div className="relative border border-black/5 bg-[var(--surface)] p-5 rounded-sm overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-brand-cyan/5 to-transparent pointer-events-none" />
                 <p className="text-[10px] font-bold font-mono tracking-wider uppercase text-black/50 mb-4">{isZh ? "蜂群排程分析網絡 (Swarm Router Map)" : "Dynamic Swarm Router Node Map"}</p>
                 
@@ -1126,7 +1126,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                   {/* Central target */}
                   <div className="relative z-10 p-3 rounded-sm border border-brand-cyan/20 bg-brand-cyan/10 flex flex-col items-center min-w-[130px] text-center shadow-[0_0_15px_rgba(34,211,238,0.15)] select-none">
                     <Database className="h-5 w-5 text-brand-cyan mb-1 animate-pulse" />
-                    <span className="text-[10px] font-bold text-black font-mono truncate max-w-[110px]">{targetUrl || urlInput || "demo.co"}</span>
+                    <span className="text-[10px] font-bold text-[var(--text)] font-mono truncate max-w-[110px]">{targetUrl || urlInput || "demo.co"}</span>
                     <span className="text-[8px] uppercase tracking-wider text-brand-cyan/90 font-mono font-bold mt-1 leading-none">{isZh ? "感測目標" : "Telemetry Target"}</span>
                   </div>
 
@@ -1163,7 +1163,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                           key={core.id}
                           className={`flex items-center gap-2 px-2.5 py-1 rounded-sm border text-[11px] min-w-[150px] transition-all duration-300 ${
                             isActive 
-                              ? "border-brand-purple/25 bg-brand-purple/5 text-black shadow-[0_0_10px_rgba(139,92,246,0.06)]" 
+                              ? "border-brand-purple/25 bg-brand-purple/5 text-[var(--text)] shadow-[0_0_10px_rgba(139,92,246,0.06)]" 
                               : "border-black/5 bg-black/5 text-black/30 grayscale"
                           }`}
                         >
@@ -1179,7 +1179,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                     {customAgentDefs.map((cust: any) => (
                       <div
                         key={cust.id}
-                        className="flex items-center gap-2 px-2.5 py-1 rounded-sm border border-teal-500/30 bg-teal-500/10 text-black shadow-[0_0_12px_rgba(20,184,166,0.15)] animate-[bounce_1s_ease-out_1]"
+                        className="flex items-center gap-2 px-2.5 py-1 rounded-sm border border-teal-500/30 bg-teal-500/10 text-[var(--text)] shadow-[0_0_12px_rgba(20,184,166,0.15)] animate-[bounce_1s_ease-out_1]"
                       >
                         <Bot className="h-3.5 w-3.5 text-teal-600 animate-pulse" />
                         <div className="flex-1 text-left text-[11px] min-w-[150px] truncate leading-tight">
@@ -1201,7 +1201,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                     <UserCheck className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-black">
+                    <p className="text-sm font-semibold text-[var(--text)]">
                       {isZh ? "人機協作排程修復 (Self-Healing Operations)" : "HITL Repair Center"}
                     </p>
                     <p className="text-xs text-brand-muted">
@@ -1242,7 +1242,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                       onChange={(e) => setHitlPromptTemp(e.target.value)}
                       disabled={isRunning}
                       rows={3}
-                      className="w-full bg-neutral-100/60 border border-black text-black p-2.5 rounded-sm text-xs outline-none focus:border-teal-400/50 focus:ring-1 focus:ring-teal-400/50 placeholder-black/40 resize-none font-sans"
+                      className="w-full bg-neutral-100/60 border border-[var(--border)] text-[var(--text)] p-2.5 rounded-sm text-xs outline-none focus:border-teal-400/50 focus:ring-1 focus:ring-teal-400/50 placeholder-black/40 resize-none font-sans"
                     />
 
                     <SolidButton
@@ -1321,22 +1321,22 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
             <GlassContainer accent="blue" className="space-y-4">
               <div className="space-y-2">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-100/80">{t("auditConsole.sections.memoryTitle")}</p>
-                <p className="text-lg font-semibold text-black">{t("auditConsole.memoryPanelTitle")}</p>
+                <p className="text-lg font-semibold text-[var(--text)]">{t("auditConsole.memoryPanelTitle")}</p>
               </div>
               <div className="space-y-3">
                 {memoryUpdates.length > 0 ? (
                   memoryUpdates.map((update) => (
-                    <div key={`${update.key}-${update.fact}`} className="rounded-sm border border-black bg-white/38 px-4 py-3">
+                    <div key={`${update.key}-${update.fact}`} className="rounded-sm border border-[var(--border)] bg-white/38 px-4 py-3">
                       <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold text-black">{update.fact}</p>
-                        <span className="rounded-full border border-black bg-black/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-black/70">
+                        <p className="text-sm font-semibold text-[var(--text)]">{update.fact}</p>
+                        <span className="rounded-full border border-[var(--border)] bg-black/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-black/70">
                           {t(`auditConsole.memoryType.${update.type}`)}
                         </span>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-sm border border-dashed border-black px-4 py-4 text-sm leading-7 text-black/55">{t("auditConsole.sections.memoryEmpty")}</div>
+                  <div className="rounded-sm border border-dashed border-[var(--border)] px-4 py-4 text-sm leading-7 text-black/55">{t("auditConsole.sections.memoryEmpty")}</div>
                 )}
               </div>
             </GlassContainer>
@@ -1344,18 +1344,18 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
             <GlassContainer accent="cyan" className="space-y-4">
               <div className="space-y-2">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-700">{t("auditConsole.capabilitiesEyebrow")}</p>
-                <p className="text-lg font-semibold text-black">{t("auditConsole.capabilitiesTitle")}</p>
+                <p className="text-lg font-semibold text-[var(--text)]">{t("auditConsole.capabilitiesTitle")}</p>
               </div>
               <div className="grid gap-4 sm:grid-cols-1">
                 {capabilityCards.map((item) => {
                   const Icon = item.icon;
                   return (
-                    <div key={item.id} className="rounded-sm border border-black bg-white/38 p-4 flex items-start gap-4">
-                      <div className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-sm border border-black bg-black/10 text-black/88">
+                    <div key={item.id} className="rounded-sm border border-[var(--border)] bg-white/38 p-4 flex items-start gap-4">
+                      <div className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-sm border border-[var(--border)] bg-black/10 text-black/88">
                         <Icon className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-black">{item.title}</p>
+                        <p className="text-sm font-semibold text-[var(--text)]">{item.title}</p>
                         <p className="mt-1 text-sm leading-6 text-brand-muted">{item.description}</p>
                       </div>
                     </div>
@@ -1370,13 +1370,13 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
               <div className="flex items-center justify-between gap-3">
                 <div className="space-y-1">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-700">{t("history.title")}</p>
-                  <p className="text-lg font-semibold text-black">{t("history.subtitle")}</p>
+                  <p className="text-lg font-semibold text-[var(--text)]">{t("history.subtitle")}</p>
                 </div>
                 <button 
                   type="button"
                   onClick={fetchHistory}
                   disabled={isLoadingHistory}
-                  className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-black/5 hover:bg-black/10 p-2 text-black/70 hover:text-black transition disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none"
+                  className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-black/5 hover:bg-black/10 p-2 text-black/70 hover:text-[var(--text)] transition disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none"
                   aria-label={t("history.refreshHistory")}
                   title={t("history.refreshHistory")}
                 >
@@ -1411,12 +1411,12 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                         className={[
                           "text-left rounded-sm border p-4 min-h-[80px] text-sm transition-all flex flex-col gap-2 active:scale-[0.98]",
                           isSelected
-                            ? "border-violet-400/30 bg-violet-500/10 text-black shadow-[0_0_15px_rgba(139,92,236,0.15)] ring-1 ring-violet-500/30"
-                            : "border-black/5 bg-white hover:bg-white text-black/80 hover:text-black"
+                            ? "border-violet-400/30 bg-violet-500/10 text-[var(--text)] shadow-[0_0_15px_rgba(139,92,236,0.15)] ring-1 ring-violet-500/30"
+                            : "border-black/5 bg-[var(--surface)] hover:bg-[var(--surface)] text-black/80 hover:text-[var(--text)]"
                         ].join(" ")}
                       >
                         <div className="flex items-center justify-between gap-2 w-full">
-                          <span className="font-sans font-medium truncate max-w-[12rem] text-black">
+                          <span className="font-sans font-medium truncate max-w-[12rem] text-[var(--text)]">
                             {item.url}
                           </span>
                           <span className="text-[10px] text-black/60 whitespace-nowrap">
@@ -1457,7 +1457,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-white backdrop-blur-sm"
+                className="absolute inset-0 bg-[var(--surface)] backdrop-blur-sm"
                 onClick={() => setSelectedHistoryAudit(null)}
               />
               <motion.div
@@ -1467,12 +1467,12 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative w-full max-w-4xl max-h-[85vh] flex flex-col rounded-sm border border-black bg-neutral-100 shadow-2xl overflow-hidden"
+                className="relative w-full max-w-4xl max-h-[85vh] flex flex-col rounded-sm border border-[var(--border)] bg-neutral-100 shadow-2xl overflow-hidden"
               >
                 {/* Header */}
-                <div className="flex items-center justify-between border-b border-black bg-black/5 px-6 py-4">
+                <div className="flex items-center justify-between border-b border-[var(--border)] bg-black/5 px-6 py-4">
                   <div>
-                    <h3 id="history-modal-title" className="text-lg font-semibold text-black">{t("history.reportTitle")}</h3>
+                    <h3 id="history-modal-title" className="text-lg font-semibold text-[var(--text)]">{t("history.reportTitle")}</h3>
                     <p className="text-sm text-brand-muted">{selectedHistoryAudit.url}</p>
                   </div>
                   <button
@@ -1480,14 +1480,14 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                     type="button"
                     onClick={() => setSelectedHistoryAudit(null)}
                     aria-label={t("history.close")}
-                    className="rounded-full p-2 text-black/60 hover:bg-black/10 hover:text-black transition focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
+                    className="rounded-full p-2 text-black/60 hover:bg-black/10 hover:text-[var(--text)] transition focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:outline-none min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
                   >
                     <X className="h-5 w-5" />
                   </button>
                 </div>
                 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-6 bg-white space-y-4">
+                <div className="flex-1 overflow-y-auto p-6 bg-[var(--surface)] space-y-4">
                   <div className="flex flex-wrap gap-3">
                     <span className={[
                       "rounded-full border px-3 py-1 text-xs font-medium",
@@ -1499,15 +1499,15 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                     ].join(" ")}>
                       {selectedHistoryAudit.status?.toUpperCase()}
                     </span>
-                    <span className="rounded-full border border-black bg-black/10 px-3 py-1 text-xs font-medium text-black/70">
+                    <span className="rounded-full border border-[var(--border)] bg-black/10 px-3 py-1 text-xs font-medium text-black/70">
                       {t("history.provider")} {selectedHistoryAudit.result?.provider || "unknown"}
                     </span>
                     {selectedHistoryAudit.result?.model && (
-                      <span className="rounded-full border border-black bg-black/10 px-3 py-1 text-xs font-medium text-black/70">
+                      <span className="rounded-full border border-[var(--border)] bg-black/10 px-3 py-1 text-xs font-medium text-black/70">
                         {t("history.model")} {selectedHistoryAudit.result.model}
                       </span>
                     )}
-                    <span className="rounded-full border border-black bg-black/10 px-3 py-1 text-xs font-medium text-black/70">
+                    <span className="rounded-full border border-[var(--border)] bg-black/10 px-3 py-1 text-xs font-medium text-black/70">
                       {new Date(selectedHistoryAudit.createdAt).toLocaleString()}
                     </span>
                     {typeof selectedHistoryAudit.result?.evidence?.deterministic?.responseTimeMs === 'number' && (
@@ -1528,7 +1528,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
 
                   {/* Deterministic Evidence */}
                   {selectedHistoryAudit.result?.evidence?.deterministic && (
-                    <div className="rounded-sm border border-black bg-black/5 p-4">
+                    <div className="rounded-sm border border-[var(--border)] bg-black/5 p-4">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/45 mb-3">{t("history.deterministicEvidence")}</p>
                       <div className="space-y-2 text-sm text-black/75">
                         {selectedHistoryAudit.result.evidence.deterministic.statusCode && (
@@ -1556,7 +1556,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
 
                   {/* Browser Evidence */}
                   {selectedHistoryAudit.result?.evidence?.browser && (
-                    <div className="rounded-sm border border-black bg-black/5 p-4">
+                    <div className="rounded-sm border border-[var(--border)] bg-black/5 p-4">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/45 mb-3">{t("history.browserEvidence")}</p>
                       <div className="space-y-2 text-sm text-black/75">
                         <div><span className="text-black/45">{t("history.status")}</span> {selectedHistoryAudit.result.evidence.browser.status} ({selectedHistoryAudit.result.evidence.browser.mode})</div>
@@ -1590,7 +1590,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-white backdrop-blur-sm"
+                className="absolute inset-0 bg-[var(--surface)] backdrop-blur-sm"
                 onClick={() => setShowLiveRetrospective(false)}
               />
               <motion.div
@@ -1624,7 +1624,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 </div>
                 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-6 bg-white">
+                <div className="flex-1 overflow-y-auto p-6 bg-[var(--surface)]">
                   <div className="prose prose-sm max-w-none text-emerald-900/80 font-mono text-[13px] leading-relaxed [&_h2]:text-emerald-800 [&_h3]:text-emerald-700 [&_strong]:text-emerald-900">
                     <ReportRenderer reportText={latestAuditResult.harness.retrospective} />
                   </div>
@@ -1642,7 +1642,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-white backdrop-blur-sm"
+                className="absolute inset-0 bg-[var(--surface)] backdrop-blur-sm"
                 onClick={() => setShowAgentLogs(false)}
               />
               <motion.div
@@ -1651,24 +1651,24 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative w-full max-w-5xl h-[85vh] flex flex-col rounded-sm border border-black shadow-[0_0_80px_rgba(34,211,238,0.15)] overflow-hidden backdrop-blur-3xl bg-white"
+                className="relative w-full max-w-5xl h-[85vh] flex flex-col rounded-sm border border-[var(--border)] shadow-[0_0_80px_rgba(34,211,238,0.15)] overflow-hidden backdrop-blur-3xl bg-[var(--surface)]"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-brand-cyan/5 via-transparent to-brand-purple/5 pointer-events-none" />
                 {/* Header */}
-                <div className="relative flex items-center justify-between border-b border-black bg-black/5 px-6 py-4 backdrop-blur-md">
+                <div className="relative flex items-center justify-between border-b border-[var(--border)] bg-black/5 px-6 py-4 backdrop-blur-md">
                   <div className="flex items-center gap-4">
                     <div className="inline-flex h-11 w-11 items-center justify-center rounded-sm border border-cyan-400/30 bg-cyan-400/10 text-cyan-600 shadow-inner">
                       <Terminal className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold tracking-wide text-black">Agent Terminal Logs</h3>
+                      <h3 className="text-lg font-semibold tracking-wide text-[var(--text)]">Agent Terminal Logs</h3>
                       <p className="text-sm text-brand-muted">{missionTarget}</p>
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => setShowAgentLogs(false)}
-                    className="rounded-full p-2 text-black/60 hover:bg-black/10 hover:text-black transition focus-visible:ring-2 focus-visible:ring-cyan-400/60 focus-visible:outline-none min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
+                    className="rounded-full p-2 text-black/60 hover:bg-black/10 hover:text-[var(--text)] transition focus-visible:ring-2 focus-visible:ring-cyan-400/60 focus-visible:outline-none min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
                   >
                     <X className="h-5 w-5" />
                   </button>
@@ -1697,11 +1697,11 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                               {call.status}
                             </span>
                           </div>
-                          <div className="text-black/50 text-xs bg-white p-3 rounded-sm border border-black/5 overflow-x-auto whitespace-pre-wrap">
+                          <div className="text-black/50 text-xs bg-[var(--surface)] p-3 rounded-sm border border-black/5 overflow-x-auto whitespace-pre-wrap">
                             {JSON.stringify(call.args, null, 2)}
                           </div>
                           {call.logs && call.logs.length > 0 && (
-                            <div className="mt-2 text-black/50 text-xs bg-white p-3 rounded-sm border border-black/5 overflow-x-auto whitespace-pre-wrap">
+                            <div className="mt-2 text-black/50 text-xs bg-[var(--surface)] p-3 rounded-sm border border-black/5 overflow-x-auto whitespace-pre-wrap">
                               <span className="text-emerald-700/80 mb-1 block">Output logs:</span>
                               {call.logs.join("\n")}
                             </div>
@@ -1714,7 +1714,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                             <span className="text-brand-purple font-semibold">[Memory]</span>
                             <span className="text-black/90 font-medium">Updated: <span className="text-brand-purple/90">{mem.key}</span></span>
                           </div>
-                          <div className="text-black/60 text-xs bg-white p-3 rounded-sm border border-black/5 whitespace-pre-wrap">
+                          <div className="text-black/60 text-xs bg-[var(--surface)] p-3 rounded-sm border border-black/5 whitespace-pre-wrap">
                             {mem.fact}
                           </div>
                         </div>

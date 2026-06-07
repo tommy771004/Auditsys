@@ -70,7 +70,7 @@ export function CommandPalette({ onNavigate }: { onNavigate: (route: any) => voi
             initial={{ opacity: 0, scale: 0.95, y: "-50%", x: "-50%" }}
             animate={{ opacity: 1, scale: 1, y: "-50%", x: "-50%" }}
             exit={{ opacity: 0, scale: 0.95, y: "-50%", x: "-50%" }}
-            className="fixed top-1/2 left-1/2 z-[101] w-full max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-md border border-neutral-200 bg-white shadow-2xl"
+            className="fixed top-1/2 left-1/2 z-[101] w-full max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-md border border-neutral-200 bg-[var(--surface)] shadow-2xl"
           >
             <div className="flex items-center gap-2 border-b border-neutral-100 px-4 py-3">
               <Search className="h-4 w-4 text-neutral-400" />
@@ -105,7 +105,7 @@ export function CommandPalette({ onNavigate }: { onNavigate: (route: any) => voi
                           setIsOpen(false);
                           setSearch("");
                         }}
-                        className="flex w-full items-center gap-3 rounded-sm px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 hover:text-black focus:bg-neutral-100 focus:text-black focus:outline-none"
+                        className="flex w-full items-center gap-3 rounded-sm px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 hover:text-[var(--text)] focus:bg-neutral-100 focus:text-[var(--text)] focus:outline-none"
                       >
                         <Icon className="h-4 w-4 text-neutral-400" />
                         {action.title}

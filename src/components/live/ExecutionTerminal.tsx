@@ -73,8 +73,8 @@ export default function ExecutionTerminal({ logs, status }: ExecutionTerminalPro
   }, [isActive, logs.length]);
 
   return (
-    <div className="overflow-hidden rounded-sm border border-black bg-white backdrop-blur-md">
-      <div className="flex items-center gap-2 border-b border-black bg-black/5 px-4 py-3">
+    <div className="overflow-hidden rounded-sm border border-[var(--border)] bg-[var(--surface)] backdrop-blur-md">
+      <div className="flex items-center gap-2 border-b border-[var(--border)] bg-black/5 px-4 py-3">
         <span className="h-3 w-3 rounded-full bg-rose-400/80" />
         <span className="h-3 w-3 rounded-full bg-amber-400/80" />
         <span className="h-3 w-3 rounded-full bg-emerald-400/80" />

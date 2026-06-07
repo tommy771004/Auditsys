@@ -65,7 +65,7 @@ const sectionItems: ReportSectionItem[] = [
 ];
 
 const statToneClasses = {
-  default: "border-black bg-black/10",
+  default: "border-[var(--border)] bg-black/10",
   warning: "border-amber-300/20 bg-amber-300/10",
   success: "border-cyan-300/20 bg-cyan-300/10",
 } as const;
@@ -86,9 +86,9 @@ const CollapsibleBlock: React.FC<{
         onClick={() => setIsOpen(!isOpen)}
         className="flex w-full items-center justify-between px-2 pb-4 text-left transition-colors hover:opacity-80"
       >
-        <h3 className="text-xl font-bold tracking-tight text-black">{title}</h3>
+        <h3 className="text-xl font-bold tracking-tight text-[var(--text)]">{title}</h3>
         <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-          <ChevronDown className="h-5 w-5 text-black/50" />
+          <ChevronDown className="h-5 w-5 text-brand-faint" />
         </motion.div>
       </button>
       <AnimatePresence initial={false}>
@@ -210,7 +210,7 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
             <motion.div {...pageMotion} className="space-y-4">
               <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                  <h2 className="text-3xl font-semibold tracking-[-0.03em] text-black">{t("report.headerTitle")}</h2>
+                  <h2 className="text-3xl font-semibold tracking-[-0.03em] text-[var(--text)]">{t("report.headerTitle")}</h2>
                   <p className="text-sm text-brand-muted">{viewModel.headerSubtitle}</p>
                 </div>
                 <div className="flex items-center gap-4">
@@ -228,7 +228,7 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
               </div>
               <div className="flex flex-wrap gap-2">
                 {viewModel.metadataChips.map((chip) => (
-                  <span key={chip} className="rounded-full border border-black bg-black/5 px-3 py-1 text-xs font-medium tracking-[0.08em] text-black/75">
+                  <span key={chip} className="rounded-full border border-[var(--border)] bg-black/5 px-3 py-1 text-xs font-medium tracking-[0.08em] text-brand-muted">
                     {chip}
                   </span>
                 ))}
@@ -249,25 +249,25 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
                   >
                     <div 
                       className={[
-                        "flex flex-col h-full rounded-sm border p-5 transition-colors duration-300 bg-white justify-between",
+                        "flex flex-col h-full rounded-sm border p-5 transition-colors duration-300 bg-[var(--surface)] justify-between",
                         isPrimary 
-                          ? "border-black ring-1 ring-white/10 bg-gradient-to-br from-[#111728] to-[#0a0d18]" 
-                          : "border-black"
+                          ? "border-[var(--border)] ring-1 ring-white/10 bg-gradient-to-br from-[#111728] to-[#0a0d18]" 
+                          : "border-[var(--border)]"
                       ].join(" ")}
                     >
                       <div className="space-y-4">
                         <div className="flex items-center justify-between gap-4">
                           {item.tooltip ? (
                             <Tooltip content={item.tooltip}>
-                              <p className="text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-black/50">{t(item.labelKey)}</p>
+                              <p className="text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-brand-faint">{t(item.labelKey)}</p>
                             </Tooltip>
                           ) : (
-                            <p className="text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-black/50">{t(item.labelKey)}</p>
+                            <p className="text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-brand-faint">{t(item.labelKey)}</p>
                           )}
                           <MetricRing value={item.value} delay={index * 0.1 + 0.1} />
                         </div>
                         <div className="space-y-3 pt-2">
-                          <p className="text-xs sm:text-sm leading-relaxed text-black/60">{item.support}</p>
+                          <p className="text-xs sm:text-sm leading-relaxed text-brand-muted">{item.support}</p>
                           <ProgressBar value={item.value} delay={index * 0.1 + 0.2} />
                         </div>
                       </div>
@@ -291,7 +291,7 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
                     >
                       <div className="space-y-3">
                         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t(activeSectionItem.labelKey)}</p>
-                        <h3 className="text-2xl font-semibold tracking-[-0.03em] text-black">{activePanel?.title}</h3>
+                        <h3 className="text-2xl font-semibold tracking-[-0.03em] text-[var(--text)]">{activePanel?.title}</h3>
                         <p className="text-sm leading-7 text-brand-muted">{activePanel?.description}</p>
                       </div>
                       <div className="space-y-3">
@@ -301,7 +301,7 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
                             initial={{ opacity: 0, x: 12 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.2, delay: index * 0.04 }}
-                            className="flex items-start gap-3 rounded-sm border border-black bg-black/10 px-4 py-3 text-sm text-black/85"
+                            className="flex items-start gap-3 rounded-sm border border-[var(--border)] bg-black/10 px-4 py-3 text-sm text-[var(--text)]"
                           >
                             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-brand-cyan" />
                             <span>{bullet}</span>
@@ -328,7 +328,7 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
                           <p className="text-sm leading-7 text-brand-muted">{t("report.architectureLens.description")}</p>
                         </div>
 
-                        <div className="relative h-64 overflow-hidden rounded-sm border border-black bg-[linear-gradient(rgba(148,163,184,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.07)_1px,transparent_1px)] bg-[size:28px_28px]">
+                        <div className="relative h-64 overflow-hidden rounded-sm border border-[var(--border)] bg-[linear-gradient(rgba(148,163,184,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.07)_1px,transparent_1px)] bg-[size:28px_28px]">
                         <div className="absolute left-[20%] top-[29%] h-px w-[22%] bg-gradient-to-r from-cyan-300/60 to-violet-300/40" />
                         <div className="absolute right-[24%] top-[27%] h-px w-[18%] bg-gradient-to-r from-violet-300/50 to-rose-300/60" />
                         <div className="absolute right-[22%] top-[52%] h-px w-[12%] rotate-[60deg] bg-gradient-to-r from-rose-300/50 to-blue-300/55" />
@@ -336,7 +336,7 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
                           <div
                             key={node.id}
                             className={[
-                              "absolute max-w-[132px] rounded-full border bg-white px-3 py-2 text-center text-[11px] font-semibold uppercase tracking-[0.14em] backdrop-blur-xl",
+                              "absolute max-w-[132px] rounded-full border bg-[var(--surface)] px-3 py-2 text-center text-[11px] font-semibold uppercase tracking-[0.14em] backdrop-blur-xl",
                               node.className,
                             ]
                               .filter(Boolean)
@@ -348,8 +348,8 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
                       </div>
 
                       <div className="rounded-sm border border-rose-300/20 bg-rose-300/10 px-4 py-4">
-                        <p className="text-sm font-semibold text-black">{viewModel.architectureIssueTitle}</p>
-                        <p className="mt-2 text-sm leading-7 text-black/75">{viewModel.architectureIssueDescription}</p>
+                        <p className="text-sm font-semibold text-[var(--text)]">{viewModel.architectureIssueTitle}</p>
+                        <p className="mt-2 text-sm leading-7 text-brand-muted">{viewModel.architectureIssueDescription}</p>
                       </div>
                     </div>
                   </CollapsibleBlock>
@@ -368,58 +368,58 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
                         <div className="grid grid-cols-2 gap-3">
                         {viewModel.browserEvidence.stats.map((stat) => (
                           <div key={stat.id} className={["rounded-sm border px-4 py-4", statToneClasses[stat.tone]].join(" ")}>
-                            <p className="text-2xl font-semibold tracking-[-0.03em] text-black">{stat.value}</p>
-                            <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-black/55">{stat.label}</p>
+                            <p className="text-2xl font-semibold tracking-[-0.03em] text-[var(--text)]">{stat.value}</p>
+                            <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-faint">{stat.label}</p>
                           </div>
                         ))}
                       </div>
 
                       <div className="space-y-3">
                         {viewModel.browserEvidence.details.map((detail) => (
-                          <div key={detail} className="rounded-sm border border-black bg-black/10 px-4 py-3 text-sm leading-6 text-black/80">
+                          <div key={detail} className="rounded-sm border border-[var(--border)] bg-black/10 px-4 py-3 text-sm leading-6 text-brand-muted">
                             <span className="break-all">{detail}</span>
                           </div>
                         ))}
                       </div>
 
-                      <div className="space-y-3 border-t border-black pt-4">
+                      <div className="space-y-3 border-t border-[var(--border)] pt-4">
                         <div className="space-y-1">
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/55">{t("report.runtime.evidence.manifest.title")}</p>
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-faint">{t("report.runtime.evidence.manifest.title")}</p>
                           <p className="text-sm leading-6 text-brand-muted">{t("report.runtime.evidence.manifest.description")}</p>
                         </div>
 
                         {viewModel.browserEvidence.artifacts.length > 0 ? (
                           <div className="space-y-3">
                             {viewModel.browserEvidence.artifacts.map((artifact) => (
-                              <div key={artifact.id} className="rounded-sm border border-black bg-black/5 px-4 py-3">
+                              <div key={artifact.id} className="rounded-sm border border-[var(--border)] bg-black/5 px-4 py-3">
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-cyan">{artifact.label}</p>
-                                <p className="mt-2 break-all text-sm leading-6 text-black/82">{artifact.value}</p>
+                                <p className="mt-2 break-all text-sm leading-6 text-[var(--text)]">{artifact.value}</p>
                               </div>
                             ))}
                           </div>
                         ) : (
-                          <div className="rounded-sm border border-black bg-black/5 px-4 py-3 text-sm leading-6 text-black/70">
+                          <div className="rounded-sm border border-[var(--border)] bg-black/5 px-4 py-3 text-sm leading-6 text-brand-muted">
                             {t("report.runtime.evidence.manifest.empty")}
                           </div>
                         )}
                       </div>
 
-                      <div className="space-y-3 border-t border-black pt-4">
+                      <div className="space-y-3 border-t border-[var(--border)] pt-4">
                         <div className="space-y-1">
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/55">{t("report.runtime.evidence.timeline.title")}</p>
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-faint">{t("report.runtime.evidence.timeline.title")}</p>
                           <p className="text-sm leading-6 text-brand-muted">{t("report.runtime.evidence.timeline.description")}</p>
                         </div>
 
                         {viewModel.browserEvidence.timeline.length > 0 ? (
                           <div className="space-y-3">
                             {viewModel.browserEvidence.timeline.map((step) => (
-                              <div key={step.id} className="rounded-sm border border-black bg-black/5 px-4 py-3">
+                              <div key={step.id} className="rounded-sm border border-[var(--border)] bg-black/5 px-4 py-3">
                                 <div className="flex items-start justify-between gap-3">
                                   <div>
-                                    <p className="text-sm font-semibold text-black">{step.label}</p>
-                                    {step.detail ? <p className="mt-1 break-all text-sm leading-6 text-black/72">{step.detail}</p> : null}
+                                    <p className="text-sm font-semibold text-[var(--text)]">{step.label}</p>
+                                    {step.detail ? <p className="mt-1 break-all text-sm leading-6 text-brand-muted">{step.detail}</p> : null}
                                   </div>
-                                  <span className={["rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]", statToneClasses[step.tone], "text-black/80"].join(" ")}>
+                                  <span className={["rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]", statToneClasses[step.tone], "text-brand-muted"].join(" ")}>
                                     {step.statusLabel}
                                   </span>
                                 </div>
@@ -427,7 +427,7 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
                             ))}
                           </div>
                         ) : (
-                          <div className="rounded-sm border border-black bg-black/5 px-4 py-3 text-sm leading-6 text-black/70">
+                          <div className="rounded-sm border border-[var(--border)] bg-black/5 px-4 py-3 text-sm leading-6 text-brand-muted">
                             {t("report.runtime.evidence.timeline.empty")}
                           </div>
                         )}
@@ -448,7 +448,7 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
 
                         <div className="space-y-3">
                         {viewModel.actionItems.map((actionItem) => (
-                          <div key={actionItem} className="flex items-start gap-3 text-sm text-black/85">
+                          <div key={actionItem} className="flex items-start gap-3 text-sm text-[var(--text)]">
                             <ListChecks className="mt-0.5 h-4 w-4 shrink-0 text-brand-cyan" />
                             <span>{actionItem}</span>
                           </div>

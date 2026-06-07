@@ -235,10 +235,10 @@ export default function Navigation({ styleProps = {} }: NavProps) {
   }, []);
 
   return (
-    <div id="ralph-loop-visualizer-container" className="rounded-sm border border-violet-500/30 bg-white p-6 md:p-8 backdrop-blur-xl shadow-[0_0_50px_rgba(139,92,246,0.06)] ring-1 ring-violet-500/10">
+    <div id="ralph-loop-visualizer-container" className="rounded-sm border border-violet-500/30 bg-[var(--surface)] p-6 md:p-8 backdrop-blur-xl shadow-[0_0_50px_rgba(139,92,246,0.06)] ring-1 ring-violet-500/10">
       
       {/* Simulation Header */}
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-black pb-6 mb-6">
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-[var(--border)] pb-6 mb-6">
         <div className="flex items-start gap-4">
           <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-sm border border-violet-400/30 bg-violet-500/10 text-violet-300 shadow-[0_0_20px_rgba(139,92,246,0.2)]">
             <RefreshCcw className={`h-6 w-6 ${isRunning && currentStep !== "completed" ? "animate-spin" : ""}`} />
@@ -250,7 +250,7 @@ export default function Navigation({ styleProps = {} }: NavProps) {
               </span>
               <span className="text-[10px] font-mono text-black/40">CLOSED_LOOP_RECOVERY_ARMED</span>
             </div>
-            <h3 className="text-xl font-bold tracking-tight text-black flex items-center gap-2">
+            <h3 className="text-xl font-bold tracking-tight text-[var(--text)] flex items-center gap-2">
               {isZh ? "Ralph Loop 閉環代碼自主修復沙箱" : "Ralph Loop Closed-Loop Code Correction Sandbox"}
               <span className="text-xs font-mono font-normal opacity-50 px-2 py-0.5 rounded-full bg-black/10 border border-black/5">v1.2-beta</span>
             </h3>
@@ -267,7 +267,7 @@ export default function Navigation({ styleProps = {} }: NavProps) {
             <button
               id="start-ralph-simulation-btn"
               onClick={runSimulation}
-              className="flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-black font-bold px-6 py-2.5 rounded-full shadow-[0_0_20px_rgba(135,92,246,0.3)] hover:shadow-[0_0_25px_rgba(135,92,246,0.5)] transition-all duration-300 active:scale-95"
+              className="flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-[var(--text)] font-bold px-6 py-2.5 rounded-full shadow-[0_0_20px_rgba(135,92,246,0.3)] hover:shadow-[0_0_25px_rgba(135,92,246,0.5)] transition-all duration-300 active:scale-95"
             >
               <Play className="h-4 w-4 fill-white" />
               {isZh ? "啟動 Ralph 閉環模擬修復" : "Trigger Ralph Loop Auto-Fix"}
@@ -276,7 +276,7 @@ export default function Navigation({ styleProps = {} }: NavProps) {
             <button
               id="reset-ralph-simulation-btn"
               onClick={handleReset}
-              className="flex items-center gap-2 border border-black bg-black/5 hover:bg-black/10 text-black font-semibold px-4 py-2 rounded-full transition-all"
+              className="flex items-center gap-2 border border-[var(--border)] bg-black/5 hover:bg-black/10 text-[var(--text)] font-semibold px-4 py-2 rounded-full transition-all"
             >
               <RefreshCcw className="h-4 w-4" />
               {isZh ? "重置沙箱" : "Reset Sandbox"}
@@ -289,21 +289,21 @@ export default function Navigation({ styleProps = {} }: NavProps) {
       <div className="grid gap-6 lg:grid-cols-12">
         
         {/* Left Side: Loop Nodes & Active Step Visualizer */}
-        <div className="lg:col-span-4 rounded-sm border border-black/5 bg-white p-5 flex flex-col justify-between">
+        <div className="lg:col-span-4 rounded-sm border border-black/5 bg-[var(--surface)] p-5 flex flex-col justify-between">
           <div className="space-y-4">
             <span className="text-[10px] uppercase font-mono tracking-wider text-black/40 font-bold block border-b border-black/5 pb-2">
               {isZh ? "閉環狀態追蹤" : "Closed Loop State Tracker"}
             </span>
 
             {/* Simulated node paths */}
-            <div className="space-y-4 relative pl-8 border-l border-black mt-2">
+            <div className="space-y-4 relative pl-8 border-l border-[var(--border)] mt-2">
               
               {/* Step 1 Node */}
               <div className="relative">
                 <div className={`absolute -left-[41px] top-0.5 h-6 w-6 rounded-full flex items-center justify-center border text-xs font-mono font-bold transition-all duration-300 ${
                   currentStep.startsWith("round1") || currentStep.startsWith("round2") || currentStep.startsWith("round3") || currentStep === "completed"
-                    ? "bg-violet-500 border-violet-400 text-black shadow-[0_0_10px_rgba(139,92,246,0.5)]"
-                    : "bg-neutral-100 border-black text-black/40"
+                    ? "bg-violet-500 border-violet-400 text-[var(--text)] shadow-[0_0_10px_rgba(139,92,246,0.5)]"
+                    : "bg-neutral-100 border-[var(--border)] text-black/40"
                 }`}>
                   1
                 </div>
@@ -322,9 +322,9 @@ export default function Navigation({ styleProps = {} }: NavProps) {
                 <div className={`absolute -left-[41px] top-0.5 h-6 w-6 rounded-full flex items-center justify-center border text-xs font-mono font-bold transition-all duration-300 ${
                   currentStep === "round1_fail" || currentStep === "round2_fail" || currentStep === "round3_pass" || currentStep === "completed"
                     ? currentStep.startsWith("round3") || currentStep === "completed"
-                      ? "bg-emerald-500 border-emerald-400 text-black shadow-[0_0_10px_rgba(16,185,129,0.5)]"
-                      : "bg-rose-500 border-rose-400 text-black shadow-[0_0_10px_rgba(244,63,94,0.5)]"
-                    : "bg-neutral-100 border-black text-black/40"
+                      ? "bg-emerald-500 border-emerald-400 text-[var(--text)] shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+                      : "bg-rose-500 border-rose-400 text-[var(--text)] shadow-[0_0_10px_rgba(244,63,94,0.5)]"
+                    : "bg-neutral-100 border-[var(--border)] text-black/40"
                 }`}>
                   2
                 </div>
@@ -348,8 +348,8 @@ export default function Navigation({ styleProps = {} }: NavProps) {
               <div className="relative">
                 <div className={`absolute -left-[41px] top-0.5 h-6 w-6 rounded-full flex items-center justify-center border text-xs font-mono font-bold transition-all duration-300 ${
                   currentStep === "round2_edit" || currentStep === "round3_edit" || currentStep === "completed"
-                    ? "bg-violet-500 border-violet-400 text-black shadow-[0_0_10px_rgba(139,92,246,0.5)]"
-                    : "bg-neutral-100 border-black text-black/40"
+                    ? "bg-violet-500 border-violet-400 text-[var(--text)] shadow-[0_0_10px_rgba(139,92,246,0.5)]"
+                    : "bg-neutral-100 border-[var(--border)] text-black/40"
                 }`}>
                   3
                 </div>
@@ -367,8 +367,8 @@ export default function Navigation({ styleProps = {} }: NavProps) {
               <div className="relative">
                 <div className={`absolute -left-[41px] top-0.5 h-6 w-6 rounded-full flex items-center justify-center border text-xs font-mono font-bold transition-all duration-300 ${
                   currentStep === "round3_pass" || currentStep === "completed"
-                    ? "bg-emerald-500 border-emerald-400 text-black shadow-[0_0_10px_rgba(16,185,129,0.5)]"
-                    : "bg-neutral-100 border-black text-black/40"
+                    ? "bg-emerald-500 border-emerald-400 text-[var(--text)] shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+                    : "bg-neutral-100 border-[var(--border)] text-black/40"
                 }`}>
                   4
                 </div>
@@ -386,8 +386,8 @@ export default function Navigation({ styleProps = {} }: NavProps) {
               <div className="relative">
                 <div className={`absolute -left-[41px] top-0.5 h-6 w-6 rounded-full flex items-center justify-center border text-xs font-mono font-bold transition-all duration-300 ${
                   currentStep === "completed"
-                    ? "bg-emerald-500 border-emerald-400 text-black shadow-[0_0_10px_rgba(16,185,129,0.5)]"
-                    : "bg-neutral-100 border-black text-black/40"
+                    ? "bg-emerald-500 border-emerald-400 text-[var(--text)] shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+                    : "bg-neutral-100 border-[var(--border)] text-black/40"
                 }`}>
                   ✓
                 </div>
@@ -426,7 +426,7 @@ export default function Navigation({ styleProps = {} }: NavProps) {
         </div>
 
         {/* Right Side: Tabbed Interactive Environment (Sandbox Editor & Console logs) */}
-        <div className="lg:col-span-8 flex flex-col min-h-[350px] rounded-sm border border-black bg-white overflow-hidden relative">
+        <div className="lg:col-span-8 flex flex-col min-h-[350px] rounded-sm border border-[var(--border)] bg-[var(--surface)] overflow-hidden relative">
           
           {/* Tab buttons */}
           <div className="flex border-b border-black/5 bg-neutral-100/60 text-xs px-2">
@@ -434,7 +434,7 @@ export default function Navigation({ styleProps = {} }: NavProps) {
               onClick={() => { setActiveTab("editor"); soundManager.play("dial"); }}
               className={`flex items-center gap-1.5 px-4 py-3 font-semibold border-b-2 transition-all ${
                 activeTab === "editor" 
-                  ? "border-violet-400 text-violet-300 bg-white" 
+                  ? "border-violet-400 text-violet-300 bg-[var(--surface)]" 
                   : "border-transparent text-black/40 hover:text-black/70"
               }`}
             >
@@ -445,7 +445,7 @@ export default function Navigation({ styleProps = {} }: NavProps) {
               onClick={() => { setActiveTab("terminal"); soundManager.play("dial"); }}
               className={`flex items-center gap-1.5 px-4 py-3 font-semibold border-b-2 transition-all ${
                 activeTab === "terminal" 
-                  ? "border-violet-400 text-violet-300 bg-white" 
+                  ? "border-violet-400 text-violet-300 bg-[var(--surface)]" 
                   : "border-transparent text-black/40 hover:text-black/70"
               }`}
             >
@@ -457,7 +457,7 @@ export default function Navigation({ styleProps = {} }: NavProps) {
               onClick={() => { setActiveTab("tests"); soundManager.play("dial"); }}
               className={`flex items-center gap-1.5 px-4 py-3 font-semibold border-b-2 transition-all ${
                 activeTab === "tests" 
-                  ? "border-violet-400 text-violet-300 bg-white" 
+                  ? "border-violet-400 text-violet-300 bg-[var(--surface)]" 
                   : "border-transparent text-black/40 hover:text-black/70"
               }`}
             >
@@ -480,7 +480,7 @@ export default function Navigation({ styleProps = {} }: NavProps) {
                   exit={{ opacity: 0 }}
                   className="space-y-1 block leading-relaxed"
                 >
-                  <pre className="text-black/80 whitespace-pre overflow-x-auto text-[11px] p-2 bg-white rounded-sm">
+                  <pre className="text-black/80 whitespace-pre overflow-x-auto text-[11px] p-2 bg-[var(--surface)] rounded-sm">
                     {codeContent}
                   </pre>
                   
@@ -560,8 +560,8 @@ export default function Navigation({ styleProps = {} }: NavProps) {
                   exit={{ opacity: 0 }}
                   className="space-y-3"
                 >
-                  <div className="rounded-sm border border-black/5 bg-white p-4">
-                    <p className="text-xs font-semibold text-black mb-2 uppercase tracking-wider">{isZh ? "Playwright 視覺對比對應" : "Playwright E2E Image Compare"}</p>
+                  <div className="rounded-sm border border-black/5 bg-[var(--surface)] p-4">
+                    <p className="text-xs font-semibold text-[var(--text)] mb-2 uppercase tracking-wider">{isZh ? "Playwright 視覺對比對應" : "Playwright E2E Image Compare"}</p>
                     <div className="grid grid-cols-2 gap-4">
                       
                       {/* Left State (CLS issue) */}
@@ -589,8 +589,8 @@ export default function Navigation({ styleProps = {} }: NavProps) {
                     </div>
                   </div>
 
-                  <div className="rounded-sm border border-black/5 bg-white p-4">
-                    <p className="text-xs font-semibold text-black mb-2 uppercase tracking-wider">{isZh ? "單元測試套件日誌 (Jest Runtime)" : "Unit Tests Telemetry (Jest Runtime)"}</p>
+                  <div className="rounded-sm border border-black/5 bg-[var(--surface)] p-4">
+                    <p className="text-xs font-semibold text-[var(--text)] mb-2 uppercase tracking-wider">{isZh ? "單元測試套件日誌 (Jest Runtime)" : "Unit Tests Telemetry (Jest Runtime)"}</p>
                     <div className="space-y-1 text-[11px]">
                       <div className="flex justify-between">
                         <span className="text-black/60">✓ Navigation renders properly without throwing</span>

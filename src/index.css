@@ -25,6 +25,7 @@
     --radius-sm: 2px;
     --maxw: 1140px;
     --shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+    --grid-line: rgba(0, 0, 0, 0.08);
     --grad: none;
     --fz: "Inter", system-ui, sans-serif;
     --fe: "Inter", "Space Grotesk", sans-serif;
@@ -42,6 +43,24 @@
     --muted: #94a3b8;
     --faint: #64748b;
     --shadow: 4px 4px 0px 0px rgba(255, 255, 255, 0.2);
+    --grid-line: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Light-lock: dashboard/app subtrees that are designed light-only. Re-pins the
+     light token values so the global dark toggle does not half-break them.
+     Nested redefinition wins for descendants over the :root[data-theme="dark"] set. */
+  .theme-lock-light {
+    --bg: #ffffff;
+    --bg-alt: #f3f4f6;
+    --surface: #ffffff;
+    --surface-2: #f9fafb;
+    --border: #e5e7eb;
+    --border-strong: #000000;
+    --text: #000000;
+    --muted: #4b5563;
+    --faint: #9ca3af;
+    --shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+    --grid-line: rgba(0, 0, 0, 0.08);
   }
 
   html {
@@ -66,16 +85,33 @@
   input[type="password"],
   input[type="number"],
   textarea {
-    @apply border border-black bg-white text-black px-4 py-2 rounded-sm outline-none transition-all duration-200 placeholder-gray-500;
+    border: 1px solid var(--border-strong);
+    background-color: var(--surface);
+    color: var(--text);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: all 0.2s ease;
   }
-  
+
+  input[type="text"]::placeholder,
+  input[type="email"]::placeholder,
+  input[type="url"]::placeholder,
+  input[type="password"]::placeholder,
+  input[type="number"]::placeholder,
+  textarea::placeholder {
+    color: var(--faint);
+  }
+
   input[type="text"]:focus,
   input[type="email"]:focus,
   input[type="url"]:focus,
   input[type="password"]:focus,
   input[type="number"]:focus,
   textarea:focus {
-    @apply shadow-[4px_4px_0_0_rgba(0,0,0,1)] border-black translate-x-[-2px] translate-y-[-2px];
+    box-shadow: var(--shadow);
+    border-color: var(--border-strong);
+    transform: translate(-2px, -2px);
   }
 }
 
@@ -84,16 +120,20 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background-image: 
-      linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 30px 30px;
     opacity: 1;
     z-index: 0;
   }
 
   .glass-panel {
-    @apply border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] bg-white rounded-sm text-black;
+    border: 1px solid var(--border-strong);
+    box-shadow: var(--shadow);
+    background-color: var(--surface);
+    border-radius: var(--radius-sm);
+    color: var(--text);
   }
 
   .bg-noise {
@@ -101,11 +141,13 @@
   }
 
   .brand-gradient-text {
-    @apply text-black font-extrabold;
+    color: var(--text);
+    font-weight: 800;
   }
 
   .section-divider {
-    @apply border-b border-black w-full;
+    border-bottom: 1px solid var(--border-strong);
+    width: 100%;
   }
 
   .animate-float {

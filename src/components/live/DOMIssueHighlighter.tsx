@@ -53,7 +53,7 @@ export default function DOMIssueHighlighter({ issues }: DOMIssueHighlighterProps
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05, duration: 0.24 }}
-            className="group rounded-sm border border-black bg-white p-4 backdrop-blur-xl transition-colors hover:bg-white hover:border-black/15"
+            className="group rounded-sm border border-[var(--border)] bg-[var(--surface)] p-4 backdrop-blur-xl transition-colors hover:bg-[var(--surface)] hover:border-black/15"
           >
             <div className="mb-3 flex flex-wrap items-center gap-3">
               <span className={["inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold overflow-hidden relative", accent].join(" ")}>
@@ -61,7 +61,7 @@ export default function DOMIssueHighlighter({ issues }: DOMIssueHighlighterProps
                 <Icon className="h-3.5 w-3.5" />
                 {t(`liveAudit.dom.types.${issue.issueType}`)}
               </span>
-              <code className="rounded-md border border-black/5 bg-white px-2.5 py-1 text-xs font-semibold tracking-wide text-cyan-200/90 shadow-inner shadow-black/20">
+              <code className="rounded-md border border-black/5 bg-[var(--surface)] px-2.5 py-1 text-xs font-semibold tracking-wide text-cyan-200/90 shadow-inner shadow-black/20">
                 {issue.element}
               </code>
             </div>

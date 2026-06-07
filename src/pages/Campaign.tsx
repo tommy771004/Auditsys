@@ -32,18 +32,18 @@ export default function Campaign({ onNavigate }: CampaignProps) {
               </div>
               <div>
                 <p className="text-sm font-semibold uppercase tracking-widest text-brand-cyan">{t("campaign.googleAds.eyebrow")}</p>
-                <h2 className="text-2xl font-bold text-black">{t("campaign.googleAds.title")}</h2>
+                <h2 className="text-2xl font-bold text-[var(--text)]">{t("campaign.googleAds.title")}</h2>
               </div>
             </div>
             
             <GlassContainer accent="cyan" className="p-5 sm:p-8">
               <div className="flex flex-col gap-6">
                 <div>
-                  <p className="mb-2 text-xs font-mono text-black/60">{t("campaign.googleAds.keywords")}</p>
-                  <div className="rounded-sm bg-white p-6 border border-black/5">
+                  <p className="mb-2 text-xs font-mono text-brand-muted">{t("campaign.googleAds.keywords")}</p>
+                  <div className="rounded-sm bg-[var(--surface)] p-6 border border-[var(--border)]">
                     <h3 className="text-xl font-bold text-brand-cyan hover:underline cursor-pointer">{t("campaign.googleAds.headline1")}</h3>
                     <h3 className="text-xl font-bold text-brand-cyan hover:underline cursor-pointer mt-1">{t("campaign.googleAds.headline2")}</h3>
-                    <p className="mt-3 text-sm leading-relaxed text-black/80">{t("campaign.googleAds.description")}</p>
+                    <p className="mt-3 text-sm leading-relaxed text-brand-muted">{t("campaign.googleAds.description")}</p>
                     <p className="mt-4 text-xs font-semibold text-brand-cyan/80">{t("campaign.googleAds.sitelinks")}</p>
                   </div>
                 </div>
@@ -59,30 +59,30 @@ export default function Campaign({ onNavigate }: CampaignProps) {
               </div>
               <div>
                 <p className="text-sm font-semibold uppercase tracking-widest text-brand-purple">{t("campaign.socialAds.eyebrow")}</p>
-                <h2 className="text-2xl font-bold text-black">{t("campaign.socialAds.title")}</h2>
+                <h2 className="text-2xl font-bold text-[var(--text)]">{t("campaign.socialAds.title")}</h2>
               </div>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
               <GlassContainer accent="violet" className="p-5 sm:p-8">
-                <h3 className="mb-4 text-sm font-bold text-black/90">{t("campaign.socialAds.test1.title")}</h3>
-                <div className="mb-4 aspect-video rounded-sm bg-white border border-brand-purple/20 flex flex-col items-center justify-center p-6 text-center shadow-inner">
-                  <p className="text-xs text-black/60 italic">"{t("campaign.socialAds.test1.visual")}"</p>
+                <h3 className="mb-4 text-sm font-bold text-[var(--text)]">{t("campaign.socialAds.test1.title")}</h3>
+                <div className="mb-4 aspect-video rounded-sm bg-[var(--surface)] border border-brand-purple/20 flex flex-col items-center justify-center p-6 text-center shadow-inner">
+                  <p className="text-xs text-brand-muted italic">"{t("campaign.socialAds.test1.visual")}"</p>
                 </div>
-                <p className="text-sm leading-relaxed text-black/90">"{t("campaign.socialAds.test1.text")}"</p>
+                <p className="text-sm leading-relaxed text-[var(--text)]">"{t("campaign.socialAds.test1.text")}"</p>
                 <div className="mt-6 flex justify-end">
-                  <span className="rounded-full bg-brand-purple px-4 py-2 text-xs font-bold text-black">{t("campaign.socialAds.test1.cta")}</span>
+                  <span className="rounded-full bg-brand-purple px-4 py-2 text-xs font-bold text-[var(--text)]">{t("campaign.socialAds.test1.cta")}</span>
                 </div>
               </GlassContainer>
 
               <GlassContainer accent="blue" className="p-5 sm:p-8">
-                <h3 className="mb-4 text-sm font-bold text-black/90">{t("campaign.socialAds.test2.title")}</h3>
-                <div className="mb-4 aspect-video rounded-sm bg-white border border-blue-500/20 flex flex-col items-center justify-center p-6 text-center shadow-inner">
-                  <p className="text-xs text-black/60 italic">"{t("campaign.socialAds.test2.visual")}"</p>
+                <h3 className="mb-4 text-sm font-bold text-[var(--text)]">{t("campaign.socialAds.test2.title")}</h3>
+                <div className="mb-4 aspect-video rounded-sm bg-[var(--surface)] border border-blue-500/20 flex flex-col items-center justify-center p-6 text-center shadow-inner">
+                  <p className="text-xs text-brand-muted italic">"{t("campaign.socialAds.test2.visual")}"</p>
                 </div>
-                <p className="text-sm leading-relaxed text-black/90">"{t("campaign.socialAds.test2.text")}"</p>
+                <p className="text-sm leading-relaxed text-[var(--text)]">"{t("campaign.socialAds.test2.text")}"</p>
                 <div className="mt-6 flex justify-end">
-                  <span className="rounded-full bg-blue-500 px-4 py-2 text-xs font-bold text-black">{t("campaign.socialAds.test2.cta")}</span>
+                  <span className="rounded-full bg-blue-500 px-4 py-2 text-xs font-bold text-[var(--text)]">{t("campaign.socialAds.test2.cta")}</span>
                 </div>
               </GlassContainer>
             </div>
@@ -96,18 +96,18 @@ export default function Campaign({ onNavigate }: CampaignProps) {
               </div>
               <div>
                 <p className="text-sm font-semibold uppercase tracking-widest text-semantic-success">{t("campaign.emailSequence.eyebrow")}</p>
-                <h2 className="text-2xl font-bold text-black">{t("campaign.emailSequence.title")}</h2>
+                <h2 className="text-2xl font-bold text-[var(--text)]">{t("campaign.emailSequence.title")}</h2>
               </div>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-3">
               {['email1', 'email2', 'email3'].map((emailKey) => (
                 <GlassContainer key={emailKey} accent="violet" className="flex flex-col p-5 sm:p-6 transition-transform hover:-translate-y-1">
-                  <div className="mb-4 border-b border-black pb-4">
-                    <p className="text-xs font-bold uppercase tracking-wider text-black/60 mb-2">{t(`campaign.emailSequence.${emailKey}.title`)}</p>
-                    <p className="text-sm font-medium text-black"><span className="text-black/60">{t("campaign.emailSequence.subj")}</span>{t(`campaign.emailSequence.${emailKey}.subject`)}</p>
+                  <div className="mb-4 border-b border-[var(--border)] pb-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-brand-muted mb-2">{t(`campaign.emailSequence.${emailKey}.title`)}</p>
+                    <p className="text-sm font-medium text-[var(--text)]"><span className="text-brand-muted">{t("campaign.emailSequence.subj")}</span>{t(`campaign.emailSequence.${emailKey}.subject`)}</p>
                   </div>
-                  <p className="text-sm leading-relaxed text-black/80 flex-1 whitespace-pre-wrap">
+                  <p className="text-sm leading-relaxed text-brand-muted flex-1 whitespace-pre-wrap">
                     {t(`campaign.emailSequence.${emailKey}.body`)}
                   </p>
                 </GlassContainer>

@@ -40,7 +40,7 @@ const BentoCard = ({ children, className }: { children: React.ReactNode, classNa
     <motion.div
         whileHover={{ y: -2, x: -2, boxShadow: "6px 6px 0px 0px rgba(0,0,0,1)" }}
         transition={{ duration: 0.2, ease: "easeOut" }}
-        className={`relative overflow-hidden rounded-sm border border-black bg-white shadow-[4px_4px_0_rgba(0,0,0,1)] p-8 sm:p-10 transition-all duration-200 text-black hover:bg-black hover:text-white ${className}`}
+        className={`relative overflow-hidden rounded-sm border border-[var(--border)] bg-[var(--surface)] shadow-[4px_4px_0_rgba(0,0,0,1)] p-8 sm:p-10 transition-all duration-200 text-[var(--text)] ${className}`}
     >
       <div className="relative z-10 h-full">
         {children}
@@ -87,13 +87,13 @@ const InfiniteMarquee = () => {
   ];
 
   return (
-    <div className="relative w-full overflow-hidden flex flex-col py-12 border-y border-black bg-white">
+    <div className="relative w-full overflow-hidden flex flex-col py-12 border-y border-[var(--border)] bg-[var(--surface)]">
       <div className="flex animate-marquee whitespace-nowrap w-max opacity-100">
         {[...Array(2)].map((_, i) => (
           <div key={i} className="flex gap-16 items-center min-w-max px-8">
             {terms.map((term, idx) => {
               return (
-                <div key={idx} className="flex items-center gap-4 text-black">
+                <div key={idx} className="flex items-center gap-4 text-[var(--text)]">
                   <span className="text-sm font-bold tracking-wide uppercase font-mono">{term.text}</span>
                   {idx !== terms.length - 1 && <div className="w-1.5 h-1.5 rounded-full bg-black ml-12" />}
                 </div>
@@ -236,7 +236,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
           titleKey: "status.idleTitle",
           descriptionKey: "status.idleDescription",
           icon: Sparkles,
-          panelClassName: "border-black bg-black/5 backdrop-blur-xl",
+          panelClassName: "border-[var(--border)] bg-black/5 backdrop-blur-xl",
           iconClassName: "text-brand-purple",
         };
 
@@ -258,7 +258,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
       <div className="hero-grid-bg transition-opacity duration-300 ease-out" />
       <AmbientOrbs />
 
-      <PageContainer className="relative z-10 flex flex-col pt-36 pb-24 sm:pt-44 lg:pb-32">
+      <PageContainer className="relative z-10 flex flex-col pt-24 pb-24 lg:pb-32">
         {/* HERO SECTION */}
         <motion.section 
           id="overview" 
@@ -270,18 +270,18 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
               initial={{ opacity: 0, scale: 0.9, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
-              className="inline-flex items-center rounded-sm border border-black bg-black/5 px-4 py-2 text-[11px] font-mono font-bold uppercase tracking-[0.25em] text-black/70"
+              className="inline-flex items-center rounded-sm border border-[var(--border)] bg-black/5 px-4 py-2 text-[11px] font-mono font-bold uppercase tracking-[0.25em] text-brand-muted"
             >
-              <Sparkles className="w-3.5 h-3.5 mr-2 text-black/70" />
+              <Sparkles className="w-3.5 h-3.5 mr-2 text-brand-muted" />
               {t("hero.badge")}
             </motion.div>
 
             <div className="space-y-8 relative z-10">
-              <h1 className="max-w-4xl text-[3.25rem] font-black leading-[1.05] tracking-tight text-black sm:text-6xl lg:text-[5.5rem] font-grotesk">
+              <h1 className="max-w-4xl text-[3.25rem] font-black leading-[1.05] tracking-tight text-[var(--text)] sm:text-6xl lg:text-[5.5rem] font-grotesk">
                 <span className="block opacity-95">
                   <RevealWordText text={t("hero.titleLine1")} />
                 </span>
-                <span className="mt-4 block text-black/40">
+                <span className="mt-4 block text-brand-faint">
                   <RevealWordText text={t("hero.titleLine2")} />
                 </span>
               </h1>
@@ -289,7 +289,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 1, ease: "easeOut" }}
-                className="max-w-2xl text-base sm:text-lg leading-relaxed text-black/60 font-normal tracking-wide"
+                className="max-w-2xl text-base sm:text-lg leading-relaxed text-brand-muted font-normal tracking-wide"
               >
                 {t("hero.description")}
               </motion.p>
@@ -312,7 +312,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
                       visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 20 } }
                     }}
                     key={pill.id} 
-                    className="inline-flex items-center gap-3 rounded-sm border border-black bg-white/[0.015] px-5 py-2.5 text-[11px] font-mono font-bold uppercase tracking-wider text-black/70 transition-all duration-300 hover:bg-black/10 hover:border-black cursor-default"
+                    className="inline-flex items-center gap-3 rounded-sm border border-[var(--border)] bg-white/[0.015] px-5 py-2.5 text-[11px] font-mono font-bold uppercase tracking-wider text-brand-muted transition-all duration-300 hover:bg-black/10 hover:border-[var(--border)] cursor-default"
                   >
                     <span className="tracking-wide">{t(pill.labelKey)}</span>
                   </motion.div>
@@ -329,18 +329,18 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
           >
             <div className="relative">
               
-              <div className="relative rounded-sm overflow-hidden border border-black bg-white p-8 sm:p-10 z-10 hover:border-black transition-all duration-300 shadow-none">
+              <div className="relative rounded-sm overflow-hidden border border-[var(--border)] bg-[var(--surface)] p-8 sm:p-10 z-10 hover:border-[var(--border)] transition-all duration-300 shadow-none">
                 <div className="space-y-8">
                   <div className="space-y-4">
-                    <h3 className="text-2xl font-black tracking-tight text-black mb-2">{t("hero.panelTitle")}</h3>
-                    <p className="text-sm leading-relaxed text-black/60">{t("hero.panelDescription")}</p>
+                    <h3 className="text-2xl font-black tracking-tight text-[var(--text)] mb-2">{t("hero.panelTitle")}</h3>
+                    <p className="text-sm leading-relaxed text-brand-muted">{t("hero.panelDescription")}</p>
                   </div>
 
                   <form id="scan-form" className="space-y-6 pt-2" onSubmit={handleSubmit}>
                     <label className="block space-y-3 relative group">
-                      <span className="text-xs font-bold uppercase tracking-[0.2em] text-black/50 ml-2 group-focus-within:text-black transition-colors">{t("hero.inputLabel")}</span>
+                      <span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-faint ml-2 group-focus-within:text-[var(--text)] transition-colors">{t("hero.inputLabel")}</span>
                       <div className="relative rounded-sm overflow-hidden p-[1px] transition-all">
-                        <div className="relative flex items-center bg-white rounded-sm border border-black group-focus-within:border-black group-focus-within:shadow-[4px_4px_0_rgba(0,0,0,1)] group-focus-within:-translate-x-[2px] group-focus-within:-translate-y-[2px] transition-all">
+                        <div className="relative flex items-center bg-[var(--surface)] rounded-sm border border-[var(--border)] group-focus-within:border-[var(--border)] group-focus-within:shadow-[4px_4px_0_rgba(0,0,0,1)] group-focus-within:-translate-x-[2px] group-focus-within:-translate-y-[2px] transition-all">
                           <input
                             type="url"
                             inputMode="url"
@@ -350,7 +350,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
                             aria-invalid={isUrlFieldError}
                             aria-describedby={isUrlFieldError ? "home-url-error" : undefined}
                             className={[
-                              "w-full bg-transparent min-h-[58px] py-3.5 pl-6 pr-6 text-sm text-black outline-none transition-all duration-300 placeholder:text-black/40 font-mono tracking-wider",
+                              "w-full bg-transparent min-h-[58px] py-3.5 pl-6 pr-6 text-sm text-[var(--text)] outline-none transition-all duration-300 placeholder:text-brand-faint font-mono tracking-wider",
                               isUrlFieldError
                                 ? "border-transparent"
                                 : "border-transparent",
@@ -379,7 +379,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
                         {t("hero.submit")}
                       </SolidButton>
                       <SolidButton
-                        className="w-full justify-center text-sm h-12 rounded-sm border border-black bg-white text-black hover:bg-black hover:text-white shadow-[4px_4px_0_rgba(0,0,0,1)] hover:shadow-none translate-y-0 hover:translate-y-[2px] hover:translate-x-[2px] transition-all duration-200"
+                        className="w-full justify-center text-sm h-12 rounded-sm border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:bg-black hover:text-white shadow-[4px_4px_0_rgba(0,0,0,1)] hover:shadow-none translate-y-0 hover:translate-y-[2px] hover:translate-x-[2px] transition-all duration-200"
                         loadingLabel={t("hero.loading")}
                         type="button"
                         variant="secondary"
@@ -392,7 +392,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
 
                   <div className={["rounded-sm border p-5 transition-all duration-200 ease-out", statusConfig.panelClassName].filter(Boolean).join(" ")} aria-live="polite">
                     <div className="space-y-1">
-                      <p className="text-[15px] font-bold tracking-wide text-black/95">{t(statusConfig.titleKey)}</p>
+                      <p className="text-[15px] font-bold tracking-wide text-[var(--text)]">{t(statusConfig.titleKey)}</p>
                       <p className="text-sm leading-relaxed text-brand-muted">{t(statusConfig.descriptionKey)}</p>
                     </div>
                   </div>
@@ -409,7 +409,6 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
           transition={{ duration: 1 }}
           className="mt-20 mb-32"
         >
-          <p className="text-center text-xs font-bold uppercase tracking-[0.3em] text-black/30 mb-8">Trusted by innovators</p>
           <Logos3 />
         </motion.section>
 
@@ -445,14 +444,11 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
                     className={`relative ${index % 2 === 1 ? 'lg:translate-y-12' : ''}`}
                   >
                     <BentoCard className="h-full flex flex-col justify-between group">
-                      <div className="absolute top-0 right-0 p-8 text-[140px] font-black text-black/[0.02] -z-10 group-hover:text-black/[0.04] group-hover:scale-110 transition-all duration-200 ease-out pointer-events-none select-none leading-none font-mono">
-                        0{index + 1}
-                      </div>
                       <div className="space-y-6">
                         <div>
-                          <p className="text-[11px] font-mono font-bold uppercase tracking-[0.25em] text-black/50 mb-3 ml-1">{t(step.eyebrowKey)}</p>
-                          <h3 className="text-2xl font-black text-black tracking-tight mb-4">{t(step.titleKey)}</h3>
-                          <p className="text-sm sm:text-base leading-relaxed text-black/60">{t(step.descriptionKey)}</p>
+                          <p className="text-[11px] font-mono font-bold uppercase tracking-[0.25em] text-brand-faint mb-3 ml-1">{t(step.eyebrowKey)}</p>
+                          <h3 className="text-2xl font-black text-[var(--text)] tracking-tight mb-4">{t(step.titleKey)}</h3>
+                          <p className="text-sm sm:text-base leading-relaxed text-brand-muted">{t(step.descriptionKey)}</p>
                         </div>
                       </div>
                     </BentoCard>
@@ -488,8 +484,8 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
                   <BentoCard className="h-full group flex flex-col justify-between">
                     <div className="flex flex-col h-full gap-8">
                       <div className="space-y-4 mt-auto">
-                        <h3 className="text-2xl font-black text-black tracking-tight">{t(card.titleKey)}</h3>
-                        <p className="text-sm sm:text-base leading-relaxed text-black/60 max-w-xl">{t(card.descriptionKey)}</p>
+                        <h3 className="text-2xl font-black text-[var(--text)] tracking-tight">{t(card.titleKey)}</h3>
+                        <p className="text-sm sm:text-base leading-relaxed text-brand-muted max-w-xl">{t(card.descriptionKey)}</p>
                       </div>
                     </div>
                   </BentoCard>
@@ -507,9 +503,9 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
             <div className="space-y-8">
               <div className="space-y-4">
                 <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400 drop-shadow-sm">
-                  {i18n.language?.startsWith("zh") ? "稽核專案成果展示" : "AUDITED PROJECTS SHOWCASE"}
+                  {i18n.language?.startsWith("zh") ? "稽核專案成果展示（示例）" : "AUDITED PROJECTS SHOWCASE (ILLUSTRATIVE)"}
                 </p>
-                <h2 className="text-3xl font-black leading-tight tracking-tight text-black sm:text-4xl font-grotesk">
+                <h2 className="text-3xl font-black leading-tight tracking-tight text-[var(--text)] sm:text-4xl font-grotesk">
                   {i18n.language?.startsWith("zh") ? "近期效能實績與商業價值" : "Recent Audits & Business Value"}
                 </h2>
                 <p className="text-base text-brand-muted/80 max-w-lg leading-7">
@@ -525,9 +521,9 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
                 <motion.div
                   whileHover={{ y: -4 }}
                   transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                  className="group relative overflow-hidden rounded-sm border border-black bg-white/[0.015] p-5 shadow-none hover:bg-white/[0.035] hover:border-black transition-all duration-300 cursor-default"
+                  className="group relative overflow-hidden rounded-sm border border-[var(--border)] bg-white/[0.015] p-5 shadow-none hover:bg-white/[0.035] hover:border-[var(--border)] transition-all duration-300 cursor-default"
                 >
-                  <div className="relative overflow-hidden rounded-sm aspect-[16/10] bg-zinc-900 border border-black/[0.05]">
+                  <div className="relative overflow-hidden rounded-sm aspect-[16/10] bg-zinc-900 border border-[var(--border)]">
                     <img
                       src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80"
                       referrerPolicy="no-referrer"
@@ -541,7 +537,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
                       <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400">Next.js • Tailwind</span>
                       <span className="text-xs font-mono font-bold text-emerald-400">-54% Latency</span>
                     </div>
-                    <h4 className="text-lg font-bold text-black group-hover:text-cyan-300 transition-colors">
+                    <h4 className="text-lg font-bold text-[var(--text)] group-hover:text-cyan-300 transition-colors">
                       {i18n.language?.startsWith("zh") ? "跨國 SaaS 智慧主控台" : "Global SaaS Admin Console"}
                     </h4>
                     <p className="text-xs text-brand-muted/80 leading-relaxed">
@@ -556,9 +552,9 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
                 <motion.div
                   whileHover={{ y: -4 }}
                   transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                  className="group relative overflow-hidden rounded-sm border border-black bg-white/[0.015] p-5 shadow-none hover:bg-white/[0.035] hover:border-black transition-all duration-300 cursor-default"
+                  className="group relative overflow-hidden rounded-sm border border-[var(--border)] bg-white/[0.015] p-5 shadow-none hover:bg-white/[0.035] hover:border-[var(--border)] transition-all duration-300 cursor-default"
                 >
-                  <div className="relative overflow-hidden rounded-sm aspect-[16/10] bg-zinc-900 border border-black/[0.05]">
+                  <div className="relative overflow-hidden rounded-sm aspect-[16/10] bg-zinc-900 border border-[var(--border)]">
                     <img
                       src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80"
                       referrerPolicy="no-referrer"
@@ -572,7 +568,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
                       <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400">Astro • SolidJS</span>
                       <span className="text-xs font-mono font-bold text-emerald-400">99/100 Lighthouse</span>
                     </div>
-                    <h4 className="text-lg font-bold text-black group-hover:text-purple-300 transition-colors">
+                    <h4 className="text-lg font-bold text-[var(--text)] group-hover:text-purple-300 transition-colors">
                       {i18n.language?.startsWith("zh") ? "新零售奢品閃購平台" : "LuxRetail Flash-sale Hub"}
                     </h4>
                     <p className="text-xs text-brand-muted/80 leading-relaxed">
@@ -590,9 +586,9 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
             <div className="space-y-8">
               <div className="space-y-4">
                 <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400 drop-shadow-sm">
-                  {i18n.language?.startsWith("zh") ? "核心顧問工作經歷" : "PROFESSIONAL TIMELINE"}
+                  {i18n.language?.startsWith("zh") ? "核心顧問工作經歷（示例）" : "PROFESSIONAL TIMELINE (ILLUSTRATIVE)"}
                 </p>
-                <h3 className="text-3xl font-black leading-tight tracking-tight text-black sm:text-4xl font-grotesk">
+                <h3 className="text-3xl font-black leading-tight tracking-tight text-[var(--text)] sm:text-4xl font-grotesk">
                   {i18n.language?.startsWith("zh") ? "專家團隊技術資歷" : "Consultant Technical Footprint"}
                 </h3>
                 <p className="text-base text-brand-muted/80 leading-7">
@@ -651,28 +647,28 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
           transition={{ duration: 0.8 }}
           className="grid gap-6 md:grid-cols-2 mt-12 mb-20 max-w-6xl mx-auto"
         >
-          <BentoCard className="p-8 md:p-14 relative overflow-hidden group border-black">
+          <BentoCard className="p-8 md:p-14 relative overflow-hidden group border-[var(--border)]">
             <div className="relative z-10 space-y-6">
-              <p className="text-[11px] font-mono font-bold uppercase tracking-[0.25em] text-black/50">{t("homePreview.sectionEyebrow")}</p>
-              <h2 className="text-3xl font-black leading-tight tracking-tight text-black lg:text-[2.5rem]">{t("homePreview.sectionTitle")}</h2>
-              <p className="text-sm sm:text-base leading-relaxed text-black/60 mt-4 max-w-md">{t("homePreview.sectionDescription")}</p>
+              <p className="text-[11px] font-mono font-bold uppercase tracking-[0.25em] text-brand-faint">{t("homePreview.sectionEyebrow")}</p>
+              <h2 className="text-3xl font-black leading-tight tracking-tight text-[var(--text)] lg:text-[2.5rem]">{t("homePreview.sectionTitle")}</h2>
+              <p className="text-sm sm:text-base leading-relaxed text-brand-muted mt-4 max-w-md">{t("homePreview.sectionDescription")}</p>
               
               <div className="pt-6">
-                <div className="inline-flex items-center gap-2 text-black/50 text-sm font-semibold tracking-wide uppercase hover:text-black transition-colors cursor-pointer group/link">
+                <div className="inline-flex items-center gap-2 text-brand-faint text-sm font-semibold tracking-wide uppercase hover:text-[var(--text)] transition-colors cursor-pointer group/link">
                    View Details
                 </div>
               </div>
             </div>
           </BentoCard>
 
-          <BentoCard className="p-8 md:p-14 relative overflow-hidden group border-black">
+          <BentoCard className="p-8 md:p-14 relative overflow-hidden group border-[var(--border)]">
             <div className="relative z-10 space-y-6">
-              <p className="text-[11px] font-mono font-bold uppercase tracking-[0.25em] text-black/50">{t("homePreview.secondaryEyebrow")}</p>
-              <h3 className="text-3xl font-black tracking-tight text-black lg:text-[2.5rem]">{t("homePreview.secondaryTitle")}</h3>
-              <p className="text-sm sm:text-base leading-relaxed text-black/60 mt-4 max-w-md">{t("homePreview.secondaryDescription")}</p>
+              <p className="text-[11px] font-mono font-bold uppercase tracking-[0.25em] text-brand-faint">{t("homePreview.secondaryEyebrow")}</p>
+              <h3 className="text-3xl font-black tracking-tight text-[var(--text)] lg:text-[2.5rem]">{t("homePreview.secondaryTitle")}</h3>
+              <p className="text-sm sm:text-base leading-relaxed text-brand-muted mt-4 max-w-md">{t("homePreview.secondaryDescription")}</p>
 
               <div className="pt-6">
-                <div className="inline-flex items-center gap-2 text-black/50 text-sm font-semibold tracking-wide uppercase hover:text-black transition-colors cursor-pointer group/link">
+                <div className="inline-flex items-center gap-2 text-brand-faint text-sm font-semibold tracking-wide uppercase hover:text-[var(--text)] transition-colors cursor-pointer group/link">
                    Learn More
                 </div>
               </div>

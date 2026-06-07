@@ -46,8 +46,8 @@ export default function Accordion({
             transition={{ duration: 0.35, delay: index * 0.05 }}
             className={`overflow-hidden rounded-sm border transition-all duration-300 shadow-none ${
               isOpen
-                ? "border-black bg-white"
-                : "border-black bg-white hover:border-black/15"
+                ? "border-[var(--border)] bg-[var(--surface)]"
+                : "border-[var(--border)] bg-[var(--surface)] hover:border-[var(--border)]"
             }`}
           >
             {/* Accordion Trigger Header */}
@@ -58,7 +58,7 @@ export default function Accordion({
             >
               <span
                 className={`text-sm sm:text-base font-bold leading-relaxed tracking-tight transition-colors duration-300 ${
-                  isOpen ? "text-black" : "text-black/80 group-hover:text-black"
+                  isOpen ? "text-[var(--text)]" : "text-brand-muted group-hover:text-[var(--text)]"
                 }`}
               >
                 {item.title}
@@ -66,8 +66,8 @@ export default function Accordion({
               <span
                 className={`ml-4 flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border transition-all duration-200 ease-out ${
                   isOpen
-                    ? "border-black bg-black text-white rotate-180"
-                    : "border-black bg-white text-black group-hover:bg-black group-hover:text-white group-hover:shadow-[2px_2px_0_rgba(0,0,0,1)] hover:shadow-none translate-y-0 group-hover:translate-y-[2px] group-hover:translate-x-[2px]"
+                    ? "border-[var(--border)] bg-black text-white rotate-180"
+                    : "border-[var(--border)] bg-[var(--surface)] text-[var(--text)] group-hover:bg-black group-hover:text-white group-hover:shadow-[2px_2px_0_rgba(0,0,0,1)] hover:shadow-none translate-y-0 group-hover:translate-y-[2px] group-hover:translate-x-[2px]"
                 }`}
               >
                 <ChevronDown className="h-4 w-4 transition-transform duration-300" />
@@ -96,9 +96,9 @@ export default function Accordion({
                       opacity: { duration: 0.15 },
                     },
                   }}
-                  className="border-t border-black/[0.06] bg-white"
+                  className="border-t border-[var(--border)] bg-[var(--surface)]"
                 >
-                  <div className="px-6 py-4 text-xs sm:text-sm leading-relaxed text-black/60 max-w-none">
+                  <div className="px-6 py-4 text-xs sm:text-sm leading-relaxed text-brand-muted max-w-none">
                     {item.content}
                   </div>
                 </motion.div>

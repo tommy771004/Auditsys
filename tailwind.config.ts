@@ -15,6 +15,7 @@ export default {
           blue: "var(--blue)",
           text: "var(--text)",
           muted: "var(--muted)",
+          faint: "var(--faint)",
           danger: "var(--red)",
           amber: "var(--amber)",
         },

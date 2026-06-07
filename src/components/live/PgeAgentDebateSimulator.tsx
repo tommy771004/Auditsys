@@ -198,10 +198,10 @@ export default function PgeAgentDebateSimulator() {
   };
 
   return (
-    <div id="pge-debate-simulator-container" className="rounded-sm border border-blue-500/30 bg-white p-6 md:p-8 backdrop-blur-xl shadow-[0_0_50px_rgba(59,130,246,0.06)] ring-1 ring-blue-500/10 mt-8">
+    <div id="pge-debate-simulator-container" className="rounded-sm border border-blue-500/30 bg-[var(--surface)] p-6 md:p-8 backdrop-blur-xl shadow-[0_0_50px_rgba(59,130,246,0.06)] ring-1 ring-blue-500/10 mt-8">
       
       {/* Visual Header */}
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-black pb-6 mb-6">
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-[var(--border)] pb-6 mb-6">
         <div className="flex items-start gap-4">
           <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-sm border border-blue-400/30 bg-blue-500/10 text-blue-300 shadow-[0_0_20px_rgba(59,130,246,0.2)]">
             <Scale className={`h-6 w-6 ${isRunning ? "animate-bounce" : ""}`} />
@@ -213,7 +213,7 @@ export default function PgeAgentDebateSimulator() {
               </span>
               <span className="text-[10px] font-mono text-black/40">Sprint_Contract_Negotiations_Armed</span>
             </div>
-            <h3 className="text-xl font-bold tracking-tight text-black flex items-center gap-2">
+            <h3 className="text-xl font-bold tracking-tight text-[var(--text)] flex items-center gap-2">
               {isZh ? "PGE 非交互式代碼論證對抗引擎" : "PGE Non-interactive Code Argumentation Sandbox"}
               <span className="text-xs font-mono font-normal opacity-50 px-2 py-0.5 rounded-full bg-black/10 border border-black/5">GAN-Style</span>
             </h3>
@@ -230,7 +230,7 @@ export default function PgeAgentDebateSimulator() {
             <button
               id="start-pge-simulation-btn"
               onClick={startSimulation}
-              className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-black font-bold px-6 py-2.5 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] transition-all duration-300 active:scale-95"
+              className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-[var(--text)] font-bold px-6 py-2.5 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] transition-all duration-300 active:scale-95"
             >
               <Play className="h-4 w-4 fill-white" />
               {isZh ? "啟動 PGE 多輪對抗博弈" : "Initiate PGE Adversarial Loop"}
@@ -239,7 +239,7 @@ export default function PgeAgentDebateSimulator() {
             <button
               id="reset-pge-simulation-btn"
               onClick={resetSimulation}
-              className="flex items-center gap-2 border border-black bg-black/5 hover:bg-black/10 text-black font-semibold px-4 py-2 rounded-full transition-all"
+              className="flex items-center gap-2 border border-[var(--border)] bg-black/5 hover:bg-black/10 text-[var(--text)] font-semibold px-4 py-2 rounded-full transition-all"
             >
               <RotateCcw className="h-4 w-4" />
               {isZh ? "重置論證" : "Reset Debate"}
@@ -252,7 +252,7 @@ export default function PgeAgentDebateSimulator() {
       <div className="grid gap-6 lg:grid-cols-12">
         
         {/* Left Aspect: 3 Active Agents Status Card */}
-        <div className="lg:col-span-4 rounded-sm border border-black/5 bg-white p-5 space-y-4">
+        <div className="lg:col-span-4 rounded-sm border border-black/5 bg-[var(--surface)] p-5 space-y-4">
           <span className="text-[10px] uppercase font-mono tracking-wider text-black/40 font-bold block border-b border-black/5 pb-2">
             {isZh ? "當前多代理人博弈狀態" : "Agent Adversary States"}
           </span>
@@ -266,7 +266,7 @@ export default function PgeAgentDebateSimulator() {
             <div className="flex items-center gap-2">
               <span className="text-lg">🧠</span>
               <div>
-                <h4 className="text-xs font-bold text-black">{isZh ? "策劃者 (Planner Agent)" : "Planner Agent"}</h4>
+                <h4 className="text-xs font-bold text-[var(--text)]">{isZh ? "策劃者 (Planner Agent)" : "Planner Agent"}</h4>
                 <p className="text-[10px] text-blue-300/80 font-mono">Role: Contract & Spec Architect</p>
               </div>
             </div>
@@ -281,7 +281,7 @@ export default function PgeAgentDebateSimulator() {
             <div className="flex items-center gap-2">
               <span className="text-lg">⚙️</span>
               <div>
-                <h4 className="text-xs font-bold text-black">{isZh ? "生成者 (Generator Agent)" : "Generator Agent"}</h4>
+                <h4 className="text-xs font-bold text-[var(--text)]">{isZh ? "生成者 (Generator Agent)" : "Generator Agent"}</h4>
                 <p className="text-[10px] text-violet-300/80 font-mono">Role: Code Artisan & Refactorer</p>
               </div>
             </div>
@@ -296,7 +296,7 @@ export default function PgeAgentDebateSimulator() {
             <div className="flex items-center gap-2">
               <span className="text-lg">⚖️</span>
               <div>
-                <h4 className="text-xs font-bold text-black">{isZh ? "冷酷審判者 (Evaluator Agent)" : "Evaluator Agent"}</h4>
+                <h4 className="text-xs font-bold text-[var(--text)]">{isZh ? "冷酷審判者 (Evaluator Agent)" : "Evaluator Agent"}</h4>
                 <p className="text-[10px] text-rose-300/80 font-mono">Role: Uncompromising Quality Gate</p>
               </div>
             </div>
@@ -310,7 +310,7 @@ export default function PgeAgentDebateSimulator() {
             <div className="space-y-1">
               <div className="flex justify-between text-[11px]">
                 <span className="text-black/60">{isZh ? "當前博弈回合" : "Active Rounds"}</span>
-                <span className="font-mono text-black font-semibold">
+                <span className="font-mono text-[var(--text)] font-semibold">
                   {currentRound > 0 ? `Round ${currentRound} / 3` : "Idle"}
                 </span>
               </div>
@@ -344,7 +344,7 @@ export default function PgeAgentDebateSimulator() {
         </div>
 
         {/* Right Aspect: Terminal/Debate dialogue tracker */}
-        <div className="lg:col-span-8 flex flex-col min-h-[350px] rounded-sm border border-black bg-white overflow-hidden relative">
+        <div className="lg:col-span-8 flex flex-col min-h-[350px] rounded-sm border border-[var(--border)] bg-[var(--surface)] overflow-hidden relative">
           
           <div className="flex items-center justify-between px-4 py-3 border-b border-black/5 bg-neutral-100/60">
             <div className="flex items-center gap-1.5 text-xs text-slate-300 font-semibold font-mono">
@@ -377,7 +377,7 @@ export default function PgeAgentDebateSimulator() {
                     transition={{ duration: 0.35 }}
                     className="flex gap-3 text-xs leading-relaxed"
                   >
-                    <div className="h-8 w-8 shrink-0 rounded-full flex items-center justify-center bg-black/5 border border-black text-sm select-none">
+                    <div className="h-8 w-8 shrink-0 rounded-full flex items-center justify-center bg-black/5 border border-[var(--border)] text-sm select-none">
                       {turn.avatar}
                     </div>
                     <div className="flex-1 space-y-1">

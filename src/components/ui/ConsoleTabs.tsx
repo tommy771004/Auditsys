@@ -39,7 +39,7 @@ export default function ConsoleTabs({ currentRoute, onNavigate }: ConsoleTabsPro
   ];
 
   return (
-    <div className="mx-auto max-w-5xl mb-8 flex flex-wrap items-center justify-center gap-2 lg:gap-4 border-b border-black pb-4">
+    <div className="mx-auto max-w-5xl mb-8 flex flex-wrap items-center justify-center gap-2 lg:gap-4 border-b border-[var(--border)] pb-4">
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = currentRoute === tab.route;
@@ -49,7 +49,7 @@ export default function ConsoleTabs({ currentRoute, onNavigate }: ConsoleTabsPro
             onClick={() => onNavigate(tab.route)}
             className={[
               "relative inline-flex items-center gap-2 rounded-sm px-5 py-2.5 text-sm font-semibold transition-colors duration-300",
-              isActive ? tab.activeColor : "text-black/60 hover:text-black/90",
+              isActive ? tab.activeColor : "text-brand-muted hover:text-[var(--text)]",
             ].join(" ")}
           >
             {isActive && (

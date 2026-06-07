@@ -184,7 +184,7 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
           descriptionClassName="max-w-3xl"
         />
         {statusMessage && (
-          <div className="mt-6 rounded-sm border border-black bg-black/5 px-4 py-3 text-sm text-brand-cyan backdrop-blur-md">
+          <div className="mt-6 rounded-sm border border-[var(--border)] bg-black/5 px-4 py-3 text-sm text-brand-cyan backdrop-blur-md">
             {statusMessage}
           </div>
         )}
@@ -214,25 +214,25 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
               >
                 <div 
                   className={[
-                    "flex flex-col h-full rounded-sm border p-6 sm:p-8 transition-colors duration-300 bg-white",
+                    "flex flex-col h-full rounded-sm border p-6 sm:p-8 transition-colors duration-300 bg-[var(--surface)]",
                     isFeatured 
-                      ? "border-black ring-1 ring-white/10" 
-                      : "border-black"
+                      ? "border-[var(--border)] ring-1 ring-white/10" 
+                      : "border-[var(--border)]"
                   ].join(" ")}
                 >
                   <div className="flex h-full flex-col justify-between gap-8">
                     <div className="space-y-6">
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="text-[10px] font-mono font-bold uppercase tracking-[0.25em] text-black/50 mb-1">
+                          <p className="text-[10px] font-mono font-bold uppercase tracking-[0.25em] text-brand-faint mb-1">
                             {t(plan.nameKey)}
                           </p>
-                          <h3 className="text-2xl font-black text-black tracking-tight">
+                          <h3 className="text-2xl font-black text-[var(--text)] tracking-tight">
                             {isFeatured ? "PRO PLAN" : plan.id.toUpperCase()}
                           </h3>
                         </div>
                         {isFeatured && (
-                          <span className="rounded bg-black/5 border border-black px-2.5 py-1 text-[10px] font-mono font-bold uppercase tracking-widest text-black/80">
+                          <span className="rounded bg-black/5 border border-[var(--border)] px-2.5 py-1 text-[10px] font-mono font-bold uppercase tracking-widest text-brand-muted">
                             {t("pricing.plans.optimization.badge") || "POPULAR"}
                           </span>
                         )}
@@ -240,15 +240,15 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
 
                       <div className="space-y-2">
                         <div className="flex flex-wrap items-baseline gap-2">
-                          <span className="text-4xl font-black tracking-tight text-black font-mono">
+                          <span className="text-4xl font-black tracking-tight text-[var(--text)] font-mono">
                             {(() => {
                               const apiPlan = plansData.find(p => p.planId === plan.planIdMap);
                               return apiPlan?.price || t(plan.priceKey);
                             })()}
                           </span>
-                          <span className="text-xs font-mono text-black/40">{t(plan.cadenceKey)}</span>
+                          <span className="text-xs font-mono text-brand-faint">{t(plan.cadenceKey)}</span>
                         </div>
-                        <p className="text-xs sm:text-sm leading-relaxed text-black/60">{t(plan.descriptionKey)}</p>
+                        <p className="text-xs sm:text-sm leading-relaxed text-brand-muted">{t(plan.descriptionKey)}</p>
                       </div>
 
                       <div className="h-px bg-black/5" />
@@ -258,32 +258,32 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
                           const apiPlan = plansData.find(p => p.planId === plan.planIdMap);
                           const models = apiPlan?.allowedModels?.split(",").map((m: string) => m.trim()).filter(Boolean) || [];
                           return models.map((model: string) => (
-                            <div key={model} className="flex items-center gap-3 text-xs font-mono text-black/50">
+                            <div key={model} className="flex items-center gap-3 text-xs font-mono text-brand-faint">
                               <span className="w-1.5 h-1.5 bg-white/30 rounded-none shrink-0" />
                               <span>{t("misc.provides", { model })}</span>
                             </div>
                           ));
                         })()}
                         {plan.featureKeys.map((featureKey) => (
-                          <div key={featureKey} className="flex items-start gap-3 text-xs sm:text-sm text-black/80">
-                            <span className="mt-2 w-1.5 h-px bg-white shrink-0" />
+                          <div key={featureKey} className="flex items-start gap-3 text-xs sm:text-sm text-brand-muted">
+                            <span className="mt-2 w-1.5 h-px bg-[var(--surface)] shrink-0" />
                             <span>{t(featureKey)}</span>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    <div className="pt-4 border-t border-black/[0.06] mt-auto">
+                    <div className="pt-4 border-t border-[var(--border)] mt-auto">
                       {(() => {
                         const requiresApproval = user && (plan.planIdMap === "enterprise" && user.subscriptionPlan !== "enterprise");
 
                         if (requiresApproval) {
                           return (
                             <div id="enterprise-approval-badge" className="w-full flex flex-col items-center gap-2">
-                              <div className="w-full inline-flex items-center justify-center gap-1.5 rounded-sm border border-black bg-black/5 py-2.5 text-xs font-mono font-bold uppercase tracking-wider text-black">
+                              <div className="w-full inline-flex items-center justify-center gap-1.5 rounded-sm border border-[var(--border)] bg-black/5 py-2.5 text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)]">
                                 <span>{t("pricing.approvalRequired") || "APPROVAL REQUIRED"}</span>
                               </div>
-                              <p className="text-[10px] text-black/45 text-center leading-normal">
+                              <p className="text-[10px] text-brand-faint text-center leading-normal">
                                 {t("pricing.enterpriseApprovalHint") || "Upgrade to this tier requires administrator intervention."}
                               </p>
                             </div>
@@ -317,12 +317,12 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
         </div>
       </motion.section>
 
-      <motion.section {...pageMotion} className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] items-start border-t border-black pt-12">
-        <div className="rounded-sm border border-black bg-white p-8 sm:p-10 space-y-6">
+      <motion.section {...pageMotion} className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] items-start border-t border-[var(--border)] pt-12">
+        <div className="rounded-sm border border-[var(--border)] bg-[var(--surface)] p-8 sm:p-10 space-y-6">
           <div className="space-y-4">
-            <p className="text-[10px] font-mono font-bold uppercase tracking-[0.25em] text-black/50">{t("pricing.deliveryEyebrow")}</p>
-            <h2 className="text-3xl font-black text-black tracking-tight leading-tight">{t("pricing.deliveryTitle")}</h2>
-            <p className="text-sm leading-relaxed text-black/60">{t("pricing.deliveryDescription")}</p>
+            <p className="text-[10px] font-mono font-bold uppercase tracking-[0.25em] text-brand-faint">{t("pricing.deliveryEyebrow")}</p>
+            <h2 className="text-3xl font-black text-[var(--text)] tracking-tight leading-tight">{t("pricing.deliveryTitle")}</h2>
+            <p className="text-sm leading-relaxed text-brand-muted">{t("pricing.deliveryDescription")}</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row pt-2">
             <SolidButton

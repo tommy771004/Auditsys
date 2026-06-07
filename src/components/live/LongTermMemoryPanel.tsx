@@ -155,7 +155,7 @@ export default function LongTermMemoryPanel({
   };
 
   return (
-    <div className="rounded-sm border border-black bg-white p-6 md:p-8 backdrop-blur-2xl relative overflow-hidden transition-all shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+    <div className="rounded-sm border border-[var(--border)] bg-[var(--surface)] p-6 md:p-8 backdrop-blur-2xl relative overflow-hidden transition-all shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
       {/* Background cyber ambient rings */}
       
       
@@ -174,7 +174,7 @@ export default function LongTermMemoryPanel({
               </span>
               <span className="text-[10px] font-mono text-black/30 uppercase">PERSISTENT_KNOWLEDGE_STORE</span>
             </div>
-            <h3 className="text-xl font-bold tracking-tight text-black mt-1">
+            <h3 className="text-xl font-bold tracking-tight text-[var(--text)] mt-1">
               {isZh ? "長期架構記憶控制台" : "Long-term Architectural Memory Console"}
             </h3>
             <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
@@ -186,13 +186,13 @@ export default function LongTermMemoryPanel({
         </div>
 
         {/* Tactical interactive modes tab */}
-        <div className="flex bg-white p-1.5 rounded-sm border border-black self-start text-xs font-mono font-semibold shadow-inner shadow-black/40">
+        <div className="flex bg-[var(--surface)] p-1.5 rounded-sm border border-[var(--border)] self-start text-xs font-mono font-semibold shadow-inner shadow-black/40">
           <button
             onClick={() => { setActiveTab("explorer"); soundManager.play("dial"); }}
             className={`px-4 py-2 rounded-sm transition-all flex items-center gap-1.5 ${
               activeTab === "explorer" 
                 ? "bg-blue-500/20 text-blue-200 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]" 
-                : "text-slate-400 hover:text-black hover:bg-black/5"
+                : "text-slate-400 hover:text-[var(--text)] hover:bg-black/5"
             }`}
           >
             {isZh ? "記憶管理" : "Explorer"}
@@ -202,7 +202,7 @@ export default function LongTermMemoryPanel({
             className={`px-4 py-2 rounded-sm transition-all flex items-center gap-1.5 ${
               activeTab === "visualizer" 
                 ? "bg-blue-500/20 text-blue-200 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]" 
-                : "text-slate-400 hover:text-black hover:bg-black/5"
+                : "text-slate-400 hover:text-[var(--text)] hover:bg-black/5"
             }`}
           >
             <Workflow className="h-4 w-4" />
@@ -213,7 +213,7 @@ export default function LongTermMemoryPanel({
             className={`px-4 py-2 rounded-sm transition-all flex items-center gap-1.5 ${
               activeTab === "alignment" 
                 ? "bg-blue-500/20 text-blue-200 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]" 
-                : "text-slate-400 hover:text-black hover:bg-black/5"
+                : "text-slate-400 hover:text-[var(--text)] hover:bg-black/5"
             }`}
           >
             <Activity className="h-4 w-4" />
@@ -236,7 +236,7 @@ export default function LongTermMemoryPanel({
                     className={`px-3 py-1.5 rounded-full text-xs font-mono font-bold transition-all border ${
                       filterType === type 
                         ? "bg-blue-500/20 text-blue-300 border-blue-500/40" 
-                        : "bg-black/5 text-slate-400 border-black/5 hover:text-black hover:bg-black/10"
+                        : "bg-black/5 text-slate-400 border-black/5 hover:text-[var(--text)] hover:bg-black/10"
                     }`}
                   >
                     {type === "all" ? (isZh ? "全部" : "All") : ""}
@@ -267,7 +267,7 @@ export default function LongTermMemoryPanel({
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden bg-white rounded-sm border border-blue-500/30 p-4 space-y-4 text-xs font-mono"
+                  className="overflow-hidden bg-[var(--surface)] rounded-sm border border-blue-500/30 p-4 space-y-4 text-xs font-mono"
                 >
                   <p className="text-xs font-bold text-blue-300 uppercase">🧠 神經元記憶手動注入閘口</p>
                   <div className="grid gap-3 sm:grid-cols-2">
@@ -279,7 +279,7 @@ export default function LongTermMemoryPanel({
                         value={injectKey}
                         required
                         onChange={(e) => setInjectKey(e.target.value)}
-                        className="w-full bg-neutral-100 border border-black rounded-sm p-2 text-black outline-none focus:border-blue-400"
+                        className="w-full bg-neutral-100 border border-[var(--border)] rounded-sm p-2 text-[var(--text)] outline-none focus:border-blue-400"
                       />
                     </div>
                     <div className="space-y-1">
@@ -287,7 +287,7 @@ export default function LongTermMemoryPanel({
                       <select
                         value={injectType}
                         onChange={(e) => setInjectType(e.target.value as MemoryUpdateType)}
-                        className="w-full bg-neutral-100 border border-black rounded-sm p-2 text-black outline-none focus:border-blue-400"
+                        className="w-full bg-neutral-100 border border-[var(--border)] rounded-sm p-2 text-[var(--text)] outline-none focus:border-blue-400"
                       >
                         <option value="tech_stack">{isZh ? "技術棧特徵 (Tech Stack)" : "Tech Stack"}</option>
                         <option value="architecture">{isZh ? "藍圖架構特徵 (Architecture)" : "Architecture"}</option>
@@ -302,14 +302,14 @@ export default function LongTermMemoryPanel({
                       value={injectFact}
                       required
                       onChange={(e) => setInjectFact(e.target.value)}
-                      className="w-full bg-neutral-100 border border-black rounded-sm p-2 text-black outline-none focus:border-blue-400 h-16"
+                      className="w-full bg-neutral-100 border border-[var(--border)] rounded-sm p-2 text-[var(--text)] outline-none focus:border-blue-400 h-16"
                     />
                   </div>
                   <div className="flex justify-end gap-2">
                     <button
                       type="button"
                       onClick={() => { setShowInjectInput(false); soundManager.play("click"); }}
-                      className="px-3 py-1.5 rounded-sm bg-black/5 hover:bg-black/10 text-black font-semibold transition"
+                      className="px-3 py-1.5 rounded-sm bg-black/5 hover:bg-black/10 text-[var(--text)] font-semibold transition"
                     >
                       {isZh ? "取消" : "Cancel"}
                     </button>
@@ -341,12 +341,12 @@ export default function LongTermMemoryPanel({
                     className={`group relative flex items-start gap-4 rounded-sm border p-5 cursor-pointer backdrop-blur-sm transition-all duration-300 ${
                       isApproved 
                         ? "border-blue-500/30 bg-blue-900/20 shadow-[0_4px_20px_rgba(59,130,246,0.12)] hover:bg-blue-900/30 hover:border-blue-500/50 hover:scale-[1.01]"
-                        : "border-black/5 bg-white opacity-70 hover:opacity-100 grayscale hover:grayscale-0 hover:bg-neutral-100/60 hover:border-black"
+                        : "border-black/5 bg-[var(--surface)] opacity-70 hover:opacity-100 grayscale hover:grayscale-0 hover:bg-neutral-100/60 hover:border-[var(--border)]"
                     }`}
                   >
                     <div className="flex items-center h-6 pointer-events-none mt-0.5">
                       <div className={`h-5 w-5 rounded-md border flex items-center justify-center transition-all ${
-                        isApproved ? "border-blue-500 bg-blue-500 text-slate-950" : "border-black bg-neutral-100"
+                        isApproved ? "border-blue-500 bg-blue-500 text-slate-950" : "border-[var(--border)] bg-neutral-100"
                       }`}>
                         {isApproved && <Check className="h-3.5 w-3.5 stroke-[3px]" />}
                       </div>
@@ -365,10 +365,10 @@ export default function LongTermMemoryPanel({
                           {item.type === "bottleneck" ? (isZh ? "效能阻礙" : "Bottleneck") : ""}
                           {item.type === "tech_stack" ? (isZh ? "技術棧特徵" : "Tech Stack") : ""}
                         </span>
-                        <span className="text-[10px] font-mono text-black/40 truncate max-w-[12rem] bg-white px-2 py-0.5 rounded-md border border-black/5">SYS_KEY: {item.key}</span>
+                        <span className="text-[10px] font-mono text-black/40 truncate max-w-[12rem] bg-[var(--surface)] px-2 py-0.5 rounded-md border border-black/5">SYS_KEY: {item.key}</span>
                       </div>
                       <p className={`text-sm font-semibold transition-colors duration-200 ${
-                        isApproved ? "text-black" : "text-black/50"
+                        isApproved ? "text-[var(--text)]" : "text-black/50"
                       }`}>
                         {item.fact}
                       </p>
@@ -381,14 +381,14 @@ export default function LongTermMemoryPanel({
 
           {/* Right side stats/details bento (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
-            <div className="rounded-sm border border-black/5 bg-white p-5 space-y-5 text-xs font-mono">
+            <div className="rounded-sm border border-black/5 bg-[var(--surface)] p-5 space-y-5 text-xs font-mono">
               <span className="text-[10px] text-blue-400 font-bold block uppercase tracking-wider">📊 Synced Fact Analytics</span>
               
               <div className="space-y-3.5">
                 <div>
                   <div className="flex justify-between text-[11px] mb-1">
                     <span className="text-black/40">Total Sync Nodes</span>
-                    <span className="text-black font-bold">{allMemoryUpdates.length}</span>
+                    <span className="text-[var(--text)] font-bold">{allMemoryUpdates.length}</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-black/5 overflow-hidden">
                     <div className="h-full bg-blue-500" style={{ width: "100%" }} />
@@ -433,7 +433,7 @@ export default function LongTermMemoryPanel({
 
       {/* Visual Pipeline UI */}
       {activeTab === "visualizer" && (
-        <div className="p-4 rounded-sm border border-black/5 bg-white flex flex-col items-center">
+        <div className="p-4 rounded-sm border border-black/5 bg-[var(--surface)] flex flex-col items-center">
           <div className="text-center space-y-1 mb-8">
             <p className="text-[10px] font-mono text-blue-400 uppercase tracking-widest">🧠 Memory Graph Map (神經傳導流線圖)</p>
             <p className="text-xs text-black/60">
@@ -451,7 +451,7 @@ export default function LongTermMemoryPanel({
 
       {/* Semantic Alignment Diagnostic view */}
       {activeTab === "alignment" && (
-        <div className="rounded-sm border border-black/5 bg-white p-5 space-y-6 font-mono text-xs">
+        <div className="rounded-sm border border-black/5 bg-[var(--surface)] p-5 space-y-6 font-mono text-xs">
           <div className="flex items-center justify-between border-b border-black/5 pb-3">
             <span className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">🔬 Semantic Concept Align Check</span>
             <button
@@ -499,7 +499,7 @@ export default function LongTermMemoryPanel({
               <div>
                 <span className="text-[10px] text-black/40 uppercase font-semibold block">Semantic Overlap Accuracy Score</span>
                 <div className="mt-4 flex items-baseline gap-2">
-                  <p className="text-4xl font-mono font-bold text-black">
+                  <p className="text-4xl font-mono font-bold text-[var(--text)]">
                     {accuracyRating ? `${accuracyRating}%` : "---"}
                   </p>
                   <span className="text-xs text-blue-400/80 uppercase tracking-widest">

@@ -29,10 +29,10 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="flex min-h-screen w-full flex-col items-center justify-center bg-white p-4">
-          <div className="flex max-w-md flex-col items-center rounded-lg border border-black/10 bg-white p-8 text-center shadow-[4px_4px_0_rgba(0,0,0,1)]">
+        <div className="flex min-h-screen w-full flex-col items-center justify-center bg-[var(--surface)] p-4">
+          <div className="flex max-w-md flex-col items-center rounded-lg border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-[4px_4px_0_rgba(0,0,0,1)]">
             <AlertCircle className="mb-4 h-12 w-12 text-rose-600" />
-            <h1 className="mb-2 text-2xl font-bold font-grotesk tracking-tight text-black">
+            <h1 className="mb-2 text-2xl font-bold font-grotesk tracking-tight text-[var(--text)]">
               Oops, something went wrong.
             </h1>
             <p className="mb-6 text-sm text-slate-600">

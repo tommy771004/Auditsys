@@ -157,9 +157,12 @@ export async function fetchOpenRouterWithFallback(apiKey: string, prompt: string
   }
 
   // All models tried: distinguish rate-limit saturation from other failures.
-  const totalTried = FALLBACK_MODELS.length;
+  // Use the list actually iterated (custom allowedModels differ from FALLBACK_MODELS).
+  const totalTried = modelsToTry.length;
   const unavailable = rateLimitedCount + notFoundCount;
-  if (unavailable === totalTried || rateLimitedCount > 0) {
+  // Only report rate-limit saturation when every tried model was unavailable AND
+  // at least one was an actual 429 — otherwise surface the real last error.
+  if (unavailable === totalTried && rateLimitedCount > 0) {
     throw new Error('ALL_MODELS_RATE_LIMITED');
   }
   throw lastError || new Error('All fallback models failed.');

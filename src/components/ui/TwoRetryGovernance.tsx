@@ -29,26 +29,26 @@ export default function TwoRetryGovernance({ harness }: TwoRetryGovernanceProps)
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="group rounded-sm border border-black bg-black/10 p-5 relative overflow-hidden"
+      className="group rounded-sm border border-[var(--border)] bg-black/10 p-5 relative overflow-hidden"
     >
       
       <div className="flex items-center justify-between mb-4 relative z-10">
         <div className="flex items-center gap-2">
           <RefreshCcw className="h-4 w-4 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
-          <h3 className="text-[11px] font-semibold text-black/60 uppercase tracking-[0.18em]">
+          <h3 className="text-[11px] font-semibold text-brand-muted uppercase tracking-[0.18em]">
             {t("auditConsole.harness.retryWidget.title")}
           </h3>
         </div>
       </div>
       
       <div className="grid grid-cols-3 gap-3 relative z-10">
-        <div className="rounded-sm border border-black bg-white px-4 py-3 flex flex-col justify-center items-center h-[90px] transition-colors group-hover:bg-white">
-          <span className="text-3xl font-bold text-black mb-1 drop-shadow-md">{totalRetries}</span>
-          <span className="text-[10px] text-black/50 uppercase tracking-[0.18em] text-center">{t("auditConsole.harness.retryWidget.totalRetries")}</span>
+        <div className="rounded-sm border border-[var(--border)] bg-[var(--surface)] px-4 py-3 flex flex-col justify-center items-center h-[90px] transition-colors group-hover:bg-[var(--surface)]">
+          <span className="text-3xl font-bold text-[var(--text)] mb-1 drop-shadow-md">{totalRetries}</span>
+          <span className="text-[10px] text-brand-faint uppercase tracking-[0.18em] text-center">{t("auditConsole.harness.retryWidget.totalRetries")}</span>
         </div>
-        <div className="rounded-sm border border-black bg-white px-4 py-3 flex flex-col justify-center items-center h-[90px] transition-colors group-hover:bg-white">
+        <div className="rounded-sm border border-[var(--border)] bg-[var(--surface)] px-4 py-3 flex flex-col justify-center items-center h-[90px] transition-colors group-hover:bg-[var(--surface)]">
           <span className="text-3xl font-bold text-emerald-400 mb-1 drop-shadow-[0_0_12px_rgba(52,211,153,0.3)]">{resolvedRetries}</span>
-          <span className="text-[10px] text-black/50 uppercase tracking-[0.18em] text-center">{t("auditConsole.harness.retryWidget.resolved")}</span>
+          <span className="text-[10px] text-brand-faint uppercase tracking-[0.18em] text-center">{t("auditConsole.harness.retryWidget.resolved")}</span>
         </div>
         <div className="rounded-sm border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 flex flex-col justify-center items-center h-[90px] relative overflow-hidden shadow-inner shadow-emerald-500/20">
           <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/20 to-transparent opacity-60"></div>

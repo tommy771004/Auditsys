@@ -63,8 +63,8 @@ interface CustomTooltipProps {
 const CustomTooltip = ({ active, payload, label, isZh = false, compMetric }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white border border-black backdrop-blur-md p-3 rounded-sm shadow-2xl flex flex-col gap-2 min-w-[170px] z-50">
-        <p className="text-[10px] uppercase font-bold text-black/40 tracking-widest border-b border-black pb-1.5 mb-1">
+      <div className="bg-[var(--surface)] border border-[var(--border)] backdrop-blur-md p-3 rounded-sm shadow-2xl flex flex-col gap-2 min-w-[170px] z-50">
+        <p className="text-[10px] uppercase font-bold text-brand-faint tracking-widest border-b border-[var(--border)] pb-1.5 mb-1">
           {label}
         </p>
         <div className="space-y-1.5">
@@ -95,11 +95,11 @@ const CustomTooltip = ({ active, payload, label, isZh = false, compMetric }: Cus
 
             return (
               <div key={i} className="flex items-center justify-between gap-5">
-                <span className="text-xs text-black/70 flex items-center gap-2">
+                <span className="text-xs text-brand-muted flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: seriesColor }} />
                   {pld.name}
                 </span>
-                <span className="text-xs font-mono font-bold text-black">
+                <span className="text-xs font-mono font-bold text-[var(--text)]">
                   {valStr}
                 </span>
               </div>
@@ -237,15 +237,15 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
   return (
     <GlassCard className="p-6 md:p-8 space-y-6 flex flex-col justify-between" glow="cyan">
       {/* Block Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/[0.06] pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border)] pb-5">
         <div>
           <div className="flex items-center gap-2">
             <Cpu className="h-5 w-5 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
-            <h3 className="text-xl font-bold tracking-tight text-black">
+            <h3 className="text-xl font-bold tracking-tight text-[var(--text)]">
               {isZh ? "Harness 智能沙盒觀測台" : "Harness Pipeline Observability"}
             </h3>
           </div>
-          <p className="text-xs text-black/50 mt-1">
+          <p className="text-xs text-brand-faint mt-1">
             {isZh 
               ? "觀測多代理合約重試、Token 目標預算度與即時沙盒治理監控" 
               : "Monitor multi-agent execution trials, actual token budgets & realtime safety-gates"}
@@ -253,14 +253,14 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
         </div>
 
         {/* Dynamic Navigation Tabs */}
-        <div className="flex border border-black bg-white rounded-full p-1 self-start sm:self-auto overflow-x-auto max-w-full">
+        <div className="flex border border-[var(--border)] bg-[var(--surface)] rounded-full p-1 self-start sm:self-auto overflow-x-auto max-w-full">
           <button 
             type="button"
             onClick={() => setActiveTab("current")}
             className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all duration-300 ${
               activeTab === "current" 
                 ? "bg-cyan-500/10 text-cyan-400 shadow-[inset_0_1px_0_0_rgba(34,211,238,0.2)] border border-cyan-500/20" 
-                : "text-black/60 hover:text-black border border-transparent"
+                : "text-brand-muted hover:text-[var(--text)] border border-transparent"
             }`}
           >
             <Activity className="h-3 w-3" />
@@ -272,7 +272,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
             className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all duration-300 ${
               activeTab === "historical" 
                 ? "bg-cyan-500/10 text-cyan-400 shadow-[inset_0_1px_0_0_rgba(34,211,238,0.2)] border border-cyan-500/20" 
-                : "text-black/60 hover:text-black border border-transparent"
+                : "text-brand-muted hover:text-[var(--text)] border border-transparent"
             }`}
           >
             <TrendingUp className="h-3 w-3" />
@@ -284,7 +284,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
             className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all duration-300 ${
               activeTab === "compare" 
                 ? "bg-cyan-500/10 text-cyan-400 shadow-[inset_0_1px_0_0_rgba(34,211,238,0.2)] border border-cyan-500/20" 
-                : "text-black/60 hover:text-black border border-transparent"
+                : "text-brand-muted hover:text-[var(--text)] border border-transparent"
             }`}
           >
             <BarChart2 className="h-3.5 w-3.5" />
@@ -296,7 +296,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
             className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all duration-300 ${
               activeTab === "costTrend" 
                 ? "bg-cyan-500/10 text-cyan-400 shadow-[inset_0_1px_0_0_rgba(34,211,238,0.2)] border border-cyan-500/20" 
-                : "text-black/60 hover:text-black border border-transparent"
+                : "text-brand-muted hover:text-[var(--text)] border border-transparent"
             }`}
           >
             <Coins className="h-3.5 w-3.5 text-yellow-500" />
@@ -315,13 +315,13 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
         <motion.div 
           variants={cardVariants}
           whileHover={{ scale: 1.03, y: -2, transition: { duration: 0.2 } }}
-          className="bg-black/5 border border-black/[0.04] p-4 rounded-sm hover:bg-black/5 transition-colors cursor-default"
+          className="bg-black/5 border border-[var(--border)] p-4 rounded-sm hover:bg-black/5 transition-colors cursor-default"
         >
-          <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-black/40 tracking-wider">
+          <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-brand-faint tracking-wider">
             <Coins className="h-3.5 w-3.5 text-yellow-500" />
             {isZh ? "累計合約成本" : "Total Spend (USD)"}
           </div>
-          <p className="text-2xl font-black text-black mt-1.5 font-mono">
+          <p className="text-2xl font-black text-[var(--text)] mt-1.5 font-mono">
             ${totalSpend.toFixed(3)}
           </p>
         </motion.div>
@@ -329,9 +329,9 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
         <motion.div 
           variants={cardVariants}
           whileHover={{ scale: 1.03, y: -2, transition: { duration: 0.2 } }}
-          className="bg-black/5 border border-black/[0.04] p-4 rounded-sm hover:bg-black/5 transition-colors cursor-default"
+          className="bg-black/5 border border-[var(--border)] p-4 rounded-sm hover:bg-black/5 transition-colors cursor-default"
         >
-          <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-black/40 tracking-wider">
+          <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-brand-faint tracking-wider">
             <Clock className="h-3.5 w-3.5 text-cyan-400" />
             {isZh ? "平均運行延遲" : "Avg Execution Time"}
           </div>
@@ -343,9 +343,9 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
         <motion.div 
           variants={cardVariants}
           whileHover={{ scale: 1.03, y: -2, transition: { duration: 0.2 } }}
-          className="bg-black/5 border border-black/[0.04] p-4 rounded-sm hover:bg-black/5 transition-colors cursor-default"
+          className="bg-black/5 border border-[var(--border)] p-4 rounded-sm hover:bg-black/5 transition-colors cursor-default"
         >
-          <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-black/40 tracking-wider">
+          <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-brand-faint tracking-wider">
             <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
             {isZh ? "沙盒過關率" : "Quality Gate Pass"}
           </div>
@@ -357,9 +357,9 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
         <motion.div 
           variants={cardVariants}
           whileHover={{ scale: 1.03, y: -2, transition: { duration: 0.2 } }}
-          className="bg-black/5 border border-black/[0.04] p-4 rounded-sm hover:bg-black/5 transition-colors cursor-default"
+          className="bg-black/5 border border-[var(--border)] p-4 rounded-sm hover:bg-black/5 transition-colors cursor-default"
         >
-          <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-black/40 tracking-wider">
+          <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-brand-faint tracking-wider">
             <RefreshCcw className="h-3.5 w-3.5 text-purple-400" />
             {isZh ? "單次最高重試" : "Max Trial Retries"}
           </div>
@@ -381,7 +381,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
               transition={{ duration: 0.3 }}
               className="h-full w-full flex flex-col justify-between"
             >
-              <div className="text-xs text-black/60 mb-2 flex items-center justify-between">
+              <div className="text-xs text-brand-muted mb-2 flex items-center justify-between">
                 <span>
                   {isZh 
                     ? `當前合約 ID: ${currentHarness?.runId || "Active Simulation"}`
@@ -418,7 +418,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
               transition={{ duration: 0.3 }}
               className="h-full w-full flex flex-col justify-between"
             >
-              <div className="text-xs text-black/60 mb-2 flex items-center justify-between">
+              <div className="text-xs text-brand-muted mb-2 flex items-center justify-between">
                 <span>{isZh ? "歷史合約沙盒運行數據指標" : "Sandboxed AI Agents Runs Performance"}</span>
                 <span className="text-yellow-400">{isZh ? "隨時間波動指標" : "Time-series trend analysis"}</span>
               </div>
@@ -472,7 +472,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
               transition={{ duration: 0.3 }}
               className="h-full w-full flex flex-col justify-between"
             >
-              <div className="text-xs text-black/60 mb-2 flex items-center justify-between">
+              <div className="text-xs text-brand-muted mb-2 flex items-center justify-between">
                 <span>{isZh ? "歷史前 10 次合約分析資源門徑成本趨勢 (USD)" : "Cost Trend for Last 10 Audit Pipeline Runs (USD)"}</span>
                 <span className="text-emerald-400 font-semibold">{isZh ? "實時 Token 耗能監控" : "Realtime Token Gate Monitoring"}</span>
               </div>
@@ -507,7 +507,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
               {/* Left Column Controls */}
               <div className="flex flex-col gap-3 w-full md:w-[220px] shrink-0 justify-between">
                 <div className="space-y-3">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-black/40">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-brand-faint">
                     {isZh ? "選擇欲比較的合約組" : "Comparative Selections"}
                   </div>
                   
@@ -517,7 +517,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
                     <select
                       value={activeRunA?.name || ""}
                       onChange={(e) => setSelectedRunAId(e.target.value)}
-                      className="w-full bg-white border border-black rounded-sm px-2.5 py-1.5 text-xs text-black/95 focus:outline-none focus:border-cyan-400 transition-colors"
+                      className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-sm px-2.5 py-1.5 text-xs text-[var(--text)] focus:outline-none focus:border-cyan-400 transition-colors"
                     >
                       {displayHistory.map((h) => (
                         <option key={`a-${h.name}`} value={h.name}>
@@ -533,7 +533,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
                     <select
                       value={activeRunB?.name || ""}
                       onChange={(e) => setSelectedRunBId(e.target.value)}
-                      className="w-full bg-white border border-black rounded-sm px-2.5 py-1.5 text-xs text-black/95 focus:outline-none focus:border-purple-400 transition-colors"
+                      className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-sm px-2.5 py-1.5 text-xs text-[var(--text)] focus:outline-none focus:border-purple-400 transition-colors"
                     >
                       {displayHistory.map((h) => (
                         <option key={`b-${h.name}`} value={h.name}>
@@ -545,8 +545,8 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
                 </div>
 
                 {/* Performance Insight badge */}
-                <div className="bg-black/5 border border-black/[0.04] p-3 rounded-sm flex flex-col justify-center">
-                  <span className="text-[9px] uppercase font-bold text-black/40 tracking-wider">
+                <div className="bg-black/5 border border-[var(--border)] p-3 rounded-sm flex flex-col justify-center">
+                  <span className="text-[9px] uppercase font-bold text-brand-faint tracking-wider">
                     {isZh ? "比較洞察分析" : "Performance Delta"}
                   </span>
                   <div className="mt-1 flex items-baseline gap-1.5 flex-wrap">
@@ -554,7 +554,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
                       const valA = activeRunA ? activeRunA[compMetric] : 0;
                       const valB = activeRunB ? activeRunB[compMetric] : 0;
                       if (valA === valB) {
-                        return <span className="text-xs font-semibold text-black/60">{isZh ? "無顯著差異" : "No difference"}</span>;
+                        return <span className="text-xs font-semibold text-brand-muted">{isZh ? "無顯著差異" : "No difference"}</span>;
                       }
                       const percent = valA !== 0 ? ((valB - valA) / valA) * 100 : 0;
                       const isImprovement = compMetric === "passRate" ? percent > 0 : percent < 0;
@@ -564,7 +564,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
                           <span className={`text-sm font-extrabold font-mono ${isImprovement ? "text-emerald-400" : "text-rose-400"}`}>
                             {percent > 0 ? "+" : ""}{percent.toFixed(1)}%
                           </span>
-                          <span className="text-[10px] text-black/50 leading-tight">
+                          <span className="text-[10px] text-brand-faint leading-tight">
                             {(() => {
                               if (compMetric === "latencySec") {
                                 return isImprovement ? (isZh ? "運行更快" : "faster latency") : (isZh ? "耗時增加" : "slower latency");
@@ -596,7 +596,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
                       className={`px-2.5 py-1 rounded-sm text-[9px] font-bold uppercase tracking-wider transition-all border ${
                         compMetric === mKey
                           ? "bg-cyan-500/10 text-cyan-400 border-cyan-400/30"
-                          : "text-black/45 hover:text-black/80 bg-transparent border-transparent"
+                          : "text-brand-faint hover:text-brand-muted bg-transparent border-transparent"
                       }`}
                     >
                       {mKey === "latencySec" && (isZh ? "延遲" : "Latency")}
@@ -637,7 +637,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
       </div>
 
       {/* Safety Compliance Statement */}
-      <div className="flex items-center gap-2 border-t border-black/[0.06] pt-4 text-[10px] uppercase font-semibold text-black/50 tracking-wider">
+      <div className="flex items-center gap-2 border-t border-[var(--border)] pt-4 text-[10px] uppercase font-semibold text-brand-faint tracking-wider">
         <AlertTriangle className="h-4 w-4 text-emerald-400 shrink-0" />
         <span>
           {isZh 

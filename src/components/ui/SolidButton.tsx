@@ -21,12 +21,12 @@ export default function SolidButton({
 }: SolidButtonProps) {
   const variantClassName =
     variant === "secondary"
-      ? "border border-black bg-white text-black hover:bg-black hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none translate-y-0 hover:translate-y-[2px] hover:translate-x-[2px]"
+      ? "border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:bg-black hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none translate-y-0 hover:translate-y-[2px] hover:translate-x-[2px]"
       : variant === "tertiary"
-      ? "bg-transparent text-black border-b border-black rounded-none px-0 min-h-0 hover:border-b-2"
+      ? "bg-transparent text-[var(--text)] border-b border-[var(--border)] rounded-none px-0 min-h-0 hover:border-b-2"
       : variant === "ghost"
-      ? "bg-transparent text-black border border-transparent hover:border-black hover:bg-black hover:text-white rounded-sm drop-shadow-none"
-      : "border border-black bg-black text-white hover:bg-white hover:text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none translate-y-0 hover:translate-y-[2px] hover:translate-x-[2px]";
+      ? "bg-transparent text-[var(--text)] border border-transparent hover:border-[var(--border)] hover:bg-black hover:text-white rounded-sm drop-shadow-none"
+      : "border border-[var(--border)] bg-black text-white hover:bg-[var(--surface)] hover:text-[var(--text)] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none translate-y-0 hover:translate-y-[2px] hover:translate-x-[2px]";
 
   return (
     <motion.button

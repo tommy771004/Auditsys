@@ -70,11 +70,11 @@ export default function AnalyticsChartsPanel({ summary }: AnalyticsChartsPanelPr
   ];
 
   return (
-    <div className="rounded-sm border border-black bg-black/5 p-5 backdrop-blur-md sm:p-6">
+    <div className="rounded-sm border border-[var(--border)] bg-black/5 p-5 backdrop-blur-md sm:p-6">
       <div className="mb-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
         <div>
-          <h3 className="text-lg font-semibold text-black">智慧數據即時透視</h3>
-          <p className="text-sm text-black/50">動態切換效能指標與 SEO 檢測視圖</p>
+          <h3 className="text-lg font-semibold text-[var(--text)]">智慧數據即時透視</h3>
+          <p className="text-sm text-brand-faint">動態切換效能指標與 SEO 檢測視圖</p>
         </div>
         
         {/* Toggle Controls */}
@@ -82,7 +82,7 @@ export default function AnalyticsChartsPanel({ summary }: AnalyticsChartsPanelPr
           <button
             onClick={() => setActiveView("performance")}
             className={`inline-flex items-center gap-2 rounded-sm px-4 py-2 text-sm font-semibold transition-all ${
-              activeView === "performance" ? "bg-amber-400/20 text-amber-300 shadow-sm" : "text-black/60 hover:text-black/90"
+              activeView === "performance" ? "bg-amber-400/20 text-amber-300 shadow-sm" : "text-brand-muted hover:text-[var(--text)]"
             }`}
           >
             <Activity className="h-4 w-4" />
@@ -91,7 +91,7 @@ export default function AnalyticsChartsPanel({ summary }: AnalyticsChartsPanelPr
           <button
             onClick={() => setActiveView("seo")}
             className={`inline-flex items-center gap-2 rounded-sm px-4 py-2 text-sm font-semibold transition-all ${
-              activeView === "seo" ? "bg-emerald-400/20 text-emerald-300 shadow-sm" : "text-black/60 hover:text-black/90"
+              activeView === "seo" ? "bg-emerald-400/20 text-emerald-300 shadow-sm" : "text-brand-muted hover:text-[var(--text)]"
             }`}
           >
             <Search className="h-4 w-4" />

@@ -75,17 +75,17 @@ export default function SeoChecklistGuide() {
                 onClick={() => setFilter(f)}
                 className={`px-4 py-1.5 text-sm font-medium rounded-sm transition-colors capitalize ${
                   filter === f 
-                    ? "bg-white text-black shadow-sm" 
-                    : "text-black/60 hover:text-black hover:bg-black/5"
+                    ? "bg-[var(--surface)] text-[var(--text)] shadow-sm" 
+                    : "text-brand-muted hover:text-[var(--text)] hover:bg-black/5"
                 }`}
               >
                 {f}
               </button>
             ))}
           </div>
-          <div className="text-sm font-bold text-black/60 flex items-center gap-2">
+          <div className="text-sm font-bold text-brand-muted flex items-center gap-2">
             <span>{completedSteps.size} of {steps.length} Completed</span>
-            <span className="inline-block px-2 py-0.5 rounded-full bg-black/10 text-black">{progress}%</span>
+            <span className="inline-block px-2 py-0.5 rounded-full bg-black/10 text-[var(--text)]">{progress}%</span>
           </div>
         </div>
         
@@ -111,10 +111,10 @@ export default function SeoChecklistGuide() {
                   onClick={() => setActiveStepId(step.id)}
                   className={`w-full text-left flex items-start gap-4 p-5 rounded-sm border transition-all duration-300 relative ${
                     isActive
-                      ? "border-black bg-black text-white shadow-[4px_4px_0_rgba(0,0,0,1)] -translate-y-1 -translate-x-1 z-10"
+                      ? "border-[var(--border)] bg-black text-white shadow-[4px_4px_0_rgba(0,0,0,1)] -translate-y-1 -translate-x-1 z-10"
                       : isCompleted 
-                        ? "border-black/20 bg-black/5 text-black/50 hover:bg-black/10"
-                        : "border-black bg-white text-black hover:bg-black/5"
+                        ? "border-[var(--border)] bg-black/5 text-brand-faint hover:bg-black/10"
+                        : "border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:bg-black/5"
                   }`}
                 >
                   <button
@@ -125,7 +125,7 @@ export default function SeoChecklistGuide() {
                         ? "bg-emerald-500 border-emerald-500 text-white" 
                         : isActive 
                           ? "border-white/50 hover:border-cyan-400 focus:border-cyan-400" 
-                          : "border-black/30 hover:border-black focus:border-black"
+                          : "border-[var(--border)] hover:border-[var(--border)] focus:border-[var(--border)]"
                     }`}
                   >
                     {isCompleted && <CheckCircle2 className="w-4 h-4 text-white" />}
@@ -156,14 +156,14 @@ export default function SeoChecklistGuide() {
                           exit={{ opacity: 0, height: 0 }}
                           className="overflow-hidden"
                         >
-                          <p className={`mt-2 text-sm leading-relaxed ${isActive ? "text-white/80" : "text-black/60"}`}>
+                          <p className={`mt-2 text-sm leading-relaxed ${isActive ? "text-white/80" : "text-brand-muted"}`}>
                             {step.description}
                           </p>
                         </motion.div>
                       )}
                     </AnimatePresence>
                   </div>
-                  <div className={`flex items-center justify-center h-full transition-transform ${isActive ? "rotate-90 text-cyan-400" : "text-black/30"}`}>
+                  <div className={`flex items-center justify-center h-full transition-transform ${isActive ? "rotate-90 text-cyan-400" : "text-brand-faint"}`}>
                     <ChevronRight className="w-5 h-5" />
                   </div>
                 </motion.button>
@@ -173,7 +173,7 @@ export default function SeoChecklistGuide() {
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="p-8 text-center border border-dashed border-black/20 rounded-sm text-black/50"
+                className="p-8 text-center border border-dashed border-[var(--border)] rounded-sm text-brand-faint"
               >
                 No tasks found in this view.
               </motion.div>
@@ -181,7 +181,7 @@ export default function SeoChecklistGuide() {
           </AnimatePresence>
         </div>
         
-        <div className="hidden md:flex bg-white border border-black p-8 rounded-sm shadow-[4px_4px_0_rgba(0,0,0,1)] items-center justify-center text-center">
+        <div className="hidden md:flex bg-[var(--surface)] border border-[var(--border)] p-8 rounded-sm shadow-[4px_4px_0_rgba(0,0,0,1)] items-center justify-center text-center">
              <AnimatePresence mode="wait">
                {steps.map((step) => 
                  step.id === activeStepId ? (
@@ -193,7 +193,7 @@ export default function SeoChecklistGuide() {
                      transition={{ duration: 0.2 }}
                      className="space-y-6 flex flex-col items-center"
                    >
-                     <div className="w-24 h-24 rounded-full bg-black/5 flex items-center justify-center text-black relative">
+                     <div className="w-24 h-24 rounded-full bg-black/5 flex items-center justify-center text-[var(--text)] relative">
                        <step.icon className="w-10 h-10" />
                        <AnimatePresence>
                          {completedSteps.has(step.id) && (
@@ -223,7 +223,7 @@ export default function SeoChecklistGuide() {
                             )}
                           </AnimatePresence>
                        </h3>
-                       <p className="text-black/60 text-sm max-w-sm">
+                       <p className="text-brand-muted text-sm max-w-sm">
                          {step.description}
                        </p>
                      </div>

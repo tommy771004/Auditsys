@@ -95,17 +95,17 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
               {t("liveAudit.badge")}
             </div>
             <div className="space-y-3">
-              <h1 className="text-4xl font-semibold tracking-tight text-black sm:text-5xl">{t("liveAudit.title")}</h1>
+              <h1 className="text-4xl font-semibold tracking-tight text-[var(--text)] sm:text-5xl">{t("liveAudit.title")}</h1>
               <p className="text-base leading-8 text-brand-muted sm:text-lg">{t("liveAudit.description")}</p>
             </div>
           </Reveal>
 
           {/* Mission control input */}
           <GlassContainer accent="cyan" className="space-y-6">
-            <div className="flex flex-col gap-4 border-b border-black pb-6 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex flex-col gap-4 border-b border-[var(--border)] pb-6 sm:flex-row sm:items-end sm:justify-between">
               <div className="space-y-2">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/60">{t("liveAudit.missionEyebrow")}</p>
-                <h2 className="text-2xl font-semibold text-black">{t("liveAudit.missionTitle")}</h2>
+                <h2 className="text-2xl font-semibold text-[var(--text)]">{t("liveAudit.missionTitle")}</h2>
               </div>
               <div className="flex flex-col items-start gap-3 sm:items-end">
                 <div className={["inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm", STATUS_TONE[state.status]].join(" ")}>
@@ -138,13 +138,13 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
               <label className="text-sm font-medium text-black/86" htmlFor="live-audit-url">
                 {t("liveAudit.inputLabel")}
               </label>
-              <div className="rounded-sm border border-black/5 bg-neutral-100 p-2 transition-all duration-300 focus-within:border-brand-cyan/70 focus-within:ring-1 focus-within:ring-brand-cyan/50 focus-within:bg-white">
+              <div className="rounded-sm border border-black/5 bg-neutral-100 p-2 transition-all duration-300 focus-within:border-brand-cyan/70 focus-within:ring-1 focus-within:ring-brand-cyan/50 focus-within:bg-[var(--surface)]">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                   <div className="flex min-w-0 flex-1 items-center gap-3 rounded-sm px-4 py-2">
                     <Radio className="h-5 w-5 text-black/40 group-focus-within:text-brand-cyan transition-colors" />
                     <input
                       id="live-audit-url"
-                      className="min-h-[48px] w-full border-0 bg-transparent text-base text-black outline-none placeholder:text-black/20"
+                      className="min-h-[48px] w-full border-0 bg-transparent text-base text-[var(--text)] outline-none placeholder:text-black/20"
                       value={urlInput}
                       placeholder={t("liveAudit.inputPlaceholder")}
                       disabled={isRunning}
@@ -190,7 +190,7 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
                     <TriangleAlert className="h-7 w-7" />
                   </div>
                   <div className="space-y-2">
-                    <p className="text-lg font-semibold text-black">{t("liveAudit.errorState.title")}</p>
+                    <p className="text-lg font-semibold text-[var(--text)]">{t("liveAudit.errorState.title")}</p>
                     <p className="mx-auto max-w-md text-sm leading-7 text-brand-muted">{t("liveAudit.errorState.description")}</p>
                     {errorMessage ? (
                       <code className="inline-block rounded-sm bg-rose-50 px-3 py-1 text-xs text-rose-800 border border-rose-100">{errorMessage}</code>
@@ -212,7 +212,7 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
               >
                 <GlassContainer accent="blue" className="flex flex-col items-center gap-3 py-14 text-center">
                   <Sparkles className="h-8 w-8 text-cyan-600" />
-                  <p className="text-lg font-semibold text-black">{t("liveAudit.idleState.title")}</p>
+                  <p className="text-lg font-semibold text-[var(--text)]">{t("liveAudit.idleState.title")}</p>
                   <p className="mx-auto max-w-md text-sm leading-7 text-brand-muted">{t("liveAudit.idleState.description")}</p>
                 </GlassContainer>
               </motion.div>
@@ -262,7 +262,7 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
                         <div className="flex items-center gap-3">
                           <ScanSearch className="h-5 w-5 text-violet-700" />
                           <div>
-                            <p className="text-sm font-semibold text-black">{t("liveAudit.dom.title")}</p>
+                            <p className="text-sm font-semibold text-[var(--text)]">{t("liveAudit.dom.title")}</p>
                             <p className="text-xs text-brand-muted">{t("liveAudit.dom.subtitle")}</p>
                           </div>
                         </div>
@@ -277,7 +277,7 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
 
                   {showReport ? (
                     <GlassContainer accent="violet" className="space-y-3">
-                      <p className="text-sm font-semibold text-black">{t("liveAudit.report.title")}</p>
+                      <p className="text-sm font-semibold text-[var(--text)]">{t("liveAudit.report.title")}</p>
                       <p className="text-sm leading-7 text-brand-muted">{t("liveAudit.report.description")}</p>
 
                       <SolidButton className="w-full justify-center" variant="ghost" loadingLabel="" onClick={() => startScan(state.targetUrl)}>

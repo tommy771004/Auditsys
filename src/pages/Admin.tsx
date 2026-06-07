@@ -238,7 +238,7 @@ export default function Admin({ onNavigate }: Props) {
     <div className="relative w-full min-h-screen">
       <div className="hero-grid-bg pointer-events-none" />
       <div className="relative z-10 min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <Reveal className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 pb-4 border-b border-black">
+      <Reveal className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 pb-4 border-b border-[var(--border)]">
         <div>
           <h1 className="text-3xl font-bold text-brand-text flex items-center">
             <ShieldAlert className="mr-3 text-brand-purple" /> {t("admin.title")}
@@ -336,13 +336,13 @@ export default function Admin({ onNavigate }: Props) {
                       <div className="text-brand-muted text-sm font-medium mb-2 flex items-center">
                         <Users className="h-4 w-4 mr-2" /> {t("admin.overview.totalUsers")}
                       </div>
-                      <div className="text-3xl font-bold text-black">{stats.totalUsers}</div>
+                      <div className="text-3xl font-bold text-[var(--text)]">{stats.totalUsers}</div>
                     </GlassContainer>
                     <GlassContainer className="p-6">
                       <div className="text-brand-muted text-sm font-medium mb-2 flex items-center">
                         <FileText className="h-4 w-4 mr-2" /> {t("admin.overview.totalAudits")}
                       </div>
-                      <div className="text-3xl font-bold text-black">{stats.totalAudits}</div>
+                      <div className="text-3xl font-bold text-[var(--text)]">{stats.totalAudits}</div>
                     </GlassContainer>
                     <GlassContainer className="p-6">
                       <div className="text-brand-muted text-sm font-medium mb-2 flex items-center">
@@ -422,7 +422,7 @@ export default function Admin({ onNavigate }: Props) {
                       id="select-all-audits"
                       checked={selectedAudits.length === audits.length && audits.length > 0}
                       onChange={handleToggleSelectAllAudits}
-                      className="h-5 w-5 rounded-md border border-black bg-black/50 text-brand-purple focus:ring-brand-purple focus:ring-offset-0 accent-brand-purple cursor-pointer transition-all duration-200"
+                      className="h-5 w-5 rounded-md border border-[var(--border)] bg-black/50 text-brand-purple focus:ring-brand-purple focus:ring-offset-0 accent-brand-purple cursor-pointer transition-all duration-200"
                     />
                     <label htmlFor="select-all-audits" className="text-sm font-medium text-brand-text cursor-pointer select-none">
                       {selectedAudits.length > 0
@@ -437,7 +437,7 @@ export default function Admin({ onNavigate }: Props) {
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       onClick={handleBatchDeleteAudits}
-                      className="flex items-center px-4 py-2 bg-brand-danger/10 hover:bg-brand-danger/25 text-brand-danger hover:text-black border border-brand-danger/30 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] rounded-sm transition-all duration-300 text-sm font-medium active:scale-[0.98]"
+                      className="flex items-center px-4 py-2 bg-brand-danger/10 hover:bg-brand-danger/25 text-brand-danger hover:text-[var(--text)] border border-brand-danger/30 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] rounded-sm transition-all duration-300 text-sm font-medium active:scale-[0.98]"
                     >
                       <Trash2 className="mr-2 h-4 w-4" /> Delete Selected ({selectedAudits.length})
                     </motion.button>
@@ -453,7 +453,7 @@ export default function Admin({ onNavigate }: Props) {
                         type="checkbox"
                         checked={selectedAudits.includes(item.id)}
                         onChange={() => handleToggleSelectAudit(item.id)}
-                        className="h-5 w-5 rounded-md border border-black bg-black/50 text-brand-purple focus:ring-brand-purple focus:ring-offset-0 accent-brand-purple cursor-pointer transition-all duration-200"
+                        className="h-5 w-5 rounded-md border border-[var(--border)] bg-black/50 text-brand-purple focus:ring-brand-purple focus:ring-offset-0 accent-brand-purple cursor-pointer transition-all duration-200"
                       />
                     </div>
                     <div className="flex-1 flex justify-between items-start gap-4">
@@ -480,7 +480,7 @@ export default function Admin({ onNavigate }: Props) {
                                 setSelectedReportContext(t("admin.reports.noReport"));
                               }
                             }}
-                            className="text-brand-cyan hover:text-black text-sm bg-brand-cyan/10 hover:bg-brand-cyan/20 px-3 py-1.5 rounded-sm transition-colors flex items-center"
+                            className="text-brand-cyan hover:text-[var(--text)] text-sm bg-brand-cyan/10 hover:bg-brand-cyan/20 px-3 py-1.5 rounded-sm transition-colors flex items-center"
                           >
                             <FileText className="h-4 w-4 mr-2" /> {t("admin.reports.viewReport")}
                           </button>
@@ -488,7 +488,7 @@ export default function Admin({ onNavigate }: Props) {
                       </div>
                       <button
                         onClick={() => handleDeleteAudit(item.id)}
-                        className="text-brand-muted hover:text-black p-2.5 bg-brand-danger/5 hover:bg-brand-danger/15 border border-transparent hover:border-brand-danger/25 hover:shadow-[0_0_12px_rgba(239,68,68,0.25)] rounded-sm transition-all duration-300"
+                        className="text-brand-muted hover:text-[var(--text)] p-2.5 bg-brand-danger/5 hover:bg-brand-danger/15 border border-transparent hover:border-brand-danger/25 hover:shadow-[0_0_12px_rgba(239,68,68,0.25)] rounded-sm transition-all duration-300"
                         title="Delete record"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -517,7 +517,7 @@ export default function Admin({ onNavigate }: Props) {
                      <select
                        value={item.subscriptionPlan}
                        onChange={(e) => handleUpdateUser(item.id, { subscriptionPlan: e.target.value })}
-                       className="bg-brand-surface/50 border border-black rounded-sm px-3 py-1.5 text-sm text-brand-text outline-none focus:border-brand-purple"
+                       className="bg-brand-surface/50 border border-[var(--border)] rounded-sm px-3 py-1.5 text-sm text-brand-text outline-none focus:border-brand-purple"
                      >
                        <option value="free">{t("admin.users.freePlan")}</option>
                        <option value="pro">{t("admin.users.proPlan")}</option>
@@ -527,7 +527,7 @@ export default function Admin({ onNavigate }: Props) {
                        value={item.isAdmin ? "admin" : "user"}
                        onChange={(e) => handleUpdateUser(item.id, { isAdmin: e.target.value === "admin" })}
                        className={`px-3 py-1.5 rounded-sm text-sm font-medium border outline-none ${
-                         item.isAdmin ? 'bg-brand-purple/20 text-brand-purple border-brand-purple/30' : 'bg-black/5 text-brand-muted border-black'
+                         item.isAdmin ? 'bg-brand-purple/20 text-brand-purple border-brand-purple/30' : 'bg-black/5 text-brand-muted border-[var(--border)]'
                        }`}
                      >
                        <option value="user">{t("admin.users.userRole")}</option>
@@ -548,7 +548,7 @@ export default function Admin({ onNavigate }: Props) {
                  <h2 className="text-xl font-medium">{t("admin.settings.title")}</h2>
                  <button
                    onClick={exportPlanSettings}
-                   className="flex items-center px-4 py-2 bg-brand-cyan/10 hover:bg-brand-cyan/20 hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] border border-brand-cyan/30 text-brand-cyan hover:text-black rounded-sm transition-all duration-300 text-sm font-medium active:scale-[0.98]"
+                   className="flex items-center px-4 py-2 bg-brand-cyan/10 hover:bg-brand-cyan/20 hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] border border-brand-cyan/30 text-brand-cyan hover:text-[var(--text)] rounded-sm transition-all duration-300 text-sm font-medium active:scale-[0.98]"
                  >
                    <Download className="mr-2 h-4 w-4" /> {t("admin.settings.exportSettings")}
                  </button>
@@ -576,7 +576,7 @@ export default function Admin({ onNavigate }: Props) {
                               });
                               setPlanSettings(newSettings);
                             }}
-                            className="w-full bg-black/50 border border-black rounded-sm px-4 py-2 text-black outline-none focus:border-brand-purple mb-4"
+                            className="w-full bg-black/50 border border-[var(--border)] rounded-sm px-4 py-2 text-[var(--text)] outline-none focus:border-brand-purple mb-4"
                           >
                             <option value="openrouter">OpenRouter (Default)</option>
                             <option value="agentrouter">Agent Router API</option>
@@ -596,7 +596,7 @@ export default function Admin({ onNavigate }: Props) {
                                 : p);
                               setPlanSettings(newSettings);
                             }}
-                            className="w-full bg-black/50 border border-black rounded-sm px-4 py-2 text-black outline-none focus:border-brand-purple"
+                            className="w-full bg-black/50 border border-[var(--border)] rounded-sm px-4 py-2 text-[var(--text)] outline-none focus:border-brand-purple"
                           />
                         </div>
                         <div>
@@ -609,7 +609,7 @@ export default function Admin({ onNavigate }: Props) {
                               const newSettings = planSettings.map(p => p.planId === plan.planId ? { ...p, price: e.target.value } : p);
                               setPlanSettings(newSettings);
                             }}
-                            className="w-full bg-black/50 border border-black rounded-sm px-4 py-2 text-black outline-none focus:border-brand-purple"
+                            className="w-full bg-black/50 border border-[var(--border)] rounded-sm px-4 py-2 text-[var(--text)] outline-none focus:border-brand-purple"
                           />
                         </div>
                       </div>
@@ -617,7 +617,7 @@ export default function Admin({ onNavigate }: Props) {
                         <label className="block text-sm font-medium text-brand-muted mb-2">{t("admin.settings.allowedModels")}</label>
                         <div className="space-y-2 mb-3">
                           {(plan.allowedModels ? plan.allowedModels.split(',').filter(Boolean) : []).map((model: string, idx: number) => (
-                            <div key={idx} className="flex items-center justify-between bg-black/50 border border-black rounded-sm px-3 py-2 focus-within:border-brand-purple transition-colors">
+                            <div key={idx} className="flex items-center justify-between bg-black/50 border border-[var(--border)] rounded-sm px-3 py-2 focus-within:border-brand-purple transition-colors">
                               <input
                                 type="text"
                                 value={model}
@@ -658,7 +658,7 @@ export default function Admin({ onNavigate }: Props) {
                                 }
                               }
                             }}
-                            className="flex-1 bg-black/50 border border-black rounded-sm px-4 py-2 text-black outline-none focus:border-brand-purple text-sm"
+                            className="flex-1 bg-black/50 border border-[var(--border)] rounded-sm px-4 py-2 text-[var(--text)] outline-none focus:border-brand-purple text-sm"
                           />
                           <button
                             onClick={() => {
@@ -730,7 +730,7 @@ export default function Admin({ onNavigate }: Props) {
                        </div>
                        <button
                          onClick={() => handleDeleteLead(lead.id)}
-                         className="p-2.5 bg-brand-danger/5 hover:bg-brand-danger/15 border border-transparent hover:border-brand-danger/25 hover:shadow-[0_0_12px_rgba(239,68,68,0.25)] text-brand-muted hover:text-black rounded-sm transition-all duration-300"
+                         className="p-2.5 bg-brand-danger/5 hover:bg-brand-danger/15 border border-transparent hover:border-brand-danger/25 hover:shadow-[0_0_12px_rgba(239,68,68,0.25)] text-brand-muted hover:text-[var(--text)] rounded-sm transition-all duration-300"
                          title="Delete Lead"
                        >
                          <Trash2 className="h-4 w-4" />
@@ -821,7 +821,7 @@ export default function Admin({ onNavigate }: Props) {
                     <GlassContainer className="p-6 relative overflow-hidden flex flex-col justify-between min-h-[220px]">
                       <div>
                         <div className="flex justify-between items-start mb-4">
-                          <h3 className="font-bold text-lg text-black">{t("admin.security.jwt")}</h3>
+                          <h3 className="font-bold text-lg text-[var(--text)]">{t("admin.security.jwt")}</h3>
                           <span className={`px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
                             securityResult.jwt.status === "healthy" 
                               ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" 
@@ -845,7 +845,7 @@ export default function Admin({ onNavigate }: Props) {
                     <GlassContainer className="p-6 relative overflow-hidden flex flex-col justify-between min-h-[220px]">
                       <div>
                         <div className="flex justify-between items-start mb-4">
-                          <h3 className="font-bold text-lg text-black">{t("admin.security.bootstrap")}</h3>
+                          <h3 className="font-bold text-lg text-[var(--text)]">{t("admin.security.bootstrap")}</h3>
                           <span className={`px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
                             securityResult.bootstrap.status === "healthy" 
                               ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" 
@@ -869,7 +869,7 @@ export default function Admin({ onNavigate }: Props) {
                     <GlassContainer className="p-6 relative overflow-hidden flex flex-col justify-between min-h-[220px]">
                       <div>
                         <div className="flex justify-between items-start mb-4">
-                          <h3 className="font-bold text-lg text-black">{t("admin.security.egress")}</h3>
+                          <h3 className="font-bold text-lg text-[var(--text)]">{t("admin.security.egress")}</h3>
                           <span className={`px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
                             securityResult.egress.status === "healthy" 
                               ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" 
@@ -907,16 +907,16 @@ export default function Admin({ onNavigate }: Props) {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-sm border border-black bg-white/95 p-6 sm:p-8 shadow-2xl"
+              className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-sm border border-[var(--border)] bg-white/95 p-6 sm:p-8 shadow-2xl"
             >
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-black tracking-tight flex items-center">
+                <h2 className="text-2xl font-bold text-[var(--text)] tracking-tight flex items-center">
                   <FileText className="w-6 h-6 mr-3 text-brand-purple" />
                   Audit Report
                 </h2>
                 <button
                   onClick={() => setSelectedReportContext(null)}
-                  className="p-2 -mr-2 text-black/50 hover:text-black hover:bg-black/10 rounded-full transition-colors"
+                  className="p-2 -mr-2 text-black/50 hover:text-[var(--text)] hover:bg-black/10 rounded-full transition-colors"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -938,20 +938,20 @@ export default function Admin({ onNavigate }: Props) {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="w-full max-w-sm rounded-sm border border-black bg-white p-6 shadow-2xl text-center"
+              className="w-full max-w-sm rounded-sm border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl text-center"
             >
-              <h3 className="text-lg font-bold text-black mb-2">{t("admin.confirm.title")}</h3>
+              <h3 className="text-lg font-bold text-[var(--text)] mb-2">{t("admin.confirm.title")}</h3>
               <p className="text-black/70 mb-6">{confirmDialog.message}</p>
               <div className="flex gap-4 justify-center">
                 <button
                   onClick={() => setConfirmDialog(null)}
-                  className="px-6 py-2 rounded-sm bg-black/5 hover:bg-black/10 text-black transition-colors"
+                  className="px-6 py-2 rounded-sm bg-black/5 hover:bg-black/10 text-[var(--text)] transition-colors"
                 >
                   {t("admin.confirm.cancel")}
                 </button>
                 <button
                   onClick={confirmDialog.onConfirm}
-                  className="px-6 py-2 rounded-sm bg-brand-danger/20 text-brand-danger hover:bg-brand-danger hover:text-black transition-colors"
+                  className="px-6 py-2 rounded-sm bg-brand-danger/20 text-brand-danger hover:bg-brand-danger hover:text-[var(--text)] transition-colors"
                 >
                   {t("admin.confirm.delete")}
                 </button>

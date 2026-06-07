@@ -58,7 +58,7 @@ function AssetBar({ label, value, max, tone }: { label: string; value: number; m
     <div className="space-y-1 group/bar">
       <div className="flex items-center justify-between text-xs">
         <span className="text-black/70 transition-colors group-hover/bar:text-black/90">{label}</span>
-        <span className="font-semibold text-black tracking-tight">{value}</span>
+        <span className="font-semibold text-[var(--text)] tracking-tight">{value}</span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-black/5 shadow-inner">
         <motion.div
@@ -105,13 +105,13 @@ export default function ScanSummaryPanel({ summary }: ScanSummaryPanelProps) {
   return (
     <GlassSection>
       {/* Header + metadata */}
-      <div className="flex flex-col gap-3 border-b border-black pb-5 sm:flex-row sm:items-center sm:justify-between relative z-10">
+      <div className="flex flex-col gap-3 border-b border-[var(--border)] pb-5 sm:flex-row sm:items-center sm:justify-between relative z-10">
         <div className="flex items-center gap-3">
           <div className="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-violet-300/20 bg-violet-400/10 text-violet-100 shadow-inner shadow-violet-500/20">
             <Gauge className="h-5 w-5 drop-shadow-[0_0_8px_rgba(167,139,250,0.5)]" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-black tracking-tight">{t("liveAudit.summary.title")}</p>
+            <p className="text-sm font-semibold text-[var(--text)] tracking-tight">{t("liveAudit.summary.title")}</p>
             <p className="text-xs text-brand-muted">{t("liveAudit.summary.subtitle")}</p>
           </div>
         </div>
@@ -131,8 +131,8 @@ export default function ScanSummaryPanel({ summary }: ScanSummaryPanelProps) {
 
       <div className="grid gap-6 lg:grid-cols-2 relative z-10">
         {/* Asset breakdown */}
-        <div className="space-y-4 rounded-sm border border-black bg-white p-5 shadow-inner shadow-black/20 transition-colors hover:bg-white hover:border-black/15">
-          <div className="flex items-center gap-2 text-sm font-semibold text-black">
+        <div className="space-y-4 rounded-sm border border-[var(--border)] bg-[var(--surface)] p-5 shadow-inner shadow-black/20 transition-colors hover:bg-[var(--surface)] hover:border-black/15">
+          <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text)]">
             <Boxes className="h-4 w-4 text-cyan-300 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
             {t("liveAudit.summary.assets.title")}
           </div>
@@ -144,8 +144,8 @@ export default function ScanSummaryPanel({ summary }: ScanSummaryPanelProps) {
         </div>
 
         {/* SEO signal checklist */}
-        <div className="space-y-4 rounded-sm border border-black bg-white p-5 shadow-inner shadow-black/20 transition-colors hover:bg-white hover:border-black/15">
-          <div className="flex items-center gap-2 text-sm font-semibold text-black">
+        <div className="space-y-4 rounded-sm border border-[var(--border)] bg-[var(--surface)] p-5 shadow-inner shadow-black/20 transition-colors hover:bg-[var(--surface)] hover:border-black/15">
+          <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text)]">
             <ListChecks className="h-4 w-4 text-emerald-300 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
             {t("liveAudit.summary.seo.title")}
           </div>
@@ -171,8 +171,8 @@ export default function ScanSummaryPanel({ summary }: ScanSummaryPanelProps) {
 
       {/* Route timing chart */}
       {summary.routes.length > 0 ? (
-        <div className="mt-6 space-y-4 rounded-sm border border-black bg-white p-5 shadow-inner shadow-black/20 transition-colors hover:bg-white hover:border-black/15 relative z-10">
-          <div className="flex items-center gap-2 text-sm font-semibold text-black">
+        <div className="mt-6 space-y-4 rounded-sm border border-[var(--border)] bg-[var(--surface)] p-5 shadow-inner shadow-black/20 transition-colors hover:bg-[var(--surface)] hover:border-black/15 relative z-10">
+          <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text)]">
             <Network className="h-4 w-4 text-blue-300 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
             {t("liveAudit.summary.routes.title", { count: summary.routes.length })}
           </div>
@@ -229,7 +229,7 @@ function GlassSection({ children }: { children: ReactNode }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.28 }}
-      className="group relative overflow-hidden rounded-sm border border-black bg-black/10 p-5 backdrop-blur-xl sm:p-6 transition-colors duration-200 ease-out hover:bg-black/5"
+      className="group relative overflow-hidden rounded-sm border border-[var(--border)] bg-black/10 p-5 backdrop-blur-xl sm:p-6 transition-colors duration-200 ease-out hover:bg-black/5"
     >
       
       {children}
@@ -239,7 +239,7 @@ function GlassSection({ children }: { children: ReactNode }) {
 
 function MetaChip({ icon, value }: { icon: ReactNode; value: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-black bg-white px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-black/70 shadow-sm transition-colors hover:text-black hover:bg-white hover:border-black">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-black/70 shadow-sm transition-colors hover:text-[var(--text)] hover:bg-[var(--surface)] hover:border-[var(--border)]">
       {icon}
       {value}
     </span>

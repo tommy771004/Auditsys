@@ -98,7 +98,7 @@ export default function Login({ onNavigate }: Props) {
                 autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-brand-surface/50 border border-black rounded-sm px-4 py-3 text-brand-text placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-brand-purple/50 transition-all"
+                className="w-full bg-brand-surface/50 border border-[var(--border)] rounded-sm px-4 py-3 text-brand-text placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-brand-purple/50 transition-all"
                 placeholder="Enter your username"
               />
             </div>
@@ -114,13 +114,13 @@ export default function Login({ onNavigate }: Props) {
                   autoComplete={isRegistering ? "new-password" : "current-password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-brand-surface/50 border border-black rounded-sm px-4 py-3 pr-12 text-brand-text placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-brand-purple/50 transition-all"
+                  className="w-full bg-brand-surface/50 border border-[var(--border)] rounded-sm px-4 py-3 pr-12 text-brand-text placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-brand-purple/50 transition-all"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-md text-brand-muted hover:text-black focus-visible:ring-2 focus-visible:ring-brand-purple/60 focus-visible:outline-none transition"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-md text-brand-muted hover:text-[var(--text)] focus-visible:ring-2 focus-visible:ring-brand-purple/60 focus-visible:outline-none transition"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                   aria-pressed={showPassword}
                 >

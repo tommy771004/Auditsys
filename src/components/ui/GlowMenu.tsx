@@ -25,7 +25,7 @@ export const MenuBar = React.forwardRef<HTMLElement, MenuBarProps>(
       <motion.nav
         ref={ref}
         className={cn(
-          "relative overflow-hidden rounded-sm border border-black bg-white p-1.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+          "relative overflow-hidden rounded-sm border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
           className,
         )}
         {...props}
@@ -42,7 +42,7 @@ export const MenuBar = React.forwardRef<HTMLElement, MenuBarProps>(
                   onClick={() => onItemClick?.(item.label)}
                   className={cn(
                     "flex items-center gap-2 w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black rounded-sm px-4 py-2 text-sm font-bold transition-all duration-200 ease-out",
-                    isActive ? "bg-black text-white" : "text-black hover:bg-black hover:text-white"
+                    isActive ? "bg-black text-white" : "text-[var(--text)] hover:bg-black hover:text-white"
                   )}
                 >
                   <span className="transition-colors duration-200">

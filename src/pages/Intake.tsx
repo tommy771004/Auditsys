@@ -143,8 +143,8 @@ function TargetSafetyChecklist({ url }: { url: string }) {
   };
 
   return (
-    <div id="target-safety-checklist" className="p-4 rounded-sm bg-black/5 border border-black/5 space-y-3 mt-4">
-      <div className="flex items-center justify-between border-b border-black/5 pb-2 mb-2">
+    <div id="target-safety-checklist" className="p-4 rounded-sm bg-black/5 border border-[var(--border)] space-y-3 mt-4">
+      <div className="flex items-center justify-between border-b border-[var(--border)] pb-2 mb-2">
         <span className="text-xs font-semibold uppercase tracking-wider text-brand-muted flex items-center">
           <ShieldCheck className="h-4 w-4 mr-1.5 text-brand-purple" /> Target Safety Preflight
         </span>
@@ -158,7 +158,7 @@ function TargetSafetyChecklist({ url }: { url: string }) {
       <div className="grid grid-cols-1 gap-2 text-xs">
         {/* Protocol Preflight */}
         <div className="flex items-center justify-between">
-          <span className="text-black/85">Protocol Restriction (HTTP/HTTPS)</span>
+          <span className="text-[var(--text)]">Protocol Restriction (HTTP/HTTPS)</span>
           <div className="flex items-center space-x-2">
             <span className={getStatusTextClass(protocolStatus)}>
               {protocolStatus === "valid" ? "HTTP/HTTPS Verified" : protocolStatus === "invalid" ? "Protocol Rejected" : "Awaiting URL"}
@@ -169,7 +169,7 @@ function TargetSafetyChecklist({ url }: { url: string }) {
 
         {/* Host Preflight */}
         <div className="flex items-center justify-between">
-          <span className="text-black/85">Host Lookup Restriction (Blocked Domains)</span>
+          <span className="text-[var(--text)]">Host Lookup Restriction (Blocked Domains)</span>
           <div className="flex items-center space-x-2">
             <span className={getStatusTextClass(hostStatus)}>
               {hostStatus === "valid" ? "Public Host Verified" : hostStatus === "invalid" ? "Domain Restricted" : "Awaiting URL"}
@@ -180,7 +180,7 @@ function TargetSafetyChecklist({ url }: { url: string }) {
 
         {/* IP Preflight */}
         <div className="flex items-center justify-between">
-          <span className="text-black/85">Network Destination Protection</span>
+          <span className="text-[var(--text)]">Network Destination Protection</span>
           <div className="flex items-center space-x-2">
             <span className={getStatusTextClass(ipStatus)}>
               {ipStatus === "valid" ? "External Range Check" : ipStatus === "invalid" ? "Private Range Blocked" : "Awaiting Host"}
@@ -286,7 +286,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
           <div className="space-y-5">
             <label className="block space-y-3">
-              <span className="text-sm font-medium text-black/90">{t("intake.fields.companyName")}</span>
+              <span className="text-sm font-medium text-[var(--text)]">{t("intake.fields.companyName")}</span>
               <input
                 type="text"
                 value={formState.companyName}
@@ -297,10 +297,10 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                 aria-invalid={isCompanyError}
                 aria-describedby={isCompanyError ? "intake-company-error" : undefined}
                 className={[
-                  "w-full rounded-sm bg-black/50 min-h-[44px] px-4 py-3 text-base text-black outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950",
+                  "w-full rounded-sm bg-black/50 min-h-[44px] px-4 py-3 text-base text-[var(--text)] outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950",
                   isCompanyError
                     ? "border border-rose-300/40 focus:border-rose-400 focus:ring-rose-400/50"
-                    : "border border-black focus:border-brand-cyan focus:ring-brand-cyan/50",
+                    : "border border-[var(--border)] focus:border-brand-cyan focus:ring-brand-cyan/50",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -314,9 +314,9 @@ export default function Intake({ onNavigate }: IntakePageProps) {
             ) : null}
 
             <label className="block space-y-3">
-              <span className="text-sm font-medium text-black/90">{t("intake.fields.url")}</span>
+              <span className="text-sm font-medium text-[var(--text)]">{t("intake.fields.url")}</span>
               <div className="relative">
-                <Waypoints className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-black/60" />
+                <Waypoints className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-brand-muted" />
                 <input
                   type="url"
                   value={formState.url}
@@ -327,10 +327,10 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                   aria-invalid={isUrlError}
                   aria-describedby={isUrlError ? "intake-url-error" : undefined}
                   className={[
-                  "w-full rounded-sm bg-black/50 min-h-[44px] py-3 pl-12 pr-4 text-base text-black outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-slate",
+                  "w-full rounded-sm bg-black/50 min-h-[44px] py-3 pl-12 pr-4 text-base text-[var(--text)] outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-slate",
                     isUrlError
                       ? "border border-brand-danger/40 focus:border-brand-danger focus:ring-brand-danger/50"
-                      : "border border-black focus:border-brand-cyan focus:ring-brand-cyan/50",
+                      : "border border-[var(--border)] focus:border-brand-cyan focus:ring-brand-cyan/50",
                   ]
                     .filter(Boolean)
                     .join(" ")}
@@ -349,7 +349,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
 
           <div className="space-y-4">
             <div className="space-y-3">
-              <p className="text-sm font-medium text-black/90">{t("intake.fields.goals")}</p>
+              <p className="text-sm font-medium text-[var(--text)]">{t("intake.fields.goals")}</p>
               <div className="grid gap-3">
                 {goalOptions.map((option) => {
                   const isSelected = formState.goals.includes(option.id);
@@ -361,10 +361,10 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                       className={[
                         "rounded-sm border px-4 py-4 text-left text-sm transition",
                         isSelected
-                          ? "border-cyan-300/30 bg-cyan-300/10 text-black shadow-[0_0_24px_rgba(34,211,238,0.14)]"
+                          ? "border-cyan-300/30 bg-cyan-300/10 text-[var(--text)] shadow-[0_0_24px_rgba(34,211,238,0.14)]"
                           : isGoalsError
-                            ? "border-rose-300/30 bg-rose-300/[0.08] text-black/85 hover:bg-rose-300/[0.12]"
-                            : "border-black bg-black/10 text-black/75 hover:bg-black/5 hover:text-black",
+                            ? "border-rose-300/30 bg-rose-300/[0.08] text-[var(--text)] hover:bg-rose-300/[0.12]"
+                            : "border-[var(--border)] bg-black/10 text-brand-muted hover:bg-black/5 hover:text-[var(--text)]",
                       ]
                         .filter(Boolean)
                         .join(" ")}
@@ -392,7 +392,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
       return (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
           <div className="space-y-4">
-            <p className="text-sm font-medium text-black/90">{t("intake.fields.stack")}</p>
+            <p className="text-sm font-medium text-[var(--text)]">{t("intake.fields.stack")}</p>
             <div className="grid gap-3 sm:grid-cols-2">
               {stackOptions.map((option) => {
                 const isSelected = formState.stack.includes(option.id);
@@ -404,10 +404,10 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                     className={[
                       "rounded-sm border px-4 py-4 text-left text-sm transition",
                       isSelected
-                        ? "border-cyan-300/30 bg-cyan-300/10 text-black shadow-[0_0_24px_rgba(34,211,238,0.14)]"
+                        ? "border-cyan-300/30 bg-cyan-300/10 text-[var(--text)] shadow-[0_0_24px_rgba(34,211,238,0.14)]"
                         : isStackError
-                          ? "border-rose-300/30 bg-rose-300/[0.08] text-black/85 hover:bg-rose-300/[0.12]"
-                          : "border-black bg-black/10 text-black/75 hover:bg-black/5 hover:text-black",
+                          ? "border-rose-300/30 bg-rose-300/[0.08] text-[var(--text)] hover:bg-rose-300/[0.12]"
+                          : "border-[var(--border)] bg-black/10 text-brand-muted hover:bg-black/5 hover:text-[var(--text)]",
                     ]
                       .filter(Boolean)
                       .join(" ")}
@@ -429,7 +429,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
 
           <GlassCard className="p-5">
             <div className="space-y-4">
-              <p className="text-sm font-medium text-black/90">{t("intake.fields.teamSize")}</p>
+              <p className="text-sm font-medium text-[var(--text)]">{t("intake.fields.teamSize")}</p>
               <div className="grid gap-3">
                 {teamSizeOptions.map((option) => {
                   const isSelected = formState.teamSize === option.id;
@@ -440,7 +440,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                       type="button"
                       className={[
                         "rounded-sm border px-4 py-4 text-left text-sm transition",
-                        isSelected ? "border-black bg-white/[0.1] text-black shadow-[0_0_24px_rgba(139,92,246,0.12)]" : "border-black bg-black/10 text-black/70 hover:bg-black/5 hover:text-black",
+                        isSelected ? "border-[var(--border)] bg-white/[0.1] text-[var(--text)] shadow-[0_0_24px_rgba(139,92,246,0.12)]" : "border-[var(--border)] bg-black/10 text-brand-muted hover:bg-black/5 hover:text-[var(--text)]",
                       ]
                         .filter(Boolean)
                         .join(" ")}
@@ -463,9 +463,9 @@ export default function Intake({ onNavigate }: IntakePageProps) {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
         <div className="space-y-5">
           <label className="block space-y-3">
-            <span className="text-sm font-medium text-black/90">{t("intake.fields.contactEmail")}</span>
+            <span className="text-sm font-medium text-[var(--text)]">{t("intake.fields.contactEmail")}</span>
             <div className="relative">
-              <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-black/60" />
+              <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-brand-muted" />
               <input
                 type="email"
                 value={formState.contactEmail}
@@ -476,10 +476,10 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                 aria-invalid={isEmailError}
                 aria-describedby={isEmailError ? "intake-email-error" : undefined}
                 className={[
-                  "w-full rounded-sm bg-black/50 min-h-[44px] py-3 pl-12 pr-4 text-base text-black outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-slate",
+                  "w-full rounded-sm bg-black/50 min-h-[44px] py-3 pl-12 pr-4 text-base text-[var(--text)] outline-none transition placeholder:text-brand-muted focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-slate",
                   isEmailError
                     ? "border border-brand-danger/40 focus:border-brand-danger focus:ring-brand-danger/50"
-                    : "border border-black focus:border-brand-cyan focus:ring-brand-cyan/50",
+                    : "border border-[var(--border)] focus:border-brand-cyan focus:ring-brand-cyan/50",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -494,9 +494,9 @@ export default function Intake({ onNavigate }: IntakePageProps) {
           ) : null}
 
           <label className="block space-y-3">
-            <span className="text-sm font-medium text-black/90">{t("intake.fields.notes")}</span>
+            <span className="text-sm font-medium text-[var(--text)]">{t("intake.fields.notes")}</span>
             <div className="relative">
-              <MessageSquareText className="pointer-events-none absolute left-4 top-5 h-5 w-5 text-black/60" />
+              <MessageSquareText className="pointer-events-none absolute left-4 top-5 h-5 w-5 text-brand-muted" />
               <textarea
                 value={formState.notes}
                 onChange={(event) => {
@@ -504,7 +504,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                 }}
                 placeholder={t("intake.placeholders.notes")}
                 rows={6}
-                className="w-full rounded-sm border border-black bg-black/50 py-4 pl-12 pr-4 text-base text-black outline-none transition placeholder:text-brand-muted focus:border-brand-purple focus:ring-4 focus:ring-brand-purple/15"
+                className="w-full rounded-sm border border-[var(--border)] bg-black/50 py-4 pl-12 pr-4 text-base text-[var(--text)] outline-none transition placeholder:text-brand-muted focus:border-brand-purple focus:ring-4 focus:ring-brand-purple/15"
               />
             </div>
           </label>
@@ -513,9 +513,9 @@ export default function Intake({ onNavigate }: IntakePageProps) {
         <GlassCard glow="cyan" className="p-5">
           <div className="space-y-4">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t("intake.summaryEyebrow")}</p>
-            <h3 className="text-xl font-semibold text-black">{t("intake.summaryTitle")}</h3>
+            <h3 className="text-xl font-semibold text-[var(--text)]">{t("intake.summaryTitle")}</h3>
             <p className="text-sm leading-7 text-brand-muted">{t("intake.summaryDescription")}</p>
-            <div className="space-y-3 text-sm text-black/85">
+            <div className="space-y-3 text-sm text-[var(--text)]">
               <div className="flex items-start gap-3">
                 <Users className="mt-0.5 h-4 w-4 shrink-0 text-brand-cyan" />
                 <span>{t(`intake.options.teamSize.${formState.teamSize}`)}</span>
@@ -554,7 +554,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
               <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div className="space-y-2">
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t("intake.progressEyebrow")}</p>
-                  <h2 className="text-[28px] font-semibold leading-[1.2] tracking-[-0.03em] text-black lg:text-[36px]">{t("intake.panelTitle")}</h2>
+                  <h2 className="text-[28px] font-semibold leading-[1.2] tracking-[-0.03em] text-[var(--text)] lg:text-[36px]">{t("intake.panelTitle")}</h2>
                 </div>
                 <p className="text-sm text-brand-muted">{t("intake.progressLabel", { current: currentStep, total: stepItems.length })}</p>
               </div>
@@ -567,12 +567,12 @@ export default function Intake({ onNavigate }: IntakePageProps) {
               <div className="space-y-6">
                 <div className="rounded-sm border border-cyan-300/20 bg-cyan-300/10 p-6 text-left">
                   <div className="flex items-start gap-4">
-                    <div className="rounded-full border border-black bg-white p-3">
+                    <div className="rounded-full border border-[var(--border)] bg-[var(--surface)] p-3">
                       <CheckCircle2 className="h-5 w-5 text-cyan-300" />
                     </div>
                     <div className="space-y-2">
-                      <p className="text-lg font-semibold text-black">{t("intake.successTitle")}</p>
-                      <p className="text-sm leading-7 text-black/75">{t("intake.successDescription")}</p>
+                      <p className="text-lg font-semibold text-[var(--text)]">{t("intake.successTitle")}</p>
+                      <p className="text-sm leading-7 text-brand-muted">{t("intake.successDescription")}</p>
                     </div>
                   </div>
                 </div>
@@ -581,7 +581,7 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                   <GlassCard className="p-5">
                     <div className="space-y-3">
                       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">{t("intake.followupEyebrow")}</p>
-                      <h3 className="text-xl font-semibold text-black">{t("intake.followupTitle")}</h3>
+                      <h3 className="text-xl font-semibold text-[var(--text)]">{t("intake.followupTitle")}</h3>
                       <p className="text-sm leading-7 text-brand-muted">{t("intake.followupDescription")}</p>
                     </div>
                   </GlassCard>
@@ -629,17 +629,17 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                         className={[
                           "rounded-sm border px-4 py-4 text-left transition",
                           isActive
-                            ? "border-black bg-black/5 shadow-[0_0_30px_rgba(139,92,246,0.14)]"
+                            ? "border-[var(--border)] bg-black/5 shadow-[0_0_30px_rgba(139,92,246,0.14)]"
                             : isCompleted
                               ? "border-cyan-300/20 bg-cyan-300/[0.08]"
-                              : "border-black bg-black/10",
+                              : "border-[var(--border)] bg-black/10",
                         ].join(" ")}
                       >
                         <div className="flex items-center justify-between gap-3">
                           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cyan">0{step.id}</p>
                           {isCompleted ? <CheckCircle2 className="h-4 w-4 text-cyan-300" /> : null}
                         </div>
-                        <p className="mt-3 text-base font-semibold text-black">{t(step.titleKey)}</p>
+                        <p className="mt-3 text-base font-semibold text-[var(--text)]">{t(step.titleKey)}</p>
                         <p className="mt-2 text-sm leading-7 text-brand-muted">{t(step.descriptionKey)}</p>
                       </div>
                     );
@@ -653,12 +653,12 @@ export default function Intake({ onNavigate }: IntakePageProps) {
                 </AnimatePresence>
 
                 {isError && showSubmitError && errorKey ? (
-                  <div className="rounded-sm border border-rose-300/20 bg-rose-300/10 px-4 py-4 text-sm text-black/85" aria-live="polite">
+                  <div className="rounded-sm border border-rose-300/20 bg-rose-300/10 px-4 py-4 text-sm text-[var(--text)]" aria-live="polite">
                     {t(errorKey)}
                   </div>
                 ) : null}
 
-                <div className="flex flex-col gap-3 border-t border-black pt-6 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-6 sm:flex-row sm:items-center sm:justify-between">
                   <div className="text-sm leading-7 text-brand-muted">{t("intake.helper")}</div>
                   <div className="flex flex-col gap-3 sm:flex-row">
                     {currentStep > 1 ? (

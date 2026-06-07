@@ -72,12 +72,12 @@ export default function EngineTacticalCockpit() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
       id="tactical-engine-cockpit" 
-      className="relative rounded-sm border border-teal-500/20 bg-white p-6 md:p-8 backdrop-blur-xl shadow-[0_0_50px_rgba(20,184,166,0.08)] ring-1 ring-teal-500/10 overflow-hidden group transition-all duration-200 ease-out hover:border-teal-500/30"
+      className="relative rounded-sm border border-teal-500/20 bg-[var(--surface)] p-6 md:p-8 backdrop-blur-xl shadow-[0_0_50px_rgba(20,184,166,0.08)] ring-1 ring-teal-500/10 overflow-hidden group transition-all duration-200 ease-out hover:border-teal-500/30"
     >
       
       
       {/* Cockpit Title block */}
-      <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-black pb-6 mb-6">
+      <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-[var(--border)] pb-6 mb-6">
         <div className="flex items-start gap-4">
           <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-sm border border-teal-400/30 bg-teal-500/10 text-teal-300 shadow-inner shadow-teal-500/20">
             <Sliders className="h-6 w-6 drop-shadow-[0_0_10px_rgba(45,212,191,0.5)]" />
@@ -90,7 +90,7 @@ export default function EngineTacticalCockpit() {
               <span className="text-[10px] font-mono text-black/40 tracking-wider">COPILOT_TUNER_CONNECTED</span>
             </div>
             
-            <h3 className="text-xl font-bold tracking-tight text-black flex items-center gap-2">
+            <h3 className="text-xl font-bold tracking-tight text-[var(--text)] flex items-center gap-2">
               {isZh ? "量子引擎參數調校座艙" : "Quantum Sandbox Co-Pilot Tuning Center"}
               <span className="text-xs font-mono font-normal opacity-70 px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 shadow-inner shadow-cyan-500/10">Live Cockpit</span>
             </h3>
@@ -112,7 +112,7 @@ export default function EngineTacticalCockpit() {
           className={`relative flex items-center gap-2.5 font-bold text-xs px-5 py-2.5 rounded-full border transition-all duration-300 select-none overflow-hidden ${
             soundOn 
               ? "bg-teal-500/10 border-teal-400/50 text-teal-300 shadow-[0_0_20px_rgba(20,184,166,0.2)] hover:bg-teal-500/20" 
-              : "bg-black/5 border-black text-black/50 hover:bg-black/10"
+              : "bg-black/5 border-[var(--border)] text-black/50 hover:bg-black/10"
           }`}
         >
           {soundOn && <div className="absolute inset-0 bg-teal-400/10 animate-[pulse_2s_ease-in-out_infinite] pointer-events-none" />}
@@ -164,7 +164,7 @@ export default function EngineTacticalCockpit() {
                     className={`py-2 px-3 rounded-sm border text-xs font-semibold font-mono transition-all duration-200 select-none ${
                       throttlingMode === item.id 
                         ? "border-teal-400/50 bg-teal-500/20 text-teal-300 shadow-[0_0_10px_rgba(20,184,166,0.15)]"
-                        : "border-black/5 bg-white text-black/60 hover:text-black"
+                        : "border-black/5 bg-[var(--surface)] text-black/60 hover:text-[var(--text)]"
                     }`}
                   >
                     {item.label}
@@ -205,7 +205,7 @@ export default function EngineTacticalCockpit() {
                         ? item.id === "paranoid"
                           ? "border-amber-400/50 bg-amber-500/20 text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.15)]"
                           : "border-teal-400/50 bg-teal-500/20 text-teal-300 shadow-[0_0_10px_rgba(20,184,166,0.15)]"
-                        : "border-black/5 bg-white text-black/60 hover:text-black"
+                        : "border-black/5 bg-[var(--surface)] text-black/60 hover:text-[var(--text)]"
                     }`}
                   >
                     {item.label}
@@ -256,7 +256,7 @@ export default function EngineTacticalCockpit() {
               </span>
             </div>
 
-            <div className="flex justify-between items-center bg-white rounded-sm p-2.5 border border-black/5">
+            <div className="flex justify-between items-center bg-[var(--surface)] rounded-sm p-2.5 border border-black/5">
               <span className="text-xs text-black/60">{isZh ? "分配子核數：" : "Cores Allocated:"}</span>
               <div className="flex gap-1.5">
                 {[4, 8, 16].map((num) => (
@@ -269,7 +269,7 @@ export default function EngineTacticalCockpit() {
                     className={`h-7 w-9 rounded-sm border text-xs font-mono font-bold transition-all ${
                       cpuCount === num
                         ? "border-teal-400 bg-teal-500/20 text-teal-300 shadow-[0_0_8px_rgba(20,184,166,0.2)]"
-                        : "border-black/5 bg-black/5 text-black/40 hover:text-black"
+                        : "border-black/5 bg-black/5 text-black/40 hover:text-[var(--text)]"
                     }`}
                   >
                     {num}
@@ -282,9 +282,9 @@ export default function EngineTacticalCockpit() {
         </div>
 
         {/* Right 4-cols: Real-time Fluctuating CPU load monitor spark line / spark canvas */}
-        <div className="lg:col-span-4 flex flex-col justify-between group/monitor rounded-sm border border-black/5 bg-white p-5 shadow-inner shadow-black/20 transition-colors hover:bg-white hover:border-black">
+        <div className="lg:col-span-4 flex flex-col justify-between group/monitor rounded-sm border border-black/5 bg-[var(--surface)] p-5 shadow-inner shadow-black/20 transition-colors hover:bg-[var(--surface)] hover:border-[var(--border)]">
           <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-black/5 pb-2 transition-colors group-hover/monitor:border-black">
+            <div className="flex items-center justify-between border-b border-black/5 pb-2 transition-colors group-hover/monitor:border-[var(--border)]">
               <div className="flex items-center gap-2">
                 <Activity className="h-4 w-4 text-teal-400 drop-shadow-[0_0_8px_rgba(45,212,191,0.6)]" />
                 <span className="text-xs uppercase font-mono tracking-wider text-black/50 font-bold transition-colors group-hover/monitor:text-black/70">
@@ -299,9 +299,9 @@ export default function EngineTacticalCockpit() {
               
               {/* Background technical grid markers */}
               <div className="absolute inset-0 grid grid-rows-3 pointer-events-none select-none opacity-20">
-                <div className="border-b border-black pr-2 text-[8px] font-mono text-black/60 text-right">80%</div>
-                <div className="border-b border-black pr-2 text-[8px] font-mono text-black/60 text-right">40%</div>
-                <div className="border-b border-black pr-2 text-[8px] font-mono text-black/60 text-right">10%</div>
+                <div className="border-b border-[var(--border)] pr-2 text-[8px] font-mono text-black/60 text-right">80%</div>
+                <div className="border-b border-[var(--border)] pr-2 text-[8px] font-mono text-black/60 text-right">40%</div>
+                <div className="border-b border-[var(--border)] pr-2 text-[8px] font-mono text-black/60 text-right">10%</div>
               </div>
 
               {systemLoad.map((val, idx) => (
@@ -324,7 +324,7 @@ export default function EngineTacticalCockpit() {
             </div>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-black/5 space-y-2 transition-colors group-hover/monitor:border-black">
+          <div className="mt-4 pt-4 border-t border-black/5 space-y-2 transition-colors group-hover/monitor:border-[var(--border)]">
             <div className="flex justify-between items-center text-[11px] p-1.5 rounded bg-black/5">
               <span className="text-black/50">{isZh ? "核心狀態機制:" : "Cluster Core State:"}</span>
               <span className="font-mono text-teal-300 font-bold tracking-wider drop-shadow-[0_0_4px_rgba(45,212,191,0.4)]">READY</span>

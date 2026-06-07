@@ -37,7 +37,7 @@ export default function GlassContainer({ children, className, accent, variants, 
       whileHover={{ y: -4, boxShadow: "8px 8px 0px 0px rgba(0,0,0,1)" }}
       transition={{ duration: 0.2, ease: "easeOut" }}
       className={[
-        "relative overflow-hidden rounded-sm border border-black bg-white p-5 sm:p-8 text-black",
+        "relative overflow-hidden rounded-sm border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-8 text-[var(--text)]",
         className,
       ].filter(Boolean).join(" ")}
       {...props}

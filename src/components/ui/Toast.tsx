@@ -66,7 +66,7 @@ export function ToastProvider() {
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-            className={`flex items-center gap-3 rounded-md px-4 py-3 shadow-[4px_4px_0_rgba(0,0,0,1)] border border-black min-w-[300px] max-w-md ${
+            className={`flex items-center gap-3 rounded-md px-4 py-3 shadow-[4px_4px_0_rgba(0,0,0,1)] border border-[var(--border)] min-w-[300px] max-w-md ${
               t.type === 'error' ? 'bg-rose-50 text-rose-900 border-rose-200' :
               t.type === 'success' ? 'bg-emerald-50 text-emerald-900 border-emerald-200' :
               'bg-blue-50 text-blue-900 border-blue-200'
@@ -80,7 +80,7 @@ export function ToastProvider() {
             
             <button
               onClick={() => toast.dismiss(t.id)}
-              className="text-slate-400 hover:text-black transition-colors"
+              className="text-slate-400 hover:text-[var(--text)] transition-colors"
             >
               <X className="h-4 w-4" />
             </button>

@@ -99,9 +99,14 @@ export default function App() {
   const baseUrl = (import.meta.env as any).VITE_CLIENT_URL || window.location.origin;
   const canonicalUrl = `${baseUrl}/#${route}`;
 
+  // Dashboard/app surfaces are designed light-only; force light tokens there until
+  // they get a proper per-component dark pass, so the global toggle can't half-break them.
+  const lightLockRoutes: AppRoute[] = ["console", "live", "admin", "presentation"];
+  const lightLock = lightLockRoutes.includes(route);
+
   return (
     <ErrorBoundary>
-      <div className="relative min-h-screen overflow-hidden bg-white text-black">
+      <div className={`relative min-h-screen overflow-hidden bg-[var(--bg)] text-[var(--text)]${lightLock ? " theme-lock-light" : ""}`}>
         <NetworkBanner />
         <CommandPalette onNavigate={navigate} />
         <ToastProvider />

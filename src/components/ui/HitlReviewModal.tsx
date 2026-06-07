@@ -43,7 +43,7 @@ export function HitlReviewModal({
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
           <motion.div
-            className="absolute inset-0 bg-white backdrop-blur-md"
+            className="absolute inset-0 bg-[var(--surface)] backdrop-blur-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -75,7 +75,7 @@ export function HitlReviewModal({
                 </div>
               </div>
               <button
-                className="group rounded-full p-2.5 text-black/50 transition-all duration-300 hover:bg-black/10 hover:text-black"
+                className="group rounded-full p-2.5 text-brand-faint transition-all duration-300 hover:bg-black/10 hover:text-[var(--text)]"
                 onClick={onClose}
               >
                 <X className="h-5 w-5 transition-transform group-hover:scale-110" />
@@ -97,11 +97,11 @@ export function HitlReviewModal({
               )}
 
               <div className="space-y-3.5 group/textarea">
-                <label className="text-sm font-semibold text-black/80 flex items-center gap-2 transition-colors group-focus-within/textarea:text-cyan-300 ml-1">
+                <label className="text-sm font-semibold text-brand-muted flex items-center gap-2 transition-colors group-focus-within/textarea:text-cyan-300 ml-1">
                   <MessageSquare className="h-4.5 w-4.5" />
                   {isZh ? "注入反饋與指導 (Inject Feedback)" : "Provide Feedback (Optional)"}
                 </label>
-                <div className="relative shadow-inner shadow-black/40 rounded-sm overflow-hidden bg-white border border-black transition-colors duration-300 group-focus-within/textarea:border-cyan-500/50 group-focus-within/textarea:bg-white">
+                <div className="relative shadow-inner shadow-black/40 rounded-sm overflow-hidden bg-[var(--surface)] border border-[var(--border)] transition-colors duration-300 group-focus-within/textarea:border-cyan-500/50 group-focus-within/textarea:bg-[var(--surface)]">
                   <textarea
                     ref={inputRef}
                     value={feedback}
@@ -111,7 +111,7 @@ export function HitlReviewModal({
                         ? "輸入指導指示（例如：忽略效能警告，或是請專注於無障礙測試的結果）"
                         : "Enter feedback (e.g., 'Ignore performance warnings' or 'Focus strictly on a11y parameters')"
                     }
-                    className="w-full min-h-[140px] resize-none bg-transparent p-4 text-sm leading-relaxed text-black placeholder-white/30 outline-none"
+                    className="w-full min-h-[140px] resize-none bg-transparent p-4 text-sm leading-relaxed text-[var(--text)] placeholder-white/30 outline-none"
                   />
                   {/* Subtle inner glow when focused */}
                   <div className="pointer-events-none absolute inset-0 rounded-sm ring-1 ring-inset ring-transparent transition-all duration-300 group-focus-within/textarea:ring-cyan-500/20 group-focus-within/textarea:shadow-[inset_0_0_20px_rgba(34,211,238,0.05)]" />
@@ -120,7 +120,7 @@ export function HitlReviewModal({
             </div>
 
             {/* Footer */}
-            <div className="relative flex items-center justify-end gap-3.5 border-t border-black bg-white px-7 py-5">
+            <div className="relative flex items-center justify-end gap-3.5 border-t border-[var(--border)] bg-[var(--surface)] px-7 py-5">
               <SolidButton
                 variant="ghost"
                 onClick={() => {

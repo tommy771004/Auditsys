@@ -28,8 +28,8 @@ export default function MemorySyncBadge({ update }: MemorySyncBadgeProps) {
             />
             <div className="pr-7">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-100/88">{t("auditConsole.memoryBadge.saved")}</p>
-              <p className="mt-1 max-w-[18rem] text-sm text-black/90">{update.fact}</p>
-              <p className="mt-1 text-xs text-black/55">{t("auditConsole.memoryBadge.type", { value: t(`auditConsole.memoryType.${update.type}`) })}</p>
+              <p className="mt-1 max-w-[18rem] text-sm text-[var(--text)]">{update.fact}</p>
+              <p className="mt-1 text-xs text-brand-faint">{t("auditConsole.memoryBadge.type", { value: t(`auditConsole.memoryType.${update.type}`) })}</p>
             </div>
           </div>
         </motion.div>

@@ -209,22 +209,22 @@ export default function LtmNetworkVisualizer({ updates }: LtmNetworkVisualizerPr
   }, [updates]);
 
   return (
-    <div className="w-full bg-white border border-black/5 rounded-sm overflow-hidden relative shadow-[inset_0_0_40px_rgba(0,0,0,0.5)]">
+    <div className="w-full bg-[var(--surface)] border border-black/5 rounded-sm overflow-hidden relative shadow-[inset_0_0_40px_rgba(0,0,0,0.5)]">
       <div 
         ref={containerRef} 
         className="w-full h-[400px]" 
       />
       <div className="absolute top-4 left-4 flex flex-col gap-2 pointer-events-none">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_8px_#06b6d4]"></span>
+          <span className="w-2.5 h-2.5 rounded-full bg-[var(--surface)] shadow-[0_0_8px_#06b6d4]"></span>
           <span className="text-[10px] font-mono text-black/70">Tech Stack</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_8px_#e879f9]"></span>
+          <span className="w-2.5 h-2.5 rounded-full bg-[var(--surface)] shadow-[0_0_8px_#e879f9]"></span>
           <span className="text-[10px] font-mono text-black/70">Architecture</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_8px_#f43f5e]"></span>
+          <span className="w-2.5 h-2.5 rounded-full bg-[var(--surface)] shadow-[0_0_8px_#f43f5e]"></span>
           <span className="text-[10px] font-mono text-black/70">Bottlenecks</span>
         </div>
       </div>

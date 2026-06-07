@@ -21,14 +21,14 @@ const CollapsibleCard: React.FC<{
 }> = ({ title, icon, colorClass, borderColorClass, children, defaultOpen = true }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   return (
-    <div className={`rounded-sm border bg-white shadow-lg shadow-black/20 overflow-hidden transition-colors ${borderColorClass}`}>
+    <div className={`rounded-sm border bg-[var(--surface)] shadow-lg shadow-black/20 overflow-hidden transition-colors ${borderColorClass}`}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between p-5 sm:p-6 text-left hover:bg-black/5"
       >
         <div className="flex items-center gap-3">
           {icon}
-          <h3 className="text-sm font-bold uppercase tracking-widest text-black/90">{title}</h3>
+          <h3 className="text-sm font-bold uppercase tracking-widest text-[var(--text)]">{title}</h3>
         </div>
         <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
           <ChevronDown className={`h-5 w-5 ${colorClass}`} />
@@ -42,7 +42,7 @@ const CollapsibleCard: React.FC<{
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="px-5 pb-5 sm:px-6 sm:pb-6 border-t border-black/5 pt-4">
+            <div className="px-5 pb-5 sm:px-6 sm:pb-6 border-t border-[var(--border)] pt-4">
               {children}
             </div>
           </motion.div>
@@ -57,14 +57,14 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
   
   const isZh = i18n.language === "zh-TW";
   
-  if (!reportText) return <p className="text-black/60">{isZh ? "尚無報告內容" : "No report content available."}</p>;
+  if (!reportText) return <p className="text-brand-muted">{isZh ? "尚無報告內容" : "No report content available."}</p>;
 
   let parsed: ParsedReport;
   try {
     parsed = JSON.parse(reportText);
   } catch {
     return (
-      <pre className="mt-5 min-h-[20rem] whitespace-pre-wrap rounded-sm border border-black bg-black/5 p-4 font-mono text-[13px] leading-7 text-black/86">
+      <pre className="mt-5 min-h-[20rem] whitespace-pre-wrap rounded-sm border border-[var(--border)] bg-black/5 p-4 font-mono text-[13px] leading-7 text-[var(--text)]">
         {reportText}
       </pre>
     );
@@ -86,9 +86,9 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
             <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-brand-cyan/20 text-brand-cyan shadow-inner">
               <LayoutDashboard className="h-6 w-6" />
             </div>
-            <h3 className="text-xl font-bold tracking-tight text-black">{isZh ? "執行摘要" : "Executive Summary"}</h3>
+            <h3 className="text-xl font-bold tracking-tight text-[var(--text)]">{isZh ? "執行摘要" : "Executive Summary"}</h3>
           </div>
-          <p className="text-base leading-relaxed text-black/90">{parsed.executiveSummary}</p>
+          <p className="text-base leading-relaxed text-[var(--text)]">{parsed.executiveSummary}</p>
         </div>
       )}
 
@@ -103,12 +103,12 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
           >
             <div className="grid gap-4 md:grid-cols-2">
               {parsed.deterministicFindings.map((item, i) => (
-                <div key={i} className="rounded-sm bg-black/5 p-4 border border-black/[0.05] hover:bg-black/10 transition-colors">
+                <div key={i} className="rounded-sm bg-black/5 p-4 border border-[var(--border)] hover:bg-black/10 transition-colors">
                   <div className="flex justify-between items-start mb-2 gap-2">
-                    <p className="text-sm font-semibold text-black leading-snug">{item.issue}</p>
+                    <p className="text-sm font-semibold text-[var(--text)] leading-snug">{item.issue}</p>
                     <SeverityBadge severity={item.severity} />
                   </div>
-                  <p className="text-xs text-black/60 leading-relaxed">{item.impact}</p>
+                  <p className="text-xs text-brand-muted leading-relaxed">{item.impact}</p>
                 </div>
               ))}
             </div>
@@ -125,12 +125,12 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
           >
             <div className="grid gap-4 md:grid-cols-2">
               {parsed.browserFlowGaps.map((item, i) => (
-                <div key={i} className="rounded-sm bg-black/5 p-4 border border-black/[0.05] hover:bg-black/10 transition-colors">
+                <div key={i} className="rounded-sm bg-black/5 p-4 border border-[var(--border)] hover:bg-black/10 transition-colors">
                   <div className="flex justify-between items-start mb-2 gap-2">
-                    <p className="text-sm font-semibold text-black leading-snug">{item.issue}</p>
+                    <p className="text-sm font-semibold text-[var(--text)] leading-snug">{item.issue}</p>
                     <SeverityBadge severity={item.severity} />
                   </div>
-                  <p className="text-xs text-black/60 leading-relaxed">{item.impact}</p>
+                  <p className="text-xs text-brand-muted leading-relaxed">{item.impact}</p>
                 </div>
               ))}
             </div>
@@ -147,12 +147,12 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
           >
             <div className="grid gap-4 md:grid-cols-2">
               {parsed.architectureRisks.map((item, i) => (
-                <div key={i} className="rounded-sm bg-black/5 p-4 border border-black/[0.05] hover:bg-black/10 transition-colors">
+                <div key={i} className="rounded-sm bg-black/5 p-4 border border-[var(--border)] hover:bg-black/10 transition-colors">
                   <div className="flex justify-between items-start mb-2 gap-2">
-                    <p className="text-sm font-semibold text-black leading-snug">{item.issue}</p>
+                    <p className="text-sm font-semibold text-[var(--text)] leading-snug">{item.issue}</p>
                     <SeverityBadge severity={item.severity} />
                   </div>
-                  <p className="text-xs text-black/60 leading-relaxed">{item.impact}</p>
+                  <p className="text-xs text-brand-muted leading-relaxed">{item.impact}</p>
                 </div>
               ))}
             </div>
@@ -174,8 +174,8 @@ export const ReportRenderer: React.FC<{ reportText?: string }> = ({ reportText }
                     {i + 1}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-black leading-snug">{item.action}</p>
-                    <p className="mt-1 text-xs text-black/60 leading-relaxed">{item.impact}</p>
+                    <p className="text-sm font-semibold text-[var(--text)] leading-snug">{item.action}</p>
+                    <p className="mt-1 text-xs text-brand-muted leading-relaxed">{item.impact}</p>
                   </div>
                 </div>
               ))}

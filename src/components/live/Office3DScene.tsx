@@ -231,15 +231,15 @@ export default function Office3DScene({ subagents, toolCalls, isZh }: Office3DSc
   const isActiveAny = subagents.some((s) => s.status === "active");
 
   return (
-    <div id="office-3d-scene-container" className="relative w-full overflow-hidden bg-zinc-50 border border-black rounded-sm p-4 md:p-8 shadow-inner shadow-black/10">
+    <div id="office-3d-scene-container" className="relative w-full overflow-hidden bg-zinc-50 border border-[var(--border)] rounded-sm p-4 md:p-8 shadow-inner shadow-black/10">
       {/* 3D Scene Title and Eyebrow */}
       <div className="flex items-center justify-between gap-4 border-b border-black/15 pb-4 mb-6">
         <div className="flex gap-2.5 items-center">
-          <div className="bg-black text-white p-2 rounded-sm border border-black flex items-center justify-center">
+          <div className="bg-black text-white p-2 rounded-sm border border-[var(--border)] flex items-center justify-center">
             <Users className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="text-base font-bold text-black tracking-tight flex items-center gap-2">
+            <h4 className="text-base font-bold text-[var(--text)] tracking-tight flex items-center gap-2">
               <span>{isZh ? "3D 擬人化上帝視角指揮島" : "3D Isometric Swarm Swarm Floor"}</span>
               <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded-full bg-black/5 border border-black/5 animate-pulse text-neutral-500">Live View</span>
             </h4>
@@ -267,7 +267,7 @@ export default function Office3DScene({ subagents, toolCalls, isZh }: Office3DSc
       </div>
 
       {/* Main 3D Floor Canvas Container */}
-      <div className="relative w-full h-[520px] bg-zinc-100 border border-black rounded-sm overflow-hidden flex items-center justify-center">
+      <div className="relative w-full h-[520px] bg-zinc-100 border border-[var(--border)] rounded-sm overflow-hidden flex items-center justify-center">
         
         {/* Relume Grid Background for Isometric depth */}
         <div 
@@ -341,11 +341,11 @@ export default function Office3DScene({ subagents, toolCalls, isZh }: Office3DSc
           <motion.div 
             animate={isActiveAny ? { y: [0, -3, 0] } : {}}
             transition={{ type: "spring", repeat: Infinity, duration: 2 }}
-            className="w-24 h-36 bg-black border border-black rounded-sm shadow-[8px_8px_0px_rgba(0,0,0,0.3)] flex flex-col items-center justify-between p-2.5 relative"
+            className="w-24 h-36 bg-black border border-[var(--border)] rounded-sm shadow-[8px_8px_0px_rgba(0,0,0,0.3)] flex flex-col items-center justify-between p-2.5 relative"
           >
             {/* Hologram top antenna glow */}
             <div className="absolute -top-10 flex flex-col items-center">
-              <span className={`w-3 h-3 rounded-full border border-black ${isActiveAny ? "bg-cyan-400 animate-ping" : "bg-zinc-400"}`} />
+              <span className={`w-3 h-3 rounded-full border border-[var(--border)] ${isActiveAny ? "bg-cyan-400 animate-ping" : "bg-zinc-400"}`} />
               <div className="w-0.5 h-10 bg-black" />
             </div>
 
@@ -378,7 +378,7 @@ export default function Office3DScene({ subagents, toolCalls, isZh }: Office3DSc
             </div>
 
             {/* Base Plate */}
-            <div className="absolute -bottom-2 bg-zinc-800 border-t border-black w-20 h-2 px-1 text-[6px] text-zinc-300 font-mono flex items-center justify-between">
+            <div className="absolute -bottom-2 bg-zinc-800 border-t border-[var(--border)] w-20 h-2 px-1 text-[6px] text-zinc-300 font-mono flex items-center justify-between">
               <span>SVR.4</span><span>PROJ88</span>
             </div>
           </motion.div>
@@ -420,10 +420,10 @@ export default function Office3DScene({ subagents, toolCalls, isZh }: Office3DSc
                       initial={{ opacity: 0, scale: 0.8, y: 10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.8 }}
-                      className="absolute -top-32 w-52 bg-black border border-black text-white p-2.5 rounded-sm shadow-[4px_4px_0px_rgba(0,0,0,1)] z-30 font-mono text-[10px] leading-relaxed"
+                      className="absolute -top-32 w-52 bg-black border border-[var(--border)] text-white p-2.5 rounded-sm shadow-[4px_4px_0px_rgba(0,0,0,1)] z-30 font-mono text-[10px] leading-relaxed"
                     >
                       {/* Triangle pointer */}
-                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-black border-r border-b border-black transform rotate-45" />
+                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-black border-r border-b border-[var(--border)] transform rotate-45" />
                       <div className="flex items-center gap-1 text-cyan-300 font-bold mb-1 border-b border-white/10 pb-0.5">
                         <Terminal className="w-3.5 h-3.5 flex-shrink-0" />
                         <span>RUN: {info.toolName}()</span>
@@ -437,7 +437,7 @@ export default function Office3DScene({ subagents, toolCalls, isZh }: Office3DSc
                       key="done-bubble"
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="absolute -top-16 bg-white border-2 border-emerald-500 text-black px-2.5 py-1 rounded-full shadow-md z-30 font-bold text-[10px] flex items-center gap-1.5"
+                      className="absolute -top-16 bg-[var(--surface)] border-2 border-emerald-500 text-[var(--text)] px-2.5 py-1 rounded-full shadow-md z-30 font-bold text-[10px] flex items-center gap-1.5"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                       <span>{isZh ? "交付稽核報告 / Complete" : "Audit Log Saved / Done"}</span>
@@ -490,10 +490,10 @@ export default function Office3DScene({ subagents, toolCalls, isZh }: Office3DSc
                   </motion.div>
 
                   {/* Desk / Office workstation table structure */}
-                  <div className="w-20 h-10 bg-white border border-black rounded-sm shadow-md mt-[-8px] relative flex justify-around items-center px-1">
+                  <div className="w-20 h-10 bg-[var(--surface)] border border-[var(--border)] rounded-sm shadow-md mt-[-8px] relative flex justify-around items-center px-1">
                     {/* Glowing computer monitor details */}
                     <div className="relative">
-                      <div className={`w-8 h-6 rounded-sm border border-black transform -skew-y-3 flex items-center justify-center ${
+                      <div className={`w-8 h-6 rounded-sm border border-[var(--border)] transform -skew-y-3 flex items-center justify-center ${
                         info.status === "active" 
                           ? "bg-neutral-900 border-cyan-400" 
                           : info.status === "done" 
@@ -512,7 +512,7 @@ export default function Office3DScene({ subagents, toolCalls, isZh }: Office3DSc
 
                     {/* Desk accessory / Coffee Cup / Plant details */}
                     <div className="flex flex-col items-center">
-                      <div className="w-2.5 h-3.5 bg-neutral-900 border border-black rounded-sm flex flex-col justify-between items-center py-0.5">
+                      <div className="w-2.5 h-3.5 bg-neutral-900 border border-[var(--border)] rounded-sm flex flex-col justify-between items-center py-0.5">
                         <div className="w-1.5 h-px bg-rose-500 rounded-full animate-bounce" />
                         <div className="w-1 h-1 bg-cyan-400 rounded-full" />
                       </div>
@@ -522,7 +522,7 @@ export default function Office3DScene({ subagents, toolCalls, isZh }: Office3DSc
                   </div>
 
                   {/* Character Name Flag Accent */}
-                  <div className="mt-2 text-center select-none bg-black text-white rounded-sm px-2 py-0.5 border border-black font-semibold font-mono text-[10px]">
+                  <div className="mt-2 text-center select-none bg-black text-white rounded-sm px-2 py-0.5 border border-[var(--border)] font-semibold font-mono text-[10px]">
                     {isZh ? member.name : member.englishName}
                   </div>
                 </div>

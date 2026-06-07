@@ -25,7 +25,7 @@ export default function SectionHeader({ eyebrow, title, description, className, 
           hidden: { opacity: 0, y: 15 },
           visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
         }}
-        className="text-[11px] font-mono font-bold uppercase tracking-[0.28em] text-black/50"
+        className="text-[11px] font-mono font-bold uppercase tracking-[0.28em] text-brand-faint"
       >
         {eyebrow}
       </motion.p>
@@ -34,7 +34,7 @@ export default function SectionHeader({ eyebrow, title, description, className, 
           hidden: { opacity: 0, y: 15 },
           visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
         }}
-        className={["text-[32px] font-black leading-[1.05] tracking-tight text-black lg:text-[44px] font-grotesk", titleClassName].filter(Boolean).join(" ")}
+        className={["text-[32px] font-black leading-[1.05] tracking-tight text-[var(--text)] lg:text-[44px] font-grotesk", titleClassName].filter(Boolean).join(" ")}
       >
         {title}
       </motion.h2>
@@ -43,7 +43,7 @@ export default function SectionHeader({ eyebrow, title, description, className, 
           hidden: { opacity: 0, y: 15 },
           visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
         }}
-        className={["text-base sm:text-[17px] leading-relaxed text-black/60 font-normal", descriptionClassName].filter(Boolean).join(" ")}
+        className={["text-base sm:text-[17px] leading-relaxed text-brand-muted font-normal", descriptionClassName].filter(Boolean).join(" ")}
       >
         {description}
       </motion.p>
