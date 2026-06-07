@@ -187,6 +187,16 @@ function buildFallbackSummary(payload: AuditRequestPayload, evidence: AuditEvide
 
 export async function synthesizeAudit(payload: AuditRequestPayload, evidence: AuditEvidenceBundle, config?: { aiProvider?: string, agentRouterApiKey?: string, openRouterApiKey?: string, nvidiaApiKey?: string, apiKey?: string, allowedModels?: string[] }): Promise<AuditSynthesisResult> {
   const provider = config?.aiProvider || 'openrouter';
+
+  if (evidence.deterministic.status === "failed") {
+    const reason = `deterministic_collector_failed: ${evidence.deterministic.error ?? "unknown_error"}`;
+    return {
+      provider: "fallback",
+      queued: false,
+      reason,
+      summary: buildFallbackSummary(payload, evidence, reason),
+    };
+  }
   
   let apiKey = config?.apiKey || process.env.OPENROUTER_API_KEY;
   if (provider === 'agentrouter') {

@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { synthesizeAudit } from "../src/Server/Services/auditSynthesis.ts";
 import { runAuditHarness } from "../src/Server/Services/harnessRunner.ts";
 import { calculateModelCost } from "../src/Server/Services/harness/ObservabilityTelemetry.ts";
 import type {
@@ -253,4 +254,79 @@ test("runAuditHarness tracks token budget in governance", async () => {
   assert.ok(result.harness.governance.tokenBudget === 1000);
   assert.ok(result.harness.governance.estimatedTokenSpend >= 0);
   assert.ok(typeof result.harness.governance.estimatedTokenSpend === "number");
+});
+
+test("runAuditHarness returns fallback evidence instead of hanging when deterministic collection times out", async () => {
+  const result = await runAuditHarness(request, undefined, {
+    policy: {
+      maxAttempts: 1,
+      retryCap: 0,
+      stepTimeoutMs: 20,
+    },
+    dependencies: {
+      collectDeterministicEvidence: async () => new Promise<DeterministicCollectorResult>(() => {}),
+      collectBrowserEvidence: async () => {
+        throw new Error("browser collector should not run after deterministic timeout");
+      },
+      synthesizeAudit: async () => {
+        throw new Error("synthesis should not run after deterministic timeout");
+      },
+    },
+  });
+
+  assert.equal(result.harness.status, "failed");
+  assert.match(result.harness.attempts[0].error ?? "", /Deterministic collector timed out/);
+  assert.equal(result.evidence.deterministic.status, "failed");
+  assert.equal(result.evidence.browser.status, "skipped");
+  assert.equal(result.synthesis.provider, "fallback");
+});
+
+test("runAuditHarness returns fallback synthesis instead of hanging when synthesis times out", async () => {
+  const result = await runAuditHarness(request, undefined, {
+    policy: {
+      maxAttempts: 1,
+      retryCap: 0,
+      stepTimeoutMs: 20,
+    },
+    dependencies: {
+      collectDeterministicEvidence: async () => makeDeterministic("completed"),
+      collectBrowserEvidence: async () => makeBrowser("completed"),
+      synthesizeAudit: async () => new Promise<AuditSynthesisResult>(() => {}),
+    },
+  });
+
+  assert.equal(result.harness.status, "failed");
+  assert.match(result.harness.attempts[0].error ?? "", /Audit synthesis timed out/);
+  assert.equal(result.synthesis.provider, "fallback");
+  assert.match(result.synthesis.summary ?? "", /waiting indefinitely/);
+});
+
+test("synthesizeAudit skips provider calls when deterministic evidence already failed", async () => {
+  const originalFetch = globalThis.fetch;
+  let fetchCalled = false;
+
+  globalThis.fetch = (async () => {
+    fetchCalled = true;
+    throw new Error("provider should not be called");
+  }) as typeof fetch;
+
+  try {
+    const result = await synthesizeAudit(
+      request,
+      {
+        deterministic: makeDeterministic("failed"),
+        browser: makeBrowser("skipped"),
+      },
+      {
+        openRouterApiKey: "test-key",
+        allowedModels: ["test-model"],
+      },
+    );
+
+    assert.equal(fetchCalled, false);
+    assert.equal(result.provider, "fallback");
+    assert.match(result.reason ?? "", /deterministic_collector_failed/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });

@@ -13,6 +13,12 @@ async function readJsonResponse(response: Response): Promise<unknown> {
   }
 }
 
+function getAuditRequestTimeoutMs(): number {
+  const rawValue = import.meta.env.VITE_AUDIT_REQUEST_TIMEOUT_MS;
+  const parsedValue = Number(rawValue);
+  return Number.isFinite(parsedValue) && parsedValue > 0 ? Math.round(parsedValue) : 60000;
+}
+
 export async function postAuditRequest<Payload extends Record<string, unknown>>({
   endpoint,
   defaultEndpoint,
@@ -31,7 +37,17 @@ export async function postAuditRequest<Payload extends Record<string, unknown>>(
   };
 
   try {
-    const response = await fetch(endpoint ?? defaultEndpoint, requestInit);
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => {
+      controller.abort();
+    }, getAuditRequestTimeoutMs());
+
+    const response = await fetch(endpoint ?? defaultEndpoint, {
+      ...requestInit,
+      signal: controller.signal,
+    }).finally(() => {
+      window.clearTimeout(timeoutId);
+    });
 
     if (!response.ok) {
       if (response.status === 401) {

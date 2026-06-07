@@ -1,3 +1,6 @@
+import OpenAI from 'openai';
+import { readPositiveIntegerEnv } from "./ioTimeouts";
+
 // Free-tier models sourced from https://openrouter.ai/api/v1/models (pricing.prompt === "0").
 // Last synced 2026-05-21. Ordered by context length descending.
 // EXCLUDED MODELS:
@@ -40,6 +43,22 @@ const FALLBACK_MODELS = process.env.ALLOW_PAID_FALLBACK === 'true'
   : FREE_MODELS;
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+const DEFAULT_LLM_REQUEST_TIMEOUT_MS = 20000;
+
+function getLlmRequestTimeoutMs(providerEnvName: string): number {
+  return readPositiveIntegerEnv(
+    providerEnvName,
+    readPositiveIntegerEnv("LLM_REQUEST_TIMEOUT_MS", DEFAULT_LLM_REQUEST_TIMEOUT_MS),
+  );
+}
+
+function isAbortTimeout(error: unknown): boolean {
+  return error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError");
+}
+
+function formatTimeoutError(provider: string, model: string, timeoutMs: number): Error {
+  return new Error(`${provider} request timed out after ${timeoutMs}ms (${model})`);
+}
 
 export interface OpenRouterFallbackResult {
   model: string;
@@ -47,9 +66,12 @@ export interface OpenRouterFallbackResult {
 }
 
 export async function fetchNvidia(apiKey: string, prompt: string, model: string): Promise<OpenRouterFallbackResult> {
+  const timeoutMs = getLlmRequestTimeoutMs("NVIDIA_REQUEST_TIMEOUT_MS");
   const client = new OpenAI({
     apiKey: apiKey,
     baseURL: 'https://integrate.api.nvidia.com/v1',
+    timeout: timeoutMs,
+    maxRetries: 0,
   });
 
   try {
@@ -68,7 +90,7 @@ export async function fetchNvidia(apiKey: string, prompt: string, model: string)
       requestBody.chat_template_kwargs = {"enable_thinking":true};
     }
 
-    const response = await client.chat.completions.create(requestBody);
+    const response = await client.chat.completions.create(requestBody, { timeout: timeoutMs, maxRetries: 0 });
     
     let text = response.choices?.[0]?.message?.content;
     const reasoningText = (response.choices?.[0]?.message as any)?.reasoning_content;
@@ -83,6 +105,9 @@ export async function fetchNvidia(apiKey: string, prompt: string, model: string)
     
     return { model, text };
   } catch (error: any) {
+    if (isAbortTimeout(error)) {
+      throw formatTimeoutError("NVIDIA", model, timeoutMs);
+    }
     throw new Error(`NVIDIA API Error: ${error.message}`);
   }
 }
@@ -100,11 +125,9 @@ export async function fetchOpenRouterWithFallback(apiKey: string, prompt: string
   let notFoundCount = 0;
 
   const modelsToTry = customModels && customModels.length > 0 ? customModels : FALLBACK_MODELS;
+  const timeoutMs = getLlmRequestTimeoutMs("OPENROUTER_REQUEST_TIMEOUT_MS");
 
   for (const model of modelsToTry) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
-
     try {
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
@@ -119,9 +142,8 @@ export async function fetchOpenRouterWithFallback(apiKey: string, prompt: string
           messages: [{ role: 'user', content: prompt }],
           max_tokens: 4000
         }),
-        signal: controller.signal
+        signal: AbortSignal.timeout(timeoutMs),
       });
-      clearTimeout(timeoutId);
 
       // Auth failure — no point retrying any model.
       if (response.status === 401 || response.status === 403) {
@@ -171,15 +193,14 @@ export async function fetchOpenRouterWithFallback(apiKey: string, prompt: string
         throw new Error(`Model ${model} returned empty content`);
       }
     } catch (err: any) {
-      clearTimeout(timeoutId);
-      if (err.name === "AbortError") {
-        console.warn(`Fetch to model ${model} timed out after 30s`);
+      if (isAbortTimeout(err)) {
+        console.warn(`Fetch to model ${model} timed out after ${timeoutMs}ms`);
         consecutive5xxFailures++;
         if (consecutive5xxFailures >= 3) {
           circuitBreakerOpenUntil = Date.now() + 30000;
           throw new Error(`Circuit breaker tripped after 3 consecutive timeouts from OpenRouter. Delaying requests for 30s.`);
         }
-        lastError = new Error(`Request timeout for ${model}`);
+        lastError = formatTimeoutError("OpenRouter", model, timeoutMs);
       } else {
         if (err.message?.includes('Stopping retries') || err.message?.includes('Circuit breaker tripped')) throw err;
         console.warn(`Failed with model ${model}, trying next...`, err.message);
@@ -199,8 +220,6 @@ export async function fetchOpenRouterWithFallback(apiKey: string, prompt: string
   }
   throw lastError || new Error('All fallback models failed.');
 }
-
-import OpenAI from 'openai';
 
 // agentrouter.org sits behind Aliyun WAF. Server-side calls can be served a JS
 // slider-CAPTCHA challenge page (HTTP 200, HTML body) instead of an API JSON
@@ -224,20 +243,29 @@ const AGENTROUTER_WAF_ERROR =
   'AGENTROUTER_WAF_BLOCKED: agentrouter.org served an Aliyun WAF CAPTCHA challenge instead of an API response. The provider is blocking server-side traffic — switch the plan aiProvider to "openrouter" or use a different AgentRouter endpoint/key.';
 
 export async function fetchAgentRouter(apiKey: string, prompt: string, model: string): Promise<OpenRouterFallbackResult> {
+  const timeoutMs = getLlmRequestTimeoutMs("AGENTROUTER_REQUEST_TIMEOUT_MS");
   const client = new OpenAI({
     apiKey: apiKey,
     baseURL: 'https://agentrouter.org/v1',
     defaultHeaders: AGENTROUTER_BROWSER_HEADERS,
+    timeout: timeoutMs,
+    maxRetries: 0,
   });
 
   let response: any;
   try {
-    response = await client.chat.completions.create({
-      model: model,
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 4000,
-    });
+    response = await client.chat.completions.create(
+      {
+        model: model,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 4000,
+      },
+      { timeout: timeoutMs, maxRetries: 0 },
+    );
   } catch (error: any) {
+    if (isAbortTimeout(error)) {
+      throw formatTimeoutError("AgentRouter", model, timeoutMs);
+    }
     if (isAliyunWafChallenge(error?.message) || isAliyunWafChallenge(error?.error)) {
       throw new Error(AGENTROUTER_WAF_ERROR);
     }

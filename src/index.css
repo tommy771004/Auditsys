@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -21,6 +21,10 @@
     --green: #10b981;
     --red: #ef4444;
     --blue: #3b82f6;
+    --accent-ink: #e2e8f0;
+    --secondary-ink: #cbd5e1;
+    --tertiary-ink: #94a3b8;
+    --quaternary-ink: #64748b;
     --radius: 16px;
     --radius-sm: 12px;
     --maxw: 1140px;
@@ -28,7 +32,7 @@
     --grid-line: rgba(255, 255, 255, 0.03);
     --grad: linear-gradient(to right, #9d8bff, #3ad6c3);
     --fz: "Inter", system-ui, sans-serif;
-    --fe: "Inter", "Space Grotesk", sans-serif;
+    --fe: "Space Grotesk", "Inter", system-ui, sans-serif;
     --fm: "JetBrains Mono", monospace;
   }
 
@@ -40,8 +44,13 @@
     --border: rgba(0, 0, 0, 0.08);
     --border-strong: rgba(0, 0, 0, 0.15);
     --text: #0f172a;
-    --muted: #64748b;
-    --faint: #cbd5e1;
+    --muted: #475569;
+    --faint: #64748b;
+    --teal: #111827;
+    --accent-ink: #0f172a;
+    --secondary-ink: #1e293b;
+    --tertiary-ink: #475569;
+    --quaternary-ink: #64748b;
     --shadow: 0 24px 80px rgba(0, 0, 0, 0.05);
     --grid-line: rgba(0, 0, 0, 0.03);
   }
@@ -54,8 +63,13 @@
     --border: #e2e8f0;
     --border-strong: #cbd5e1;
     --text: #0f172a;
-    --muted: #64748b;
-    --faint: #cbd5e1;
+    --muted: #475569;
+    --faint: #64748b;
+    --teal: #111827;
+    --accent-ink: #0f172a;
+    --secondary-ink: #1e293b;
+    --tertiary-ink: #475569;
+    --quaternary-ink: #64748b;
     --shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
     --grid-line: rgba(0, 0, 0, 0.03);
   }
@@ -158,6 +172,136 @@
   .animate-float-delayed {
     animation: none;
   }
+}
+
+:root[data-theme="light"] .text-brand-cyan,
+:root[data-theme="light"] .text-cyan-100,
+:root[data-theme="light"] .text-cyan-200,
+:root[data-theme="light"] .text-cyan-300,
+:root[data-theme="light"] .text-cyan-400,
+:root[data-theme="light"] .text-cyan-500,
+:root[data-theme="light"] .text-cyan-600,
+:root[data-theme="light"] .text-cyan-700,
+:root[data-theme="light"] .text-cyan-800,
+:root[data-theme="light"] .text-cyan-900,
+:root[data-theme="light"] .text-cyan-200\/60,
+:root[data-theme="light"] .text-brand-cyan\/80,
+:root[data-theme="light"] .text-brand-cyan\/90,
+.theme-lock-light .text-brand-cyan,
+.theme-lock-light .text-cyan-100,
+.theme-lock-light .text-cyan-200,
+.theme-lock-light .text-cyan-300,
+.theme-lock-light .text-cyan-400,
+.theme-lock-light .text-cyan-500,
+.theme-lock-light .text-cyan-600,
+.theme-lock-light .text-cyan-700,
+.theme-lock-light .text-cyan-800,
+.theme-lock-light .text-cyan-900,
+.theme-lock-light .text-cyan-200\/60,
+.theme-lock-light .text-brand-cyan\/80,
+.theme-lock-light .text-brand-cyan\/90 {
+  color: var(--accent-ink);
+  font-family: var(--fe);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+:root[data-theme="light"] .text-slate-300,
+.theme-lock-light .text-slate-300 {
+  color: var(--secondary-ink);
+}
+
+:root[data-theme="light"] .text-slate-400,
+.theme-lock-light .text-slate-400 {
+  color: var(--tertiary-ink);
+}
+
+:root[data-theme="light"] .text-slate-500,
+.theme-lock-light .text-slate-500 {
+  color: var(--quaternary-ink);
+}
+
+:root[data-theme="light"] .text-slate-300\/80,
+.theme-lock-light .text-slate-300\/80 {
+  color: rgba(30, 41, 59, 0.84);
+}
+
+:root[data-theme="light"] .text-black\/40,
+.theme-lock-light .text-black\/40 {
+  color: rgba(15, 23, 42, 0.58);
+}
+
+:root[data-theme="light"] .text-black\/45,
+.theme-lock-light .text-black\/45 {
+  color: rgba(15, 23, 42, 0.62);
+}
+
+:root[data-theme="light"] .text-black\/50,
+.theme-lock-light .text-black\/50 {
+  color: rgba(15, 23, 42, 0.66);
+}
+
+:root[data-theme="light"] .text-black\/55,
+.theme-lock-light .text-black\/55 {
+  color: rgba(15, 23, 42, 0.7);
+}
+
+:root[data-theme="light"] .text-black\/58,
+.theme-lock-light .text-black\/58 {
+  color: rgba(15, 23, 42, 0.72);
+}
+
+:root[data-theme="light"] .text-black\/60,
+.theme-lock-light .text-black\/60 {
+  color: rgba(15, 23, 42, 0.74);
+}
+
+:root[data-theme="light"] .text-black\/70,
+.theme-lock-light .text-black\/70 {
+  color: rgba(15, 23, 42, 0.82);
+}
+
+:root[data-theme="light"] .text-black\/72,
+.theme-lock-light .text-black\/72 {
+  color: rgba(15, 23, 42, 0.84);
+}
+
+:root[data-theme="light"] .text-black\/75,
+.theme-lock-light .text-black\/75 {
+  color: rgba(15, 23, 42, 0.86);
+}
+
+:root[data-theme="light"] .text-black\/84,
+.theme-lock-light .text-black\/84 {
+  color: rgba(15, 23, 42, 0.9);
+}
+
+:root[data-theme="light"] .text-black\/86,
+.theme-lock-light .text-black\/86 {
+  color: rgba(15, 23, 42, 0.92);
+}
+
+:root[data-theme="light"] .text-black\/90,
+.theme-lock-light .text-black\/90 {
+  color: rgba(15, 23, 42, 0.95);
+}
+
+:root[data-theme="light"] .text-cyan-200\/90,
+.theme-lock-light .text-cyan-200\/90 {
+  color: var(--accent-ink);
+}
+
+:root[data-theme="light"] .text-amber-200\/70,
+.theme-lock-light .text-amber-200\/70 {
+  color: rgba(146, 64, 14, 0.86);
+}
+
+:root[data-theme="light"] .placeholder-white\/20::placeholder,
+:root[data-theme="light"] .placeholder-white\/30::placeholder,
+.theme-lock-light .placeholder-white\/20::placeholder,
+.theme-lock-light .placeholder-white\/30::placeholder {
+  color: var(--quaternary-ink);
+  opacity: 0.72;
 }
 
 /* Respect prefers-reduced-motion for CSS-driven animations */

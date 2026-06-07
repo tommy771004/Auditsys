@@ -2,6 +2,7 @@ import { z } from "zod";
 import { collectBrowserEvidence } from "./browserCollector";
 import { collectDeterministicEvidence } from "./deterministicCollector";
 import { synthesizeAudit } from "./auditSynthesis";
+import { readPositiveIntegerEnv, withTimeout } from "./ioTimeouts";
 import { AgentIdentityManager, CredentialsVault } from "./harness/AgentIdentity";
 import { AgentSandbox, MiddlewareHandler } from "./harness/AgentSandbox";
 import { ExecutionTracer, CostTracker, calculateModelCost, CostRecord } from "./harness/ObservabilityTelemetry";
@@ -46,6 +47,7 @@ interface AuditHarnessPolicy {
   tokenBudget: number;
   /** Dollar ceiling for the cost circuit breaker (CostTracker.budgetLimit is in USD). */
   costBudgetUsd: number;
+  stepTimeoutMs: number;
 }
 
 interface AuditHarnessDependencies {
@@ -103,6 +105,7 @@ const DEFAULT_POLICY: AuditHarnessPolicy = {
   warningBudget: 12,
   tokenBudget: 12000,
   costBudgetUsd: 1.0,
+  stepTimeoutMs: readPositiveIntegerEnv("HARNESS_STEP_TIMEOUT_MS", 30000),
 };
 
 const DEFAULT_DEPENDENCIES: AuditHarnessDependencies = {
@@ -150,6 +153,52 @@ function createSkippedBrowserResult(payload: AuditRequestPayload, reason: string
     screenshots: [],
     artifacts: { screenshotPaths: [], logPaths: [] },
     reason,
+  };
+}
+
+function createFailedDeterministicResult(payload: AuditRequestPayload, reason: string): DeterministicCollectorResult {
+  const ts = nowIso();
+  return {
+    stage: "deterministic",
+    status: "failed",
+    startedAt: ts,
+    completedAt: ts,
+    targetUrl: payload.url,
+    notes: ["Deterministic collector did not complete inside the harness boundary."],
+    warnings: [],
+    error: reason,
+  };
+}
+
+function createHarnessFallbackSynthesis(payload: AuditRequestPayload, reason: string): AuditSynthesisResult {
+  const isZh = payload.language === "zh-TW";
+
+  return {
+    provider: "fallback",
+    queued: false,
+    reason,
+    summary: JSON.stringify({
+      executiveSummary: isZh
+        ? `稽核管線在受控邊界內降級完成：${reason}。已保留可用 evidence 與 harness trace，避免任務控制台無限等待。`
+        : `The audit pipeline completed in controlled fallback mode: ${reason}. Available evidence and harness trace were preserved instead of leaving the console waiting indefinitely.`,
+      deterministicFindings: [],
+      browserFlowGaps: [],
+      architectureRisks: [
+        {
+          issue: isZh ? "稽核步驟超時或失敗" : "Audit step timed out or failed",
+          impact: isZh
+            ? "本次報告可信度受限，需先確認目標站或模型供應商的連線狀態。"
+            : "Report confidence is limited until the target site or model provider connectivity is confirmed.",
+          severity: "high",
+        },
+      ],
+      nextActions: [
+        {
+          action: isZh ? "檢查目標 URL 可連線性與 LLM provider 設定" : "Check target URL reachability and LLM provider settings",
+          impact: isZh ? "恢復完整 evidence 收集與 synthesis。" : "Restores full evidence collection and synthesis.",
+        },
+      ],
+    }),
   };
 }
 
@@ -415,6 +464,24 @@ const sensorRegistry: SensorEvaluator[] = [
     }
   },
   {
+    id: "attempt_error",
+    evaluate: (execution) => {
+      if (!execution.error) {
+        return [];
+      }
+
+      return createSensor(
+        "attempt_error",
+        "Attempt error",
+        "failed",
+        "critical",
+        "error",
+        execution.error,
+        "none"
+      );
+    }
+  },
+  {
     id: "lighthouse",
     evaluate: (execution) => {
       if (!execution.lighthouse) return [];
@@ -629,9 +696,13 @@ async function executeAttempt(
         index,
         "tool_call",
         "Run deterministic collector",
-        () => sandbox.execute(
-          { type: "network_request", target: payload.url, payload: { stage: "deterministic" } },
-          () => dependencies.collectDeterministicEvidence(payload),
+        () => withTimeout(
+          () => sandbox.execute(
+            { type: "network_request", target: payload.url, payload: { stage: "deterministic" } },
+            () => dependencies.collectDeterministicEvidence(payload),
+          ),
+          policy.stepTimeoutMs,
+          "Deterministic collector",
         ),
       );
       tracer.logPhaseEnd("Deterministic Collector", detStart);
@@ -655,7 +726,11 @@ async function executeAttempt(
         index,
         "tool_call",
         "Run Lighthouse PageSpeed analysis",
-        dependencies.fetchLighthouse ? () => dependencies.fetchLighthouse!(payload.url) : () => Promise.resolve(undefined),
+        () => withTimeout(
+          dependencies.fetchLighthouse ? () => dependencies.fetchLighthouse!(payload.url) : () => Promise.resolve(undefined),
+          policy.stepTimeoutMs,
+          "Lighthouse PageSpeed analysis",
+        ),
       );
       tracer.logPhaseEnd("Lighthouse Analysis", analyzingStart);
     }
@@ -668,9 +743,13 @@ async function executeAttempt(
         index,
         "tool_call",
         "Run browser flow collector",
-        () => sandbox.execute(
-          { type: "network_request", target: payload.url, payload: { stage: "browser" } },
-          () => dependencies.collectBrowserEvidence(payload, execution.deterministic as DeterministicCollectorResult),
+        () => withTimeout(
+          () => sandbox.execute(
+            { type: "network_request", target: payload.url, payload: { stage: "browser" } },
+            () => dependencies.collectBrowserEvidence(payload, execution.deterministic as DeterministicCollectorResult),
+          ),
+          policy.stepTimeoutMs,
+          "Browser collector",
         ),
       );
       tracer.logPhaseEnd("Browser Collector", brwStart);
@@ -710,7 +789,11 @@ async function executeAttempt(
         index,
         "tool_call",
         "Run evidence-grounded synthesis",
-        () => sandbox.executeLlmCall("synthesis", resetEvidenceContext.length, () => dependencies.synthesizeAudit(payload, safeEvidence as AuditEvidenceBundle, config)),
+        () => withTimeout(
+          () => sandbox.executeLlmCall("synthesis", resetEvidenceContext.length, () => dependencies.synthesizeAudit(payload, safeEvidence as AuditEvidenceBundle, config)),
+          policy.stepTimeoutMs,
+          "Audit synthesis",
+        ),
       );
       tracer.logPhaseEnd("Audit Synthesis", synStart);
       
@@ -729,6 +812,13 @@ async function executeAttempt(
     }
   } catch (error) {
     execution.error = error instanceof Error ? error.message : "Unexpected harness attempt error";
+    execution.deterministic ??= createFailedDeterministicResult(payload, execution.error);
+    execution.browser ??= createSkippedBrowserResult(payload, execution.error);
+    execution.evidence ??= {
+      deterministic: execution.deterministic,
+      browser: execution.browser,
+    };
+    execution.synthesis ??= createHarnessFallbackSynthesis(payload, execution.error);
   }
 
 

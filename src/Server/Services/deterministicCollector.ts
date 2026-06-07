@@ -1,9 +1,14 @@
 import type { AuditRequestPayload, DeterministicCollectorResult, DeterministicDocumentEvidence } from "../../shared/types/auditPipelineTypes";
+import { readPositiveIntegerEnv } from "./ioTimeouts";
 import { AUDIT_TARGET_REDIRECT_LIMIT_ERROR, assertSafeAuditTargetUrl } from "./securityPolicies";
 
 const REQUEST_HEADERS = {
   Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
 };
+
+function getDeterministicFetchTimeoutMs(): number {
+  return readPositiveIntegerEnv("DETERMINISTIC_FETCH_TIMEOUT_MS", 10000);
+}
 
 function isRedirectStatus(status: number): boolean {
   return status === 301 || status === 302 || status === 303 || status === 307 || status === 308;
@@ -15,13 +20,22 @@ async function fetchAuditTarget(targetUrl: string): Promise<Response> {
   for (let redirectCount = 0; redirectCount <= 5; redirectCount += 1) {
     const { safeUrl, originalHost } = await assertSafeAuditTargetUrl(currentUrl);
 
-    const response = await fetch(safeUrl, {
-      redirect: "manual",
-      headers: {
-        ...REQUEST_HEADERS,
-        Host: originalHost,
-      },
-    });
+    const timeoutMs = getDeterministicFetchTimeoutMs();
+    let response: Response;
+
+    try {
+      response = await fetch(safeUrl, {
+        redirect: "manual",
+        headers: {
+          ...REQUEST_HEADERS,
+          Host: originalHost,
+        },
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+    } catch (error) {
+      const isTimeout = error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError");
+      throw new Error(isTimeout ? `DETERMINISTIC_FETCH_TIMEOUT:${timeoutMs}ms` : error instanceof Error ? error.message : "deterministic_fetch_failed");
+    }
 
     if (!isRedirectStatus(response.status)) {
       return response;
