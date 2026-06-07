@@ -9,7 +9,7 @@ import { authenticateToken } from "../Middleware/authMiddleware";
 // Initialize Stripe. If STRIPE_SECRET_KEY is missing, it will throw in production
 // but we allow it to be undefined in dev if they haven't set it up yet.
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_mock", {
-  apiVersion: "2024-10-28.acacia", // specify latest api version
+  apiVersion: "2024-10-28.acacia" as any, // specify latest api version, use as any to avoid type errors across SDK versions
 });
 
 export const billingRouter = Router();
@@ -61,7 +61,7 @@ billingRouter.post("/create-checkout-session", authenticateToken, async (req, re
     }
 
     // Mock price for Stripe if none configured in DB
-    const priceAmount = targetPlan.price || 999; 
+    const priceAmount = Number(targetPlan.price) || 999; 
 
     // Create a Stripe Checkout Session
     const origin = req.headers.origin || "http://localhost:3000";
@@ -119,7 +119,9 @@ billingRouter.post("/webhook", async (req, res) => {
       if (process.env.NODE_ENV === "production") {
         throw new Error("Webhook secret not configured in production");
       }
-      event = req.body as Stripe.Event; 
+      // If req.body is a Buffer, we must parse it to access event.type
+      const bodyString = Buffer.isBuffer(req.body) ? req.body.toString("utf8") : req.body;
+      event = typeof bodyString === "string" ? JSON.parse(bodyString) : bodyString; 
     } else {
       event = stripe.webhooks.constructEvent(req.body, sig!, endpointSecret);
     }

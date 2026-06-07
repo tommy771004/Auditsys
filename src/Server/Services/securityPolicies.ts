@@ -138,7 +138,7 @@ export function isPrivateOrReservedIpAddress(address: string): boolean {
   return true;
 }
 
-export async function assertSafeAuditTargetUrl(rawUrl: string, lookupFn: LookupFn = dnsLookup): Promise<void> {
+export async function assertSafeAuditTargetUrl(rawUrl: string, lookupFn: LookupFn = dnsLookup): Promise<{ safeUrl: string; originalHost: string }> {
   let parsedUrl: URL;
 
   try {
@@ -160,7 +160,7 @@ export async function assertSafeAuditTargetUrl(rawUrl: string, lookupFn: LookupF
       throwUnsafeAuditTarget();
     }
 
-    return;
+    return { safeUrl: parsedUrl.toString(), originalHost: parsedUrl.host };
   }
 
   let addresses: LookupAddress[];
@@ -174,4 +174,17 @@ export async function assertSafeAuditTargetUrl(rawUrl: string, lookupFn: LookupF
   if (addresses.length === 0 || addresses.some((entry) => isPrivateOrReservedIpAddress(entry.address))) {
     throwUnsafeAuditTarget();
   }
+
+  // To prevent TOCTOU DNS rebinding, we reconstruct the URL using the resolved IP.
+  const safeIp = addresses[0].address;
+  const family = addresses[0].family;
+  
+  const resolvedUrl = new URL(parsedUrl.toString());
+  if (family === 6) {
+    resolvedUrl.hostname = `[${safeIp}]`;
+  } else {
+    resolvedUrl.hostname = safeIp;
+  }
+
+  return { safeUrl: resolvedUrl.toString(), originalHost: parsedUrl.host };
 }

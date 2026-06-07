@@ -564,7 +564,7 @@ export function useAuditAgent(): UseAgentResult {
           const harnessSubagents: Subagent[] = savedReport.harness.attempts.map((att) => ({
             id: `attempt-${att.index}`,
             role: `Agent Orchestrator (Attempt ${att.index})`,
-            status: att.status === "passed" ? "done" : att.status === "failed" ? "failed" : "pending",
+            status: att.status === "passed" ? "done" : att.status === "failed" ? "done" : "pending",
             executionTimeMs: att.durationMs
           }));
           

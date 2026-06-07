@@ -52,6 +52,7 @@ interface AuditHarnessDependencies {
   collectDeterministicEvidence: (payload: AuditRequestPayload) => Promise<DeterministicCollectorResult>;
   collectBrowserEvidence: (payload: AuditRequestPayload, deterministic: DeterministicCollectorResult) => Promise<BrowserCollectorResult>;
   synthesizeAudit: (payload: AuditRequestPayload, evidence: AuditEvidenceBundle, config?: AuditHarnessConfig) => Promise<AuditSynthesisResult>;
+  fetchLighthouse?: (url: string) => Promise<{ performance: number; accessibility: number; seo: number } | undefined>;
 }
 
 interface AttemptExecution {
@@ -108,6 +109,7 @@ const DEFAULT_DEPENDENCIES: AuditHarnessDependencies = {
   collectDeterministicEvidence,
   collectBrowserEvidence,
   synthesizeAudit,
+  fetchLighthouse,
 };
 
 function nowIso(): string {
@@ -302,165 +304,189 @@ function getTotalWarningCount(evidence: AuditEvidenceBundle): number {
   return evidence.deterministic.warnings.length + evidence.browser.warnings.length;
 }
 
+interface SensorEvaluator {
+  id: string;
+  evaluate: (execution: AttemptExecution, policy: AuditHarnessPolicy, stepsUsed: number) => AuditHarnessSensorResult | AuditHarnessSensorResult[];
+}
+
+const sensorRegistry: SensorEvaluator[] = [
+  {
+    id: "deterministic_collector",
+    evaluate: (execution) => {
+      if (!execution.deterministic) {
+        return createSensor(
+          "deterministic_collector",
+          "Deterministic collector",
+          "failed",
+          "critical",
+          "not_run",
+          "The deterministic collector did not return a result.",
+          "completed"
+        );
+      }
+      return createSensor(
+        "deterministic_collector",
+        "Deterministic collector",
+        execution.deterministic.status === "completed" ? "passed" : "failed",
+        execution.deterministic.status === "completed" ? "low" : "critical",
+        execution.deterministic.status,
+        execution.deterministic.status === "completed"
+          ? "The target document was fetched and parsed into stable evidence."
+          : execution.deterministic.error ?? "The target document could not be fetched.",
+        "completed"
+      );
+    }
+  },
+  {
+    id: "browser_collector",
+    evaluate: (execution) => {
+      if (!execution.browser) {
+        return createSensor(
+          "browser_collector",
+          "Browser collector",
+          "failed",
+          "high",
+          "not_run",
+          "The browser collector did not return a result.",
+          "completed|partial|skipped"
+        );
+      }
+      const browserStatus = execution.browser.status;
+      const status: AuditHarnessCheckStatus = browserStatus === "failed" ? "failed" : browserStatus === "completed" ? "passed" : "warning";
+      return createSensor(
+        "browser_collector",
+        "Browser collector",
+        status,
+        status === "failed" ? "high" : status === "warning" ? "medium" : "low",
+        `${browserStatus}/${execution.browser.mode}`,
+        browserStatus === "completed"
+          ? "Runtime flow evidence completed without blocked collector status."
+          : execution.browser.reason ?? "Runtime evidence is available but not fully complete.",
+        "completed"
+      );
+    }
+  },
+  {
+    id: "runtime_gate",
+    evaluate: (execution) => {
+      const blockedStep = execution.browser?.timeline?.find((step) => step.status === "blocked");
+      const partialStep = execution.browser?.timeline?.find((step) => step.status === "partial" || step.status === "not_run");
+
+      if (blockedStep || partialStep) {
+        const step = blockedStep ?? partialStep;
+        return createSensor(
+          "runtime_gate",
+          "Runtime gate",
+          "warning",
+          blockedStep ? "high" : "medium",
+          `${step?.label ?? "unknown"}:${step?.status ?? "unknown"}`,
+          step?.detail ?? "A browser timeline gate requires follow-up before this run can be treated as full coverage.",
+          "all timeline steps completed"
+        );
+      }
+      return createSensor(
+        "runtime_gate",
+        "Runtime gate",
+        execution.browser?.timeline?.length ? "passed" : "warning",
+        execution.browser?.timeline?.length ? "low" : "medium",
+        execution.browser?.timeline?.length ? "all_clear" : "no_timeline",
+        execution.browser?.timeline?.length
+          ? "No blocked browser timeline step was found."
+          : "No executable browser timeline was attached to this run.",
+        "no blocked steps"
+      );
+    }
+  },
+  {
+    id: "synthesis_summary",
+    evaluate: (execution) => {
+      const summary = execution.synthesis?.summary?.trim() ?? "";
+      return createSensor(
+        "synthesis_summary",
+        "Synthesis summary",
+        summary ? "passed" : "failed",
+        summary ? "low" : "high",
+        summary ? `${summary.length} chars` : "empty",
+        summary
+          ? "The synthesis step returned report-ready content."
+          : execution.synthesis?.reason ?? "The synthesis step did not produce a report summary.",
+        "non-empty summary"
+      );
+    }
+  },
+  {
+    id: "lighthouse",
+    evaluate: (execution) => {
+      if (!execution.lighthouse) return [];
+      const { performance, accessibility, seo } = execution.lighthouse;
+      return [
+        createSensor(
+          "lighthouse_performance",
+          "Lighthouse Performance",
+          performance >= 90 ? "passed" : "warning",
+          performance >= 90 ? "low" : (performance >= 50 ? "medium" : "high"),
+          String(performance),
+          `PageSpeed Performance score is ${performance}.`,
+          ">=90"
+        ),
+        createSensor(
+          "lighthouse_accessibility",
+          "Lighthouse Accessibility",
+          accessibility >= 90 ? "passed" : "warning",
+          accessibility >= 90 ? "low" : (accessibility >= 80 ? "medium" : "high"),
+          String(accessibility),
+          `PageSpeed Accessibility score is ${accessibility}.`,
+          ">=90"
+        ),
+        createSensor(
+          "lighthouse_seo",
+          "Lighthouse SEO",
+          seo >= 90 ? "passed" : "warning",
+          seo >= 90 ? "low" : (seo >= 80 ? "medium" : "high"),
+          String(seo),
+          `PageSpeed SEO score is ${seo}.`,
+          ">=90"
+        )
+      ];
+    }
+  },
+  {
+    id: "warning_budget",
+    evaluate: (execution, policy) => {
+      const totalWarnings = execution.evidence ? getTotalWarningCount(execution.evidence) : 0;
+      return createSensor(
+        "warning_budget",
+        "Evidence warning budget",
+        totalWarnings <= policy.warningBudget ? "passed" : "warning",
+        totalWarnings <= policy.warningBudget ? "low" : "medium",
+        String(totalWarnings),
+        totalWarnings <= policy.warningBudget
+          ? "Evidence warnings are within the configured review budget."
+          : "Evidence warnings exceeded the review budget and should be triaged before handoff.",
+        `<=${policy.warningBudget}`
+      );
+    }
+  },
+  {
+    id: "step_budget",
+    evaluate: (_execution, policy, stepsUsed) => {
+      return createSensor(
+        "step_budget",
+        "Step budget",
+        stepsUsed <= policy.maxSteps ? "passed" : "failed",
+        stepsUsed <= policy.maxSteps ? "low" : "critical",
+        String(stepsUsed),
+        stepsUsed <= policy.maxSteps
+          ? "The run stayed within the maximum deterministic step budget."
+          : "The circuit breaker step budget was exceeded.",
+        `<=${policy.maxSteps}`
+      );
+    }
+  }
+];
+
 function buildSensors(execution: AttemptExecution, policy: AuditHarnessPolicy, stepsUsed: number): AuditHarnessSensorResult[] {
-  const sensors: AuditHarnessSensorResult[] = [];
-
-  if (!execution.deterministic) {
-    sensors.push(createSensor(
-      "deterministic_collector",
-      "Deterministic collector",
-      "failed",
-      "critical",
-      "not_run",
-      "The deterministic collector did not return a result.",
-      "completed",
-    ));
-  } else {
-    sensors.push(createSensor(
-      "deterministic_collector",
-      "Deterministic collector",
-      execution.deterministic.status === "completed" ? "passed" : "failed",
-      execution.deterministic.status === "completed" ? "low" : "critical",
-      execution.deterministic.status,
-      execution.deterministic.status === "completed"
-        ? "The target document was fetched and parsed into stable evidence."
-        : execution.deterministic.error ?? "The target document could not be fetched.",
-      "completed",
-    ));
-  }
-
-  if (!execution.browser) {
-    sensors.push(createSensor(
-      "browser_collector",
-      "Browser collector",
-      "failed",
-      "high",
-      "not_run",
-      "The browser collector did not return a result.",
-      "completed|partial|skipped",
-    ));
-  } else {
-    const browserStatus = execution.browser.status;
-    const status: AuditHarnessCheckStatus = browserStatus === "failed"
-      ? "failed"
-      : browserStatus === "completed"
-        ? "passed"
-        : "warning";
-    sensors.push(createSensor(
-      "browser_collector",
-      "Browser collector",
-      status,
-      status === "failed" ? "high" : status === "warning" ? "medium" : "low",
-      `${browserStatus}/${execution.browser.mode}`,
-      browserStatus === "completed"
-        ? "Runtime flow evidence completed without blocked collector status."
-        : execution.browser.reason ?? "Runtime evidence is available but not fully complete.",
-      "completed",
-    ));
-  }
-
-  const blockedStep = execution.browser?.timeline?.find((step) => step.status === "blocked");
-  const partialStep = execution.browser?.timeline?.find((step) => step.status === "partial" || step.status === "not_run");
-
-  if (blockedStep || partialStep) {
-    const step = blockedStep ?? partialStep;
-    sensors.push(createSensor(
-      "runtime_gate",
-      "Runtime gate",
-      "warning",
-      blockedStep ? "high" : "medium",
-      `${step?.label ?? "unknown"}:${step?.status ?? "unknown"}`,
-      step?.detail ?? "A browser timeline gate requires follow-up before this run can be treated as full coverage.",
-      "all timeline steps completed",
-    ));
-  } else {
-    sensors.push(createSensor(
-      "runtime_gate",
-      "Runtime gate",
-      execution.browser?.timeline?.length ? "passed" : "warning",
-      execution.browser?.timeline?.length ? "low" : "medium",
-      execution.browser?.timeline?.length ? "all_clear" : "no_timeline",
-      execution.browser?.timeline?.length
-        ? "No blocked browser timeline step was found."
-        : "No executable browser timeline was attached to this run.",
-      "no blocked steps",
-    ));
-  }
-
-  const summary = execution.synthesis?.summary?.trim() ?? "";
-  sensors.push(createSensor(
-    "synthesis_summary",
-    "Synthesis summary",
-    summary ? "passed" : "failed",
-    summary ? "low" : "high",
-    summary ? `${summary.length} chars` : "empty",
-    summary
-      ? "The synthesis step returned report-ready content."
-      : execution.synthesis?.reason ?? "The synthesis step did not produce a report summary.",
-    "non-empty summary",
-  ));
-
-  if (execution.lighthouse) {
-    // Lighthouse scores describe the target site's quality — a low score is a
-    // finding to report, not a harness failure. These sensors therefore cap at
-    // "warning" (manual review) and never "failed", so a slow external site
-    // cannot push the run into retries that can't possibly change the score.
-    const { performance, accessibility, seo } = execution.lighthouse;
-    sensors.push(createSensor(
-      "lighthouse_performance",
-      "Lighthouse Performance",
-      performance >= 90 ? "passed" : "warning",
-      performance >= 90 ? "low" : (performance >= 50 ? "medium" : "high"),
-      String(performance),
-      `PageSpeed Performance score is ${performance}.`,
-      ">=90",
-    ));
-    sensors.push(createSensor(
-      "lighthouse_accessibility",
-      "Lighthouse Accessibility",
-      accessibility >= 90 ? "passed" : "warning",
-      accessibility >= 90 ? "low" : (accessibility >= 80 ? "medium" : "high"),
-      String(accessibility),
-      `PageSpeed Accessibility score is ${accessibility}.`,
-      ">=90",
-    ));
-    sensors.push(createSensor(
-      "lighthouse_seo",
-      "Lighthouse SEO",
-      seo >= 90 ? "passed" : "warning",
-      seo >= 90 ? "low" : (seo >= 80 ? "medium" : "high"),
-      String(seo),
-      `PageSpeed SEO score is ${seo}.`,
-      ">=90",
-    ));
-  }
-
-  const totalWarnings = execution.evidence ? getTotalWarningCount(execution.evidence) : 0;
-  sensors.push(createSensor(
-    "warning_budget",
-    "Evidence warning budget",
-    totalWarnings <= policy.warningBudget ? "passed" : "warning",
-    totalWarnings <= policy.warningBudget ? "low" : "medium",
-    String(totalWarnings),
-    totalWarnings <= policy.warningBudget
-      ? "Evidence warnings are within the configured review budget."
-      : "Evidence warnings exceeded the review budget and should be triaged before handoff.",
-    `<=${policy.warningBudget}`,
-  ));
-
-  sensors.push(createSensor(
-    "step_budget",
-    "Step budget",
-    stepsUsed <= policy.maxSteps ? "passed" : "failed",
-    stepsUsed <= policy.maxSteps ? "low" : "critical",
-    String(stepsUsed),
-    stepsUsed <= policy.maxSteps
-      ? "The run stayed within the maximum deterministic step budget."
-      : "The circuit breaker step budget was exceeded.",
-    `<=${policy.maxSteps}`,
-  ));
-
-  return sensors;
+  return sensorRegistry.flatMap((sensor) => sensor.evaluate(execution, policy, stepsUsed));
 }
 
 function buildQualityGate(checks: AuditHarnessSensorResult[]): AuditHarnessQualityGate {
@@ -629,7 +655,7 @@ async function executeAttempt(
         index,
         "tool_call",
         "Run Lighthouse PageSpeed analysis",
-        () => fetchLighthouse(payload.url),
+        dependencies.fetchLighthouse ? () => dependencies.fetchLighthouse!(payload.url) : () => Promise.resolve(undefined),
       );
       tracer.logPhaseEnd("Lighthouse Analysis", analyzingStart);
     }

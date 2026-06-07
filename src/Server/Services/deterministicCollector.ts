@@ -13,11 +13,14 @@ async function fetchAuditTarget(targetUrl: string): Promise<Response> {
   let currentUrl = targetUrl;
 
   for (let redirectCount = 0; redirectCount <= 5; redirectCount += 1) {
-    await assertSafeAuditTargetUrl(currentUrl);
+    const { safeUrl, originalHost } = await assertSafeAuditTargetUrl(currentUrl);
 
-    const response = await fetch(currentUrl, {
+    const response = await fetch(safeUrl, {
       redirect: "manual",
-      headers: REQUEST_HEADERS,
+      headers: {
+        ...REQUEST_HEADERS,
+        Host: originalHost,
+      },
     });
 
     if (!isRedirectStatus(response.status)) {

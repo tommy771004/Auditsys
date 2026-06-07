@@ -68,7 +68,20 @@ async function startServer() {
 
   app.get("/sitemap.xml", (req, res) => {
     try {
-      const baseUrl = process.env.VITE_CLIENT_URL || `https://${req.get("host")}`;
+      // Prevent XML Injection / Reflected XSS via Host header
+      const host = req.get("host") || "localhost";
+      const escapedHost = host.replace(/[<>&'"]/g, (c) => {
+        switch (c) {
+          case '<': return '&lt;';
+          case '>': return '&gt;';
+          case '&': return '&amp;';
+          case '\'': return '&apos;';
+          case '"': return '&quot;';
+          default: return c;
+        }
+      });
+      
+      const baseUrl = process.env.VITE_CLIENT_URL || `https://${escapedHost}`;
       const routes = ["home", "pricing", "report", "intake", "console", "live", "campaign", "presentation"];
       const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

@@ -3,7 +3,7 @@ import { eq, and, desc } from "drizzle-orm";
 import { getDb } from "../../db/index";
 import { users, audits, intakeLeads } from "../../db/schema";
 import { safeJsonParse } from "../Helpers/jsonHelper";
-import { generateAuditIntelligence } from "../Services/auditIntelligence";
+import { auditQueue } from "../Services/queue/auditQueue";
 import { authenticateToken } from "../Middleware/authMiddleware";
 import { requirePlanLimits } from "../Middleware/planMiddleware";
 import { isClientError } from "../Middleware/errorMiddleware";
@@ -44,15 +44,23 @@ async function handleAuditRequest(
     const auditId = insertedAudit[0].id;
 
     try {
-      const result = await generateAuditIntelligence(body, auditConfig);
-      const auditStatus = result.queued ? "pending" : result.harness?.status === "failed" ? "failed" : "completed";
-      await db.update(audits).set({ status: auditStatus, result: JSON.stringify(result) }).where(eq(audits.id, auditId));
-      res.status(result.queued ? 202 : 200).json(result);
+      // Enqueue the job for background processing
+      await auditQueue.add("audit-job", {
+        body,
+        auditConfig,
+        auditId
+      });
+
+      res.status(202).json({
+        queued: true,
+        status: "pending",
+        auditId
+      });
     } catch (innerError: unknown) {
-      const message = innerError instanceof Error ? innerError.message : "pipeline_failed";
+      const message = innerError instanceof Error ? innerError.message : "pipeline_queue_failed";
       await db
         .update(audits)
-        .set({ status: "failed", result: JSON.stringify({ error: { code: "pipeline_failed", message } }) })
+        .set({ status: "failed", result: JSON.stringify({ error: { code: "pipeline_queue_failed", message } }) })
         .where(eq(audits.id, auditId));
       throw innerError;
     }
