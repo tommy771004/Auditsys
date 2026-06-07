@@ -39,6 +39,7 @@ export class ErrorBoundary extends Component<Props, State> {
               {this.state.error?.message || "An unexpected error occurred."}
             </p>
             <SolidButton
+              loadingLabel="Reloading..."
               onClick={() => {
                 this.setState({ hasError: false, error: null });
                 window.location.reload();

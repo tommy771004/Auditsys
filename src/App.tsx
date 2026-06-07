@@ -14,6 +14,7 @@ import MeshBackground from "./components/ui/MeshBackground";
 import MetaTags from "./components/ui/MetaTags";
 import { useHashRoute } from "./hooks/useHashRoute";
 import { useMetaLogger } from "./hooks/useMetaLogger";
+import { useLocalStorage } from "./hooks/useLocalStorage";
 import { ErrorBoundary } from "./components/ui/ErrorBoundary";
 import { ToastProvider } from "./components/ui/Toast";
 import Home from "./pages/Home";
@@ -30,11 +31,11 @@ const RealAuditDashboard = lazy(() => import("./pages/RealAuditDashboard"));
 
 const SkeletonPage = () => (
   <div className="flex min-h-screen w-full flex-col items-center justify-center space-y-6 pt-20 pb-40 px-4">
-    <div className="h-10 w-full max-w-sm animate-pulse rounded-md bg-slate-200" />
-    <div className="h-64 w-full max-w-5xl animate-pulse rounded-lg bg-slate-100" />
+    <div className="h-10 w-full max-w-sm animate-pulse rounded-md bg-black/5 dark:bg-white/5" />
+    <div className="h-64 w-full max-w-5xl animate-pulse rounded-lg bg-black/5 dark:bg-white/5" />
     <div className="flex w-full max-w-5xl gap-6">
-       <div className="h-40 w-1/2 animate-pulse rounded-lg bg-slate-100" />
-       <div className="h-40 w-1/2 animate-pulse rounded-lg bg-slate-100" />
+       <div className="h-40 w-1/2 animate-pulse rounded-lg bg-black/5 dark:bg-white/5" />
+       <div className="h-40 w-1/2 animate-pulse rounded-lg bg-black/5 dark:bg-white/5" />
     </div>
   </div>
 );
@@ -43,6 +44,9 @@ export default function App() {
   const { t } = useTranslation();
   const { navigate, route, section } = useHashRoute();
   const previousRouteRef = useRef<AppRoute | null>(null);
+
+  // Initialize theme, useLocalStorage will handle applying it to the document
+  useLocalStorage('theme', 'light');
 
   useMetaLogger(route);
 

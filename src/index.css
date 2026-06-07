@@ -31,6 +31,19 @@
     --fm: "JetBrains Mono", monospace;
   }
 
+  :root[data-theme="dark"] {
+    --bg: #0f172a;
+    --bg-alt: #1e293b;
+    --surface: #1e293b;
+    --surface-2: #334155;
+    --border: #334155;
+    --border-strong: #475569;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --faint: #64748b;
+    --shadow: 4px 4px 0px 0px rgba(255, 255, 255, 0.2);
+  }
+
   html {
     font-family: var(--fz);
     background-color: var(--bg);

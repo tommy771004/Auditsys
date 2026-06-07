@@ -115,7 +115,7 @@ export interface AuditEvidenceBundle {
 }
 
 export interface AuditSynthesisResult {
-  provider: "openrouter" | "agentrouter" | "fallback";
+  provider: "openrouter" | "agentrouter" | "fallback" | "nvidia";
   queued: boolean;
   summary?: string;
   model?: string;

@@ -53,5 +53,18 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     });
   }, [key, initialValue]);
 
+  // Handle theme specific side effect
+  useEffect(() => {
+    if (key === 'theme' && typeof window !== 'undefined') {
+      if (storedValue === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  }, [key, storedValue]);
+
   return [storedValue, setValue] as const;
 }

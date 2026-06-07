@@ -217,7 +217,7 @@ export async function synthesizeAudit(payload: AuditRequestPayload, evidence: Au
     }
 
     return {
-      provider: provider,
+      provider: provider as "openrouter" | "agentrouter" | "fallback" | "nvidia",
       queued: false,
       summary: response.text ?? "",
       model: response.model,

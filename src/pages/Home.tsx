@@ -12,6 +12,7 @@ import Logos3 from "../components/ui/Logos3";
 import { useAuditForm } from "../hooks/useAuditForm";
 import type { LocalizedContentItem, NavigateTo, TrustPillItem, WorkflowContentItem } from "../types/home";
 import Accordion from "../components/ui/Accordion";
+import SeoChecklistGuide from "../components/ui/SeoChecklistGuide";
 
 interface FeatureCard extends LocalizedContentItem {
   titleKey: string;
@@ -408,7 +409,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
           transition={{ duration: 1 }}
           className="mt-20 mb-32"
         >
-          <p className="text-center text-xs font-bold uppercase tracking-[0.3em] text-black/30 mb-8">Trusted by innovaters</p>
+          <p className="text-center text-xs font-bold uppercase tracking-[0.3em] text-black/30 mb-8">Trusted by innovators</p>
           <Logos3 />
         </motion.section>
 
@@ -635,6 +636,11 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
             </div>
 
           </div>
+        </section>
+
+        {/* SEO CHECKLIST GUIDE SECTION */}
+        <section id="seo-checklist" className="relative space-y-16 py-24 section-divider border-t">
+          <SeoChecklistGuide />
         </section>
 
         {/* BOTTOM TEASERS */}

@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion, useScroll, useMotionValueEvent } from "framer-motion";
-import { Menu, X, Home, Sparkles, Terminal, Tag, type LucideIcon } from "lucide-react";
+import { Menu, X, Home, Sparkles, Terminal, Tag, Sun, Moon, type LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { AppRoute, NavLinkItem, NavigateTo } from "../../types/home";
 import LanguageSwitcher from "../ui/LanguageSwitcher";
 import SolidButton from "../ui/SolidButton";
 import MenuBar, { type GlowMenuItem } from "../ui/GlowMenu";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
 import PageContainer from "./PageContainer";
 
 const navigationItems: NavLinkItem[] = [
@@ -68,6 +69,7 @@ export default function Navbar({ currentRoute, currentSection, onNavigate }: Nav
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [scrolled, setScrolled] = useState(false);
   const { scrollY } = useScroll();
+  const [theme, setTheme] = useLocalStorage('theme', 'light');
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setScrolled(latest > 20);
@@ -205,6 +207,13 @@ export default function Navbar({ currentRoute, currentSection, onNavigate }: Nav
             />
 
             <div className="hidden items-center gap-1.5 lg:flex">
+              <button
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="p-2 rounded-sm border border-transparent hover:border-black hover:bg-black/5 transition-colors focus-visible:outline-none"
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </button>
               <LanguageSwitcher />
               <button
                 onClick={hasToken ? () => handleNavigation(dashboardRoute) : handleAuthAction}
@@ -230,6 +239,13 @@ export default function Navbar({ currentRoute, currentSection, onNavigate }: Nav
             </div>
 
             <div className="flex items-center gap-2 lg:hidden">
+              <button
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="p-2 rounded-sm border border-transparent hover:border-black hover:bg-black/5 transition-colors focus-visible:outline-none"
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </button>
               <LanguageSwitcher />
               <button
                 type="button"
