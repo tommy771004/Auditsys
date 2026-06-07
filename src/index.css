@@ -6,61 +6,58 @@
 
 @layer base {
   :root {
-    --bg: #ffffff;
-    --bg-alt: #f3f4f6;
-    --surface: #ffffff;
-    --surface-2: #f9fafb;
-    --border: #e5e7eb;
-    --border-strong: #000000;
-    --text: #000000;
-    --muted: #4b5563;
-    --faint: #9ca3af;
+    --bg: #030712;
+    --bg-alt: #0f172a;
+    --surface: rgba(255, 255, 255, 0.02);
+    --surface-2: rgba(255, 255, 255, 0.05);
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.15);
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --faint: #475569;
     --amber: #f59e0b;
-    --teal: #14b8a6;
-    --violet: #8b5cf6;
+    --teal: #3ad6c3;
+    --violet: #9d8bff;
     --green: #10b981;
     --red: #ef4444;
     --blue: #3b82f6;
-    --radius: 2px;
-    --radius-sm: 2px;
+    --radius: 16px;
+    --radius-sm: 12px;
     --maxw: 1140px;
-    --shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
-    --grid-line: rgba(0, 0, 0, 0.08);
-    --grad: none;
+    --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+    --grid-line: rgba(255, 255, 255, 0.03);
+    --grad: linear-gradient(to right, #9d8bff, #3ad6c3);
     --fz: "Inter", system-ui, sans-serif;
     --fe: "Inter", "Space Grotesk", sans-serif;
     --fm: "JetBrains Mono", monospace;
   }
 
-  :root[data-theme="dark"] {
-    --bg: #0f172a;
-    --bg-alt: #1e293b;
-    --surface: #1e293b;
-    --surface-2: #334155;
-    --border: #334155;
-    --border-strong: #475569;
-    --text: #f8fafc;
-    --muted: #94a3b8;
-    --faint: #64748b;
-    --shadow: 4px 4px 0px 0px rgba(255, 255, 255, 0.2);
-    --grid-line: rgba(255, 255, 255, 0.08);
+  :root[data-theme="light"] {
+    --bg: #ffffff;
+    --bg-alt: #f8fafc;
+    --surface: rgba(0, 0, 0, 0.02);
+    --surface-2: rgba(0, 0, 0, 0.05);
+    --border: rgba(0, 0, 0, 0.08);
+    --border-strong: rgba(0, 0, 0, 0.15);
+    --text: #0f172a;
+    --muted: #64748b;
+    --faint: #cbd5e1;
+    --shadow: 0 24px 80px rgba(0, 0, 0, 0.05);
+    --grid-line: rgba(0, 0, 0, 0.03);
   }
 
-  /* Light-lock: dashboard/app subtrees that are designed light-only. Re-pins the
-     light token values so the global dark toggle does not half-break them.
-     Nested redefinition wins for descendants over the :root[data-theme="dark"] set. */
   .theme-lock-light {
     --bg: #ffffff;
-    --bg-alt: #f3f4f6;
+    --bg-alt: #f8fafc;
     --surface: #ffffff;
-    --surface-2: #f9fafb;
-    --border: #e5e7eb;
-    --border-strong: #000000;
-    --text: #000000;
-    --muted: #4b5563;
-    --faint: #9ca3af;
-    --shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
-    --grid-line: rgba(0, 0, 0, 0.08);
+    --surface-2: #f8fafc;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --text: #0f172a;
+    --muted: #64748b;
+    --faint: #cbd5e1;
+    --shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    --grid-line: rgba(0, 0, 0, 0.03);
   }
 
   html {
@@ -109,9 +106,8 @@
   input[type="password"]:focus,
   input[type="number"]:focus,
   textarea:focus {
-    box-shadow: var(--shadow);
-    border-color: var(--border-strong);
-    transform: translate(-2px, -2px);
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px rgba(58, 214, 195, 0.6);
+    border-color: rgba(58, 214, 195, 0.5);
   }
 }
 
@@ -129,9 +125,11 @@
   }
 
   .glass-panel {
-    border: 1px solid var(--border-strong);
+    border: 1px solid var(--border);
     box-shadow: var(--shadow);
     background-color: var(--surface);
+    backdrop-filter: blur(40px) saturate(150%);
+    -webkit-backdrop-filter: blur(40px) saturate(150%);
     border-radius: var(--radius-sm);
     color: var(--text);
   }
@@ -141,7 +139,10 @@
   }
 
   .brand-gradient-text {
-    color: var(--text);
+    color: transparent;
+    background-image: var(--grad);
+    background-clip: text;
+    -webkit-background-clip: text;
     font-weight: 800;
   }
 

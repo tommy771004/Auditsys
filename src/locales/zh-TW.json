@@ -1037,6 +1037,32 @@
     "upgrading": "升級中...",
     "activePlan": "使用中方案 - 前往主控台"
   },
+  "auditMode": {
+    "console": {
+      "label": "任務控制台 (Console)",
+      "description": "模擬 Agent 編排流程，最後疊加真實後端審計結果。適合展示代理運作邏輯與測試 Pipeline。",
+      "badge": "模擬 + 真實混合",
+      "feature1": "視覺化代理生成與平行執行",
+      "feature2": "長期記憶寫入同步顯示",
+      "feature3": "最終報告逐字串流"
+    },
+    "live": {
+      "label": "即時引擎 (Live)",
+      "description": "真實 SSE 串流掃描，連接 Chrome UX Report 真實用戶數據與 PageSpeed 實驗室測量。",
+      "badge": "真實串流掃描",
+      "feature1": "Server-Sent Events 即時日誌",
+      "feature2": "CrUX 真實 Core Web Vitals",
+      "feature3": "後端 DOM 缺陷解析"
+    },
+    "presentation": {
+      "label": "稽核簡報 (Presentation)",
+      "description": "AI 生成 5 張投影片，結合 CrUX 實測數據與架構推估，標記「實測 vs 推估」。",
+      "badge": "AI 投影片生成",
+      "feature1": "CrUX 實測數據為核心",
+      "feature2": "實測 vs 推估視覺區隔",
+      "feature3": "高階主管講稿與商業價值"
+    }
+  },
   "liveAudit": {
     "badge": "即時執行引擎",
     "title": "即時 SEO 稽核",

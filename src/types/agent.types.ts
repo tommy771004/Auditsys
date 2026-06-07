@@ -1,4 +1,4 @@
-import type { AuditIntelligenceResult } from "../Server/Services/auditPipelineTypes";
+import type { AuditIntelligenceResult } from "../shared/types/auditPipelineTypes";
 
 export type AgentPhase = "idle" | "analyzing_context" | "spawning_subagents" | "parallel_execution" | "synthesizing_memory" | "streaming_report" | "complete";
 

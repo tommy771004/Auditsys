@@ -1,4 +1,4 @@
-import type { AuditRequestPayload, DeterministicCollectorResult, DeterministicDocumentEvidence } from "./auditPipelineTypes";
+import type { AuditRequestPayload, DeterministicCollectorResult, DeterministicDocumentEvidence } from "../../shared/types/auditPipelineTypes";
 import { AUDIT_TARGET_REDIRECT_LIMIT_ERROR, assertSafeAuditTargetUrl } from "./securityPolicies";
 
 const REQUEST_HEADERS = {

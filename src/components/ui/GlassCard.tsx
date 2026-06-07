@@ -11,12 +11,13 @@ export default function GlassCard({ children, className, glow = "none", ...props
 
   return (
     <motion.div
-      whileHover={isInteractive ? { y: -2, x: -2, boxShadow: "6px 6px 0px 0px rgba(0,0,0,1)" } : undefined}
-      whileTap={isInteractive ? { y: 0, x: 0, boxShadow: "0px 0px 0px 0px rgba(0,0,0,1)" } : undefined}
-      transition={{ duration: 0.2, ease: "easeOut" }}
+      whileHover={isInteractive ? { y: -2, boxShadow: "0px 30px 60px rgba(0,0,0,0.5)" } : undefined}
+      whileTap={isInteractive ? { y: 0, scale: 0.98, boxShadow: "0px 10px 20px rgba(0,0,0,0.4)" } : undefined}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className={[
-        "relative rounded-sm bg-[var(--surface)] text-[var(--text)] border border-[var(--border)] shadow-[4px_4px_0_rgba(0,0,0,1)] transition-all duration-200 ease-out",
-        isInteractive ? "hover:bg-black hover:text-white" : "",
+        "relative rounded-sm bg-white/[0.02] text-[var(--text)] border border-[var(--border)] shadow-[var(--shadow)] backdrop-blur-[40px] backdrop-saturate-[150%] transition-colors duration-200 ease-out",
+        "before:absolute before:inset-0 before:rounded-sm before:border before:border-white/10 before:[mask-image:linear-gradient(to_bottom,white,transparent)] before:pointer-events-none",
+        isInteractive ? "cursor-pointer hover:bg-white/[0.05]" : "",
         className,
       ].filter(Boolean).join(" ")}
       {...props}

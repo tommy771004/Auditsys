@@ -1,13 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { runAuditHarness } from "../src/Server/Services/harnessRunner.ts";
+import { calculateModelCost } from "../src/Server/Services/harness/ObservabilityTelemetry.ts";
 import type {
   AuditEvidenceBundle,
   AuditRequestPayload,
   AuditSynthesisResult,
   BrowserCollectorResult,
   DeterministicCollectorResult,
-} from "../src/Server/Services/auditPipelineTypes.ts";
+} from "../src/shared/types/auditPipelineTypes";
 
 const request: AuditRequestPayload = {
   url: "https://example.com",
@@ -172,4 +173,84 @@ test("runAuditHarness sends incomplete browser evidence to manual review without
   assert.equal(result.harness.handoffRequired, true);
   assert.equal(result.harness.handoffReason, "quality_gate_requires_manual_review");
   assert.equal(result.harness.qualityGate.warningCount > 0, true);
+});
+
+test("runAuditHarness trips circuit breaker when step budget is exceeded on first attempt", async () => {
+  let attemptCount = 0;
+
+  const result = await runAuditHarness(request, undefined, {
+    dependencies: {
+      collectDeterministicEvidence: async () => {
+        attemptCount += 1;
+        return makeDeterministic("completed");
+      },
+      collectBrowserEvidence: async () => makeBrowser("completed"),
+      synthesizeAudit: async (_payload, evidence) => ({
+        ...makeSynthesis(evidence),
+        summary: "", // Empty summary to trigger failed quality gate
+      }),
+    },
+    policy: {
+      maxSteps: 2,
+      maxAttempts: 5,
+      retryCap: 4,
+    },
+  });
+
+  // Circuit breaker trips after first attempt's governance check
+  assert.equal(attemptCount, 1);
+  assert.equal(result.harness.governance.circuitBreakerTripped, true);
+  assert.equal(result.harness.governance.circuitBreakerReason, "max_step_budget_exceeded");
+  assert.ok(result.harness.governance.stepsUsed > 2);
+});
+
+test("runAuditHarness trips circuit breaker when cost budget is exceeded", async () => {
+  const expensiveModel = "gemini-1.5-pro";
+  const singleAttemptCost = calculateModelCost(expensiveModel, 500000, 200000);
+  const budgetUsd = singleAttemptCost * 2.5;
+
+  let attemptCount = 0;
+
+  const result = await runAuditHarness(request, { allowedModels: [expensiveModel] }, {
+    dependencies: {
+      collectDeterministicEvidence: async () => {
+        attemptCount += 1;
+        return makeDeterministic("completed");
+      },
+      collectBrowserEvidence: async () => makeBrowser("completed"),
+      synthesizeAudit: async (_payload, evidence) => ({
+        ...makeSynthesis(evidence),
+        model: expensiveModel,
+        summary: "", // Empty summary to trigger failed quality gate
+      }),
+    },
+    policy: {
+      costBudgetUsd: budgetUsd,
+      maxAttempts: 5,
+      retryCap: 4,
+    },
+  });
+
+  // Should run multiple attempts until cost budget exceeded
+  assert.ok(attemptCount >= 2);
+  assert.equal(result.harness.governance.circuitBreakerTripped, true);
+  assert.ok(result.harness.governance.circuitBreakerReason === "budget_exceeded" || result.harness.governance.circuitBreakerReason === "max_step_budget_exceeded");
+  assert.ok(result.harness.governance.estimatedTokenSpend > 0);
+});
+
+test("runAuditHarness tracks token budget in governance", async () => {
+  const result = await runAuditHarness(request, undefined, {
+    dependencies: {
+      collectDeterministicEvidence: async () => makeDeterministic("completed"),
+      collectBrowserEvidence: async () => makeBrowser("completed"),
+      synthesizeAudit: async (_payload, evidence) => makeSynthesis(evidence),
+    },
+    policy: {
+      tokenBudget: 1000,
+    },
+  });
+
+  assert.ok(result.harness.governance.tokenBudget === 1000);
+  assert.ok(result.harness.governance.estimatedTokenSpend >= 0);
+  assert.ok(typeof result.harness.governance.estimatedTokenSpend === "number");
 });

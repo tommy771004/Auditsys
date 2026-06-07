@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { existsSync, readFileSync } from "node:fs";
 import { EventEmitter } from "node:events";
-import type { AuditRequestPayload, DeterministicCollectorResult } from "./auditPipelineTypes";
+import type { AuditRequestPayload, DeterministicCollectorResult } from "../../shared/types/auditPipelineTypes";
 import { fetchCruxReport } from "./cruxCollector";
 import { collectBrowserEvidence } from "./browserCollector";
 import { LlmPipeline } from "./harness/LlmPipeline";

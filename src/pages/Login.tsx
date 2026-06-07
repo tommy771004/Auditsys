@@ -36,7 +36,7 @@ export default function Login({ onNavigate }: Props) {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || (isRegistering ? "Registration failed" : "Login failed"));
+        throw new Error(((typeof data.error === "object" ? data.error?.message : data.error) || data.message) || (isRegistering ? "Registration failed" : "Login failed"));
       }
 
       if (data.token) {

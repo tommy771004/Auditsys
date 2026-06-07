@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import type { AuditIntelligenceResult, BrowserCollectorTimelineStep } from "../Server/Services/auditPipelineTypes";
+import type { AuditIntelligenceResult, BrowserCollectorTimelineStep } from "../shared/types/auditPipelineTypes";
 import { postAuditRequest } from "../services/auditApi";
 import { saveLatestAuditReport } from "../services/auditReportStore";
 import type { AgentPhase, AgentReportSource, MemoryUpdate, Subagent, ToolCall, ToolCallArgs, ToolCallStatus, UseAgentResult } from "../types/agent.types";
@@ -479,12 +479,7 @@ export function useAuditAgent(): UseAgentResult {
   const [errorKey, setErrorKey] = useState<string | null>(null);
 
   // Dynamic extensions for HITL, Swarm Router, and Flywheel Engine
-  const [enabledAgentIds, setEnabledAgentIds] = useState<string[]>([
-    "frontend-speed",
-    "api-latency",
-    "a11y-scanner",
-    "memory-synth"
-  ]);
+  const [enabledAgentIds, setEnabledAgentIds] = useState<string[]>([]);
   const [customAgentDefs, setCustomAgentDefs] = useState<CustomSubagentDef[]>([]);
   const [hitlInstructions, setHitlInstructions] = useState<string>("");
   const [immunizedRules, setImmunizedRules] = useState<string[]>([]);
@@ -507,43 +502,7 @@ export function useAuditAgent(): UseAgentResult {
     setCustomAgentDefs((prev) => [...prev, newAgent]);
   };
 
-  const intervalIdsRef = useRef<number[]>([]);
-  const memoryBadgeTimeoutRef = useRef<number | null>(null);
   const runTokenRef = useRef<number>(0);
-
-  const clearRuntimeHandles = () => {
-    intervalIdsRef.current.forEach((intervalId) => {
-      window.clearInterval(intervalId);
-    });
-    intervalIdsRef.current = [];
-
-    if (memoryBadgeTimeoutRef.current !== null) {
-      window.clearTimeout(memoryBadgeTimeoutRef.current);
-      memoryBadgeTimeoutRef.current = null;
-    }
-  };
-
-  const showMemoryBadge = (update: MemoryUpdate | null, token: number) => {
-    setActiveMemoryUpdate(update);
-
-    if (memoryBadgeTimeoutRef.current !== null) {
-      window.clearTimeout(memoryBadgeTimeoutRef.current);
-      memoryBadgeTimeoutRef.current = null;
-    }
-
-    if (!update) {
-      return;
-    }
-
-    memoryBadgeTimeoutRef.current = window.setTimeout(() => {
-      if (token !== runTokenRef.current) {
-        return;
-      }
-
-      setActiveMemoryUpdate(null);
-      memoryBadgeTimeoutRef.current = null;
-    }, 2200);
-  };
 
   const resetState = () => {
     setPhase("idle");
@@ -559,235 +518,104 @@ export function useAuditAgent(): UseAgentResult {
     setErrorKey(null);
   };
 
-  const updateToolCallStatus = (toolCallId: string, status: ToolCallStatus, nextLog?: string) => {
-    setToolCalls((currentValue) =>
-      currentValue.map((toolCall) => {
-        if (toolCall.id !== toolCallId) {
-          return toolCall;
-        }
-
-        return {
-          ...toolCall,
-          status,
-          logs: nextLog ? [...toolCall.logs, nextLog] : toolCall.logs,
-        };
-      }),
-    );
-  };
-
-  const updateSubagent = (agentId: string, status: Subagent["status"], executionTimeMs: number) => {
-    setSubagents((currentValue) =>
-      currentValue.map((subagent) => (subagent.id === agentId ? { ...subagent, status, executionTimeMs } : subagent)),
-    );
-  };
-
-  const streamToolLogs = async (plan: MockSubagentDefinition[], activeTargetUrl: string, token: number): Promise<void> => {
-    setSubagents((currentValue) => currentValue.map((subagent) => ({ ...subagent, status: "active" })));
-
-    await Promise.all(
-      plan.map(
-        (item) =>
-          new Promise<void>(async (resolve) => {
-            let logIndex = 0;
-            const startedAt = window.performance.now();
-            const toolCallId = `${item.id}-tool`;
-            
-            while (logIndex < item.logKeys.length) {
-              if (token !== runTokenRef.current) {
-                resolve();
-                return;
-              }
-
-              // Add organic jitter to the interval (±40%)
-              const jitter = (Math.random() * 0.8 + 0.6);
-              const delayMs = Math.round(item.intervalMs * jitter);
-              await delay(delayMs);
-
-              if (token !== runTokenRef.current) {
-                resolve();
-                return;
-              }
-
-              const rawLog = item.logKeys[logIndex];
-              const nextLog = rawLog.includes(".") ? t(rawLog, { url: activeTargetUrl }) : rawLog;
-              const isLastLog = logIndex === item.logKeys.length - 1;
-              const status: ToolCallStatus = isLastLog ? "success" : "running";
-              const executionTimeMs = Math.round(window.performance.now() - startedAt);
-
-              updateToolCallStatus(toolCallId, status, nextLog);
-              updateSubagent(item.id, isLastLog ? "done" : "active", executionTimeMs);
-
-              if (isLastLog) {
-                resolve();
-                return;
-              }
-
-              logIndex++;
-            }
-          }),
-      ),
-    );
-  };
-
-  const applyMemoryUpdate = (update: MemoryUpdate, token: number) => {
-    setMemoryUpdates((currentValue) => [update, ...currentValue]);
-    showMemoryBadge(update, token);
-  };
-
-  const syncLiveMemoryUpdates = (report: AuditIntelligenceResult, token: number) => {
-    const nextUpdates = buildLiveMemoryUpdates(report, t);
-
-    setMemoryUpdates(nextUpdates);
-    showMemoryBadge(nextUpdates[0] ?? null, token);
-  };
-
-  const syncLiveToolCalls = (report: AuditIntelligenceResult) => {
-    setToolCalls((currentValue) => mergeToolCallsWithLiveLogs(currentValue, report, t));
-  };
-
-  const streamReport = async (content: string, token: number): Promise<void> => {
-    setStreamedReport(content);
-    return Promise.resolve();
-  };
-
   const startAudit = async (url: string, intakeData?: any, isHitlOverride?: boolean) => {
     const normalizedUrl = url.trim();
     const token = runTokenRef.current + 1;
-    let resolvedAuditResult: AuditIntelligenceResult | null = null;
 
     runTokenRef.current = token;
-    clearRuntimeHandles();
     resetState();
     setTargetUrl(normalizedUrl);
     setIsRunning(true);
+    setPhase("analyzing_context");
 
-    const liveAuditPromise = (async (): Promise<AuditIntelligenceResult | null> => {
-      try {
-        const lang = i18n.resolvedLanguage || i18n.language;
-        // Build the correct payload depending on mode
-        const auditPayload = intakeData
-          ? { ...intakeData, url: normalizedUrl, language: lang }  // Ensure url is always the normalized URL
-          : { url: normalizedUrl, language: lang };
+    try {
+      const lang = i18n.resolvedLanguage || i18n.language;
+      const auditPayload = intakeData
+        ? { ...intakeData, url: normalizedUrl, language: lang }
+        : { url: normalizedUrl, language: lang };
 
-        const responseData = await postAuditRequest({
-          endpoint: intakeData ? import.meta.env.VITE_INTAKE_ENDPOINT : import.meta.env.VITE_AUDIT_ENDPOINT,
-          defaultEndpoint: intakeData ? "/api/intake" : "/api/audit",
-          payload: auditPayload,
-          // fallbackPayload must NOT contain arrays or complex objects that fail isAuditIntelligenceResult validation.
-          // It is only used when the server is completely unreachable (no DB, no API).
-          fallbackPayload: {
-            queued: true,
-            provider: "fallback",
-            url: normalizedUrl,
-          },
-        });
-
-        if (token !== runTokenRef.current) {
-          return null;
-        }
-
-        const savedReport = saveLatestAuditReport(responseData);
-
-        if (savedReport) {
-          resolvedAuditResult = savedReport;
-          setLatestAuditResult(savedReport);
-          setReportSource("live");
-          return savedReport;
-        }
-      } catch (error: any) {
-        if (error && error.message === "unauthorized") {
-          setErrorKey("validation.unauthorized");
-          setIsRunning(false);
-          clearRuntimeHandles();
-          setPhase("idle");
-          runTokenRef.current += 1;
-          return null;
-        }
-        // fall through to mock synthesis mode
+      if (isHitlOverride && hitlInstructions) {
+        auditPayload.notes = auditPayload.notes ? auditPayload.notes + `\nHITL Instruction: ${hitlInstructions}` : `HITL Instruction: ${hitlInstructions}`;
       }
 
-      if (token === runTokenRef.current) {
-        setReportSource("mock");
-      }
+      const responseData = await postAuditRequest({
+        endpoint: intakeData ? import.meta.env.VITE_INTAKE_ENDPOINT : import.meta.env.VITE_AUDIT_ENDPOINT,
+        defaultEndpoint: intakeData ? "/api/intake" : "/api/audit",
+        payload: auditPayload,
+        fallbackPayload: {
+          queued: true,
+          provider: "fallback",
+          url: normalizedUrl,
+        },
+      });
 
-      return null;
-    })();
-
-    let pendingPlan: any[] = [];
-
-    for await (const event of createAgentWorkflow(
-      normalizedUrl,
-      t,
-      enabledAgentIds,
-      customAgentDefs,
-      isHitlOverride ? hitlInstructions : undefined
-    )) {
       if (token !== runTokenRef.current) {
         return;
       }
 
-      if (event.type === "phase") {
-        setPhase(event.phase);
+      const savedReport = saveLatestAuditReport(responseData);
 
-        if (event.phase === "parallel_execution" && pendingPlan.length > 0) {
-          await streamToolLogs(pendingPlan, normalizedUrl, token);
+      if (savedReport) {
+        setLatestAuditResult(savedReport);
+        setReportSource("live");
+        
+        // Map Harness data into Agent display models
+        if (savedReport.harness) {
+          const harnessSubagents: Subagent[] = savedReport.harness.attempts.map((att) => ({
+            id: `attempt-${att.index}`,
+            role: `Agent Orchestrator (Attempt ${att.index})`,
+            status: att.status === "passed" ? "done" : att.status === "failed" ? "failed" : "pending",
+            executionTimeMs: att.durationMs
+          }));
+          
+          const harnessToolCalls: ToolCall[] = savedReport.harness.attempts.flatMap((att) => 
+            att.trace.map(tEvent => ({
+              id: tEvent.id,
+              agentId: `attempt-${att.index}`,
+              name: tEvent.stage,
+              args: {},
+              status: tEvent.status === "passed" ? "success" : tEvent.status === "failed" ? "failed" : tEvent.status === "running" ? "running" : "success",
+              logs: [tEvent.message]
+            }))
+          );
+          
+          const harnessMemoryUpdates: MemoryUpdate[] = savedReport.harness.qualityGate.checks.map(chk => ({
+            key: chk.label,
+            fact: `${chk.status.toUpperCase()}: ${chk.details}`,
+            type: "architecture"
+          }));
 
-          if (resolvedAuditResult) {
-            syncLiveToolCalls(resolvedAuditResult);
-          }
+          setSubagents(harnessSubagents);
+          setToolCalls(harnessToolCalls);
+          setMemoryUpdates(harnessMemoryUpdates);
         }
 
-        continue;
+        setStreamedReport(savedReport.summary?.trim() || "{}");
+        setPhase("complete");
       }
-
-      if (event.type === "spawn") {
-        pendingPlan = event.plan;
-        setSubagents(event.subagents);
-        setToolCalls(event.toolCalls);
-        continue;
+    } catch (error: any) {
+      if (token !== runTokenRef.current) return;
+      if (error && error.message === "unauthorized") {
+        setErrorKey("validation.unauthorized");
+      } else {
+        setErrorKey("validation.serverError");
       }
-
-      if (event.type === "memory") {
-        if (resolvedAuditResult) {
-          syncLiveMemoryUpdates(resolvedAuditResult, token);
-        } else {
-          applyMemoryUpdate(event.update, token);
-        }
-
-        continue;
+      setPhase("idle");
+    } finally {
+      if (token === runTokenRef.current) {
+        setIsRunning(false);
       }
-
-      if (event.type === "report") {
-        const liveAuditResult = resolvedAuditResult ?? (await liveAuditPromise);
-
-        if (token !== runTokenRef.current) {
-          return;
-        }
-
-        if (liveAuditResult) {
-          syncLiveToolCalls(liveAuditResult);
-          syncLiveMemoryUpdates(liveAuditResult, token);
-        }
-
-        await streamReport(liveAuditResult ? buildLiveReportContent(liveAuditResult, t) : event.content, token);
-      }
-    }
-
-    if (token === runTokenRef.current) {
-      setIsRunning(false);
     }
   };
 
   const reset = () => {
     runTokenRef.current += 1;
-    clearRuntimeHandles();
     resetState();
   };
 
   useEffect(() => {
     return () => {
       runTokenRef.current += 1;
-      clearRuntimeHandles();
     };
   }, []);
 

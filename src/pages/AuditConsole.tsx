@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Bot, BrainCircuit, Cpu, Database, RefreshCcw, Sparkles, Terminal, Search, Workflow, History, X, ShieldAlert, Shield, ShieldCheck, Target, Zap, LayoutDashboard, Flag, AlertTriangle, Activity, Gauge, Network, UserCheck, Save, GitFork } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { BrowserCollectorTimelineStep } from "../Server/Services/auditPipelineTypes";
+import type { BrowserCollectorTimelineStep } from "../shared/types/auditPipelineTypes";
 import PageContainer from "../components/layout/PageContainer";
 import ConsoleTabs from "../components/ui/ConsoleTabs";
 import GlassContainer from "../components/ui/GlassContainer";
@@ -120,6 +120,12 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
 
   useEffect(() => {
     fetchHistory();
+    if (window.location.hash.includes("upgrade=success")) {
+      // Clear hash to prevent reloading toast
+      window.history.replaceState(null, "", "/#/console");
+      setShowRetryToast(true); // Reusing this toast briefly or we can set a specific upgrade toast
+      setTimeout(() => setShowRetryToast(false), 5000);
+    }
   }, []);
 
   useEffect(() => {
@@ -1522,7 +1528,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                     reportText={
                       selectedHistoryAudit.result?.summary ||
                       selectedHistoryAudit.result?.reason ||
-                      (selectedHistoryAudit.status === 'failed' ? `${t("admin.reports.auditFailed")}${selectedHistoryAudit.result?.error || t("history.unknownError")}` : null)
+                      (selectedHistoryAudit.status === 'failed' ? `${t("admin.reports.auditFailed")}${(typeof selectedHistoryAudit.result?.error === 'object' ? selectedHistoryAudit.result.error.message : selectedHistoryAudit.result?.error) || t("history.unknownError")}` : null)
                     } 
                   />
 

@@ -11,7 +11,7 @@ const defaultVariants: Variants = {
   visible: { 
     opacity: 1, 
     y: 0, 
-    transition: { type: "spring", stiffness: 350, damping: 30 } 
+    transition: { type: "spring", stiffness: 400, damping: 25 } 
   }
 };
 
@@ -34,10 +34,11 @@ export default function GlassContainer({ children, className, accent, variants, 
       onMouseLeave={() => setOpacity(0)}
       layout
       variants={variants || defaultVariants}
-      whileHover={{ y: -4, boxShadow: "8px 8px 0px 0px rgba(0,0,0,1)" }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
+      whileHover={{ y: -2, boxShadow: "0px 30px 60px rgba(0,0,0,0.5)" }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className={[
-        "relative overflow-hidden rounded-sm border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-8 text-[var(--text)]",
+        "relative overflow-hidden rounded-sm border border-[var(--border)] bg-white/[0.02] p-5 sm:p-8 text-[var(--text)] backdrop-blur-[40px] backdrop-saturate-[150%] shadow-[var(--shadow)]",
+        "before:absolute before:inset-0 before:rounded-sm before:border before:border-white/10 before:[mask-image:linear-gradient(to_bottom,white,transparent)] before:pointer-events-none",
         className,
       ].filter(Boolean).join(" ")}
       {...props}

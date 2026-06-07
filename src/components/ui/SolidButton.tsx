@@ -21,22 +21,22 @@ export default function SolidButton({
 }: SolidButtonProps) {
   const variantClassName =
     variant === "secondary"
-      ? "border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:bg-black hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none translate-y-0 hover:translate-y-[2px] hover:translate-x-[2px]"
+      ? "border border-white/10 bg-white/5 text-[var(--text)] hover:bg-white/10 shadow-lg hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]"
       : variant === "tertiary"
       ? "bg-transparent text-[var(--text)] border-b border-[var(--border)] rounded-none px-0 min-h-0 hover:border-b-2"
       : variant === "ghost"
-      ? "bg-transparent text-[var(--text)] border border-transparent hover:border-[var(--border)] hover:bg-black hover:text-white rounded-sm drop-shadow-none"
-      : "border border-[var(--border)] bg-black text-white hover:bg-[var(--surface)] hover:text-[var(--text)] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none translate-y-0 hover:translate-y-[2px] hover:translate-x-[2px]";
+      ? "bg-transparent text-[var(--text)] border border-transparent hover:border-white/10 hover:bg-white/5 rounded-sm"
+      : "border border-brand-cyan/30 bg-brand-cyan/10 text-brand-cyan hover:bg-brand-cyan/20 shadow-[0_0_15px_rgba(58,214,195,0.15)] hover:shadow-[0_0_25px_rgba(58,214,195,0.3)]";
 
   return (
     <motion.button
       type={type ?? "button"}
-      whileTap={{ scale: variant === "tertiary" ? 1 : 0.98 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
+      whileTap={{ scale: variant === "tertiary" ? 1 : 0.95 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className={[
-        "relative inline-flex items-center justify-center gap-2 px-6 py-3 font-medium transition-all duration-200 outline-none ease-out",
+        "relative inline-flex items-center justify-center gap-2 px-6 py-3 font-medium transition-all duration-200 outline-none ease-out backdrop-blur-md",
         variant !== "tertiary" ? "rounded-sm min-h-[48px]" : "py-1 pb-1",
-        "focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2",
+        "focus-visible:ring-2 focus-visible:ring-brand-cyan/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)]",
         variantClassName,
         isLoading || disabled ? "cursor-not-allowed opacity-70" : "",
         className,

@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
-import type { AuditRequestPayload, BrowserCollectedPage, BrowserCollectorFlow, BrowserCollectorResult, BrowserCollectorTimelineStep, DeterministicCollectorResult } from "./auditPipelineTypes";
+import type { AuditRequestPayload, BrowserCollectedPage, BrowserCollectorFlow, BrowserCollectorResult, BrowserCollectorTimelineStep, DeterministicCollectorResult } from "../../shared/types/auditPipelineTypes";
 import { parseWebwrightReportArtifact, parseWebwrightTaskArtifact, parseWebwrightTrajectoryArtifact, type WebwrightReportArtifact, type WebwrightTaskArtifact, type WebwrightTrajectoryArtifact } from "./webwrightContract";
 
 interface JsonArtifactResult {

@@ -1,4 +1,4 @@
-import type { AuditEvidenceBundle, AuditRequestPayload, AuditSynthesisResult, BrowserCollectorTimelineStep, DeterministicCollectorResult } from "./auditPipelineTypes";
+import type { AuditEvidenceBundle, AuditRequestPayload, AuditSynthesisResult, BrowserCollectorTimelineStep, DeterministicCollectorResult } from "../../shared/types/auditPipelineTypes";
 import { fetchOpenRouterWithFallback, fetchAgentRouter, fetchNvidia } from "./openrouterHelper";
 
 function buildEvidenceLines(payload: AuditRequestPayload, deterministic: DeterministicCollectorResult): string[] {
@@ -40,7 +40,9 @@ function buildAuditPrompt(payload: AuditRequestPayload, evidence: AuditEvidenceB
 
   const languageInstruction = payload.language === "zh-TW" 
     ? "You MUST write the ENTIRE report in Traditional Chinese (繁體中文), specifically using Taiwanese terminology (台灣用語, e.g. 效能 instead of 性能, 解析度 instead of 分辨率, 記憶體 instead of 內存)." 
-    : "You MUST write the ENTIRE report in English.";
+    : payload.language
+      ? `You MUST write the ENTIRE report in ${payload.language} language.`
+      : "You MUST write the ENTIRE report in English.";
 
   return [
     "You are a senior web performance and architecture auditor for productized consulting engagements.",

@@ -1,5 +1,5 @@
 import type { TFunction } from "i18next";
-import type { AuditIntelligenceResult, BrowserCollectorFlow, BrowserCollectorTimelineStep } from "../Server/Services/auditPipelineTypes";
+import type { AuditIntelligenceResult, BrowserCollectorFlow, BrowserCollectorTimelineStep } from "../shared/types/auditPipelineTypes";
 
 export type ReportSectionId = "overview" | "performance" | "seo" | "architecture" | "actions";
 

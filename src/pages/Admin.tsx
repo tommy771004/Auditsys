@@ -66,7 +66,7 @@ export default function Admin({ onNavigate }: Props) {
         return;
       }
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(((typeof data.error === "object" ? data.error?.message : data.error) || data.message) || "Request failed");
       
       if (activeTab === "overview") setStats(data);
       else if (activeTab === "users") setUsers(data);
@@ -111,7 +111,8 @@ export default function Admin({ onNavigate }: Props) {
             }).then(async (res) => {
               if (!res.ok) {
                 const errData = await res.json();
-                throw new Error(errData.error || `Failed to delete audit with ID: ${id}`);
+                const errMsg = typeof errData.error === 'object' ? errData.error?.message : errData.error;
+                throw new Error(errMsg || `Failed to delete audit with ID: ${id}`);
               }
             })
           );
@@ -201,7 +202,8 @@ export default function Admin({ onNavigate }: Props) {
           });
           if (!res.ok) {
             const errorData = await res.json();
-            throw new Error(errorData.error || "Failed to delete");
+            const errMsg = typeof errorData.error === 'object' ? errorData.error?.message : errorData.error;
+            throw new Error(errMsg || "Failed to delete");
           }
           fetchData();
         } catch (err: any) {
@@ -475,7 +477,7 @@ export default function Admin({ onNavigate }: Props) {
                               if (reportText) {
                                 setSelectedReportContext(reportText);
                               } else if (item.status === 'failed') {
-                                setSelectedReportContext(t("admin.reports.auditFailed") + (item.result?.error || t("history.unknownError")));
+                                setSelectedReportContext(t("admin.reports.auditFailed") + ((typeof item.result?.error === 'object' ? item.result.error.message : item.result?.error) || t("history.unknownError")));
                               } else {
                                 setSelectedReportContext(t("admin.reports.noReport"));
                               }

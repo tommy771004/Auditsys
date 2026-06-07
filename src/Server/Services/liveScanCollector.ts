@@ -1,7 +1,7 @@
 import { AUDIT_TARGET_REDIRECT_LIMIT_ERROR, assertSafeAuditTargetUrl } from "./securityPolicies";
 import { collectDeterministicEvidence } from "./deterministicCollector";
 import { collectBrowserEvidence } from "./browserCollector";
-import type { BrowserCollectorResult, DeterministicCollectorResult } from "./auditPipelineTypes";
+import type { BrowserCollectorResult, DeterministicCollectorResult } from "../../shared/types/auditPipelineTypes";
 import type { LiveScanRoute, LiveScanScores, LiveScanSummary } from "../../types/liveAudit.types";
 
 /** Mirrors the client-side `SSELog` log levels. */

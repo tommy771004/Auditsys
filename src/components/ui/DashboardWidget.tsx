@@ -26,7 +26,7 @@ import {
   RefreshCcw, 
   Cpu
 } from "lucide-react";
-import type { AuditHarnessRun } from "../../Server/Services/auditPipelineTypes";
+import type { AuditHarnessRun } from "../../shared/types/auditPipelineTypes";
 import GlassCard from "./GlassCard";
 
 const containerVariants = {
@@ -315,7 +315,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
         <motion.div 
           variants={cardVariants}
           whileHover={{ scale: 1.03, y: -2, transition: { duration: 0.2 } }}
-          className="bg-black/5 border border-[var(--border)] p-4 rounded-sm hover:bg-black/5 transition-colors cursor-default"
+          className="bg-white/[0.03] border border-white/10 p-4 rounded-sm hover:bg-white/[0.06] transition-colors cursor-default backdrop-blur-md"
         >
           <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-brand-faint tracking-wider">
             <Coins className="h-3.5 w-3.5 text-yellow-500" />
@@ -329,7 +329,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
         <motion.div 
           variants={cardVariants}
           whileHover={{ scale: 1.03, y: -2, transition: { duration: 0.2 } }}
-          className="bg-black/5 border border-[var(--border)] p-4 rounded-sm hover:bg-black/5 transition-colors cursor-default"
+          className="bg-white/[0.03] border border-white/10 p-4 rounded-sm hover:bg-white/[0.06] transition-colors cursor-default backdrop-blur-md"
         >
           <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-brand-faint tracking-wider">
             <Clock className="h-3.5 w-3.5 text-cyan-400" />
@@ -343,7 +343,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
         <motion.div 
           variants={cardVariants}
           whileHover={{ scale: 1.03, y: -2, transition: { duration: 0.2 } }}
-          className="bg-black/5 border border-[var(--border)] p-4 rounded-sm hover:bg-black/5 transition-colors cursor-default"
+          className="bg-white/[0.03] border border-white/10 p-4 rounded-sm hover:bg-white/[0.06] transition-colors cursor-default backdrop-blur-md"
         >
           <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-brand-faint tracking-wider">
             <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
@@ -357,7 +357,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
         <motion.div 
           variants={cardVariants}
           whileHover={{ scale: 1.03, y: -2, transition: { duration: 0.2 } }}
-          className="bg-black/5 border border-[var(--border)] p-4 rounded-sm hover:bg-black/5 transition-colors cursor-default"
+          className="bg-white/[0.03] border border-white/10 p-4 rounded-sm hover:bg-white/[0.06] transition-colors cursor-default backdrop-blur-md"
         >
           <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-brand-faint tracking-wider">
             <RefreshCcw className="h-3.5 w-3.5 text-purple-400" />
@@ -545,7 +545,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
                 </div>
 
                 {/* Performance Insight badge */}
-                <div className="bg-black/5 border border-[var(--border)] p-3 rounded-sm flex flex-col justify-center">
+                <div className="bg-white/[0.03] border border-[var(--border)] p-3 rounded-sm flex flex-col justify-center backdrop-blur-md">
                   <span className="text-[9px] uppercase font-bold text-brand-faint tracking-wider">
                     {isZh ? "比較洞察分析" : "Performance Delta"}
                   </span>

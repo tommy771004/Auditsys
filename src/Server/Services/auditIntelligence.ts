@@ -1,5 +1,5 @@
-import type { AuditIntelligenceResult } from "./auditPipelineTypes";
-import { normalizeAuditRequestPayload } from "./auditPipelineTypes";
+import type { AuditIntelligenceResult } from "../../shared/types/auditPipelineTypes";
+import { normalizeAuditRequestPayload } from "../../shared/types/auditPipelineTypes";
 import { runAuditHarness } from "./harnessRunner";
 import { assertSafeAuditTargetUrl } from "./securityPolicies";
 

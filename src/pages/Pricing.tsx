@@ -50,12 +50,17 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/plans")
+    fetch("/api/billing/plans")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setPlansData(data);
       })
       .catch((err) => console.error("Failed to fetch plan settings:", err));
+
+    if (window.location.hash.includes("upgrade=cancelled")) {
+      setStatusMessage("Checkout was cancelled.");
+      window.history.replaceState(null, "", "/#/pricing");
+    }
   }, []);
 
   const handleUpgrade = async (planMap: string) => {
@@ -69,38 +74,31 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
     setStatusMessage(null);
 
     try {
-      const response = await fetch("/api/subscription/upgrade", {
+      const response = await fetch("/api/billing/create-checkout-session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ plan: planMap })
+        body: JSON.stringify({ plan: planMap, email: user?.username })
       });
 
+      const result = await response.json();
       if (!response.ok) {
         if (response.status === 403) {
           throw new Error("Plan upgrades now require admin approval.");
         }
-
-        throw new Error("Failed to upgrade plan");
+        throw new Error(result.message || "Failed to initialize checkout");
       }
 
-      const result = await response.json();
-      if (result.success && result.token) {
-        localStorage.setItem("auth_token", result.token);
-        await refreshUser();
-        setStatusMessage(`Successfully subscribed to ${planMap.toUpperCase()}!`);
-        setTimeout(() => {
-          onNavigate("console");
-        }, 1500);
+      if (result.url) {
+        window.location.href = result.url;
       } else {
-        throw new Error("Invalid response");
+        throw new Error("Invalid checkout session returned");
       }
     } catch (err: any) {
       console.error(err);
       setStatusMessage(err.message || "Upgrade failed. Please try again.");
-    } finally {
       setUpgradingPlan(null);
     }
   };

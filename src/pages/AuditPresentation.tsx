@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLatestAuditReport } from "../hooks/useLatestAuditReport";
+import { useTranslation } from "react-i18next";
 import {
   Monitor,
   Activity,
@@ -50,6 +51,7 @@ interface AuditPresentationProps {
 }
 
 export default function AuditPresentation({ onNavigate }: AuditPresentationProps) {
+  const { i18n } = useTranslation();
   const latestReport = useLatestAuditReport();
   const [url, setUrl] = useState<string>("");
   const [techStack, setTechStack] = useState<string>("");
@@ -86,20 +88,21 @@ export default function AuditPresentation({ onNavigate }: AuditPresentationProps
 
     try {
       const token = localStorage.getItem("auth_token");
-      const requestBody = {
+      const intakeData = {
         url,
         techStack,
         knownIssues,
         auditSummary: latestReport?.summary || undefined
       };
 
+      const lang = i18n.resolvedLanguage || i18n.language;
       const response = await fetch("/api/audit/presentation", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify({ ...intakeData, language: lang })
       });
 
       if (!response.ok) {

@@ -82,10 +82,26 @@ function isPrivateOrReservedIpv4(address: string): boolean {
     || first >= 224;
 }
 
+/**
+ * Extracts the embedded IPv4 address from an IPv4-mapped IPv6 address
+ * (e.g. "::ffff:192.168.1.1" → "192.168.1.1"). Returns null if the address
+ * is not in IPv4-mapped form.
+ */
+function extractIpv4MappedAddress(address: string): string | null {
+  const prefix = "::ffff:";
+  if (!address.startsWith(prefix)) {
+    return null;
+  }
+  const candidate = address.slice(prefix.length);
+  // Must look like a dotted-decimal IPv4 address (not a hex segment).
+  return /^\d{1,3}(\.\d{1,3}){3}$/.test(candidate) ? candidate : null;
+}
+
 function isPrivateOrReservedIpv6(address: string): boolean {
   const normalizedValue = address.toLowerCase();
 
-  return normalizedValue === "::"
+  if (
+    normalizedValue === "::"
     || normalizedValue === "::1"
     || normalizedValue.startsWith("fc")
     || normalizedValue.startsWith("fd")
@@ -93,11 +109,19 @@ function isPrivateOrReservedIpv6(address: string): boolean {
     || normalizedValue.startsWith("fe9")
     || normalizedValue.startsWith("fea")
     || normalizedValue.startsWith("feb")
-    || normalizedValue.startsWith("::ffff:127.")
-    || normalizedValue.startsWith("::ffff:10.")
-    || normalizedValue.startsWith("::ffff:169.254.")
-    || normalizedValue.startsWith("::ffff:172.")
-    || normalizedValue.startsWith("::ffff:192.168.");
+  ) {
+    return true;
+  }
+
+  // For IPv4-mapped addresses (::ffff:a.b.c.d), extract the embedded IPv4
+  // and run the precise IPv4 private-range check rather than a string-prefix
+  // match, which would incorrectly block public addresses like 172.1.x.x.
+  const ipv4 = extractIpv4MappedAddress(normalizedValue);
+  if (ipv4 !== null) {
+    return isPrivateOrReservedIpv4(ipv4);
+  }
+
+  return false;
 }
 
 export function isPrivateOrReservedIpAddress(address: string): boolean {

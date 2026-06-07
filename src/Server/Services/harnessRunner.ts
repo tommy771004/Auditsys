@@ -26,7 +26,7 @@ import type {
   AuditSynthesisResult,
   BrowserCollectorResult,
   DeterministicCollectorResult,
-} from "./auditPipelineTypes";
+} from "../../shared/types/auditPipelineTypes";
 
 export interface AuditHarnessConfig {
   aiProvider?: string;
@@ -557,9 +557,13 @@ async function executeAttempt(
   
   const telemetryMiddleware: MiddlewareHandler = async (id, action, next) => {
     const start = performance.now();
-    console.log(`[Middleware] -> Executing ${action.type} against ${action.target}`);
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`[Middleware] -> Executing ${action.type} against ${action.target}`);
+    }
     const result = await next(action);
-    console.log(`[Middleware] <- ${action.type} completed in ${(performance.now() - start).toFixed(2)}ms`);
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`[Middleware] <- ${action.type} completed in ${(performance.now() - start).toFixed(2)}ms`);
+    }
     return result;
   };
 
@@ -568,7 +572,7 @@ async function executeAttempt(
     if (action.type === 'file_write' || action.payload?.method === 'DELETE') {
       throw new Error(`[Security Validation] Blocked forbidden action: ${action.type}`);
     }
-    await id; // Use value to prevent ts checks
+    void id; // intentionally unused — parameter required by MiddlewareHandler signature
     return await next(action);
   };
   

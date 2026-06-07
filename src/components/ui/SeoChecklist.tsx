@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { CheckCircle2, XCircle, ChevronDown, ImageOff, Type, FileSearch, MonitorSmartphone } from "lucide-react";
-import type { DeterministicDocumentEvidence } from "../../Server/Services/auditPipelineTypes";
+import type { DeterministicDocumentEvidence } from "../../shared/types/auditPipelineTypes";
 import GlassCard from "./GlassCard";
 
 interface SeoChecklistProps {

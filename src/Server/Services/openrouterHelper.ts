@@ -87,7 +87,14 @@ export async function fetchNvidia(apiKey: string, prompt: string, model: string)
   }
 }
 
+let consecutive5xxFailures = 0;
+let circuitBreakerOpenUntil = 0;
+
 export async function fetchOpenRouterWithFallback(apiKey: string, prompt: string, customModels?: string[]): Promise<OpenRouterFallbackResult> {
+  if (Date.now() < circuitBreakerOpenUntil) {
+    throw new Error(`Circuit breaker is open. Please try again after ${Math.ceil((circuitBreakerOpenUntil - Date.now()) / 1000)}s.`);
+  }
+
   let lastError: Error | null = null;
   let rateLimitedCount = 0;
   let notFoundCount = 0;
@@ -95,6 +102,9 @@ export async function fetchOpenRouterWithFallback(apiKey: string, prompt: string
   const modelsToTry = customModels && customModels.length > 0 ? customModels : FALLBACK_MODELS;
 
   for (const model of modelsToTry) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
     try {
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
@@ -108,8 +118,10 @@ export async function fetchOpenRouterWithFallback(apiKey: string, prompt: string
           model,
           messages: [{ role: 'user', content: prompt }],
           max_tokens: 4000
-        })
+        }),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
 
       // Auth failure — no point retrying any model.
       if (response.status === 401 || response.status === 403) {
@@ -134,6 +146,14 @@ export async function fetchOpenRouterWithFallback(apiKey: string, prompt: string
 
       if (!response.ok) {
         const errText = await response.text().catch(() => '');
+        
+        if (response.status >= 500) {
+          consecutive5xxFailures++;
+          if (consecutive5xxFailures >= 3) {
+            circuitBreakerOpenUntil = Date.now() + 30000;
+            throw new Error(`Circuit breaker tripped after 3 consecutive 5xx errors from OpenRouter. Delaying requests for 30s.`);
+          }
+        }
         throw new Error(`OpenRouter API Error (${model}): ${response.status} ${errText}`);
       }
 
@@ -141,6 +161,7 @@ export async function fetchOpenRouterWithFallback(apiKey: string, prompt: string
       const text = data.choices?.[0]?.message?.content;
 
       if (text) {
+        consecutive5xxFailures = 0; // reset on success
         console.log(`Successfully generated content using model: ${model}`);
         return {
           model,
@@ -150,9 +171,20 @@ export async function fetchOpenRouterWithFallback(apiKey: string, prompt: string
         throw new Error(`Model ${model} returned empty content`);
       }
     } catch (err: any) {
-      if (err.message?.includes('Stopping retries')) throw err;
-      console.warn(`Failed with model ${model}, trying next...`, err.message);
-      lastError = err;
+      clearTimeout(timeoutId);
+      if (err.name === "AbortError") {
+        console.warn(`Fetch to model ${model} timed out after 30s`);
+        consecutive5xxFailures++;
+        if (consecutive5xxFailures >= 3) {
+          circuitBreakerOpenUntil = Date.now() + 30000;
+          throw new Error(`Circuit breaker tripped after 3 consecutive timeouts from OpenRouter. Delaying requests for 30s.`);
+        }
+        lastError = new Error(`Request timeout for ${model}`);
+      } else {
+        if (err.message?.includes('Stopping retries') || err.message?.includes('Circuit breaker tripped')) throw err;
+        console.warn(`Failed with model ${model}, trying next...`, err.message);
+        lastError = err;
+      }
     }
   }
 

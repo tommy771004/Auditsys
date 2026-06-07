@@ -1,5 +1,5 @@
 import { RefreshCcw } from "lucide-react";
-import type { AuditHarnessRun } from "../../Server/Services/auditPipelineTypes";
+import type { AuditHarnessRun } from "../../shared/types/auditPipelineTypes";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 

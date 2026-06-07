@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { AuditIntelligenceResult } from "../Server/Services/auditPipelineTypes";
+import type { AuditIntelligenceResult } from "../shared/types/auditPipelineTypes";
 import { AUDIT_REPORT_STORAGE_EVENT, loadLatestAuditReport } from "../services/auditReportStore";
 
 export function useLatestAuditReport(): AuditIntelligenceResult | null {

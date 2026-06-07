@@ -1,4 +1,4 @@
-import type { AuditIntelligenceResult } from "../Server/Services/auditPipelineTypes";
+import type { AuditIntelligenceResult } from "../shared/types/auditPipelineTypes";
 
 const STORAGE_KEY = "auditlens.latest-report";
 export const AUDIT_REPORT_STORAGE_EVENT = "auditlens:latest-report-updated";

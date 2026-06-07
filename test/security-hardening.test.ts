@@ -78,3 +78,25 @@ test("collectDeterministicEvidence fails closed for loopback targets before any 
   assert.equal(result.status, "failed");
   assert.equal(result.error, UNSAFE_AUDIT_TARGET_ERROR);
 });
+
+test("IPv6 SSRF: ::ffff: mapped addresses use precise numeric range check", () => {
+  // Private ranges — must be blocked
+  assert.equal(isPrivateOrReservedIpAddress("::ffff:10.0.0.1"), true,       "::ffff:10.x is private");
+  assert.equal(isPrivateOrReservedIpAddress("::ffff:192.168.1.1"), true,    "::ffff:192.168.x is private");
+  assert.equal(isPrivateOrReservedIpAddress("::ffff:172.16.0.1"), true,     "::ffff:172.16 is private (172.16.0.0/12 start)");
+  assert.equal(isPrivateOrReservedIpAddress("::ffff:172.31.255.255"), true, "::ffff:172.31 is private (172.16.0.0/12 end)");
+  assert.equal(isPrivateOrReservedIpAddress("::ffff:127.0.0.1"), true,      "::ffff:127.x is loopback");
+
+  // Public ranges — must NOT be blocked (regression guard for the old string-prefix bug)
+  assert.equal(isPrivateOrReservedIpAddress("::ffff:172.1.0.1"), false,     "::ffff:172.1 is PUBLIC — was incorrectly blocked before fix");
+  assert.equal(isPrivateOrReservedIpAddress("::ffff:172.15.255.255"), false,"::ffff:172.15 is PUBLIC (just below 172.16)");
+  assert.equal(isPrivateOrReservedIpAddress("::ffff:172.32.0.1"), false,    "::ffff:172.32 is PUBLIC (just above 172.31)");
+  assert.equal(isPrivateOrReservedIpAddress("::ffff:8.8.8.8"), false,       "::ffff:8.8.8.8 is PUBLIC (Google DNS)");
+});
+
+test("IPv6 SSRF: pure IPv6 private ranges are blocked", () => {
+  assert.equal(isPrivateOrReservedIpAddress("fc00::1"), true,               "fc00::/7 ULA is private");
+  assert.equal(isPrivateOrReservedIpAddress("fd12::1"), true,               "fd00::/8 ULA is private");
+  assert.equal(isPrivateOrReservedIpAddress("fe80::1"), true,               "fe80::/10 link-local is private");
+  assert.equal(isPrivateOrReservedIpAddress("2001:4860:4860::8888"), false, "Google IPv6 DNS is public");
+});
