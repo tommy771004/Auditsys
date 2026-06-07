@@ -151,6 +151,20 @@ function createSkippedBrowserResult(payload: AuditRequestPayload, reason: string
   };
 }
 
+function createFailedDeterministicResult(payload: AuditRequestPayload, reason: string): DeterministicCollectorResult {
+  const ts = nowIso();
+  return {
+    stage: "deterministic",
+    status: "failed",
+    startedAt: ts,
+    completedAt: ts,
+    targetUrl: payload.url,
+    notes: [],
+    warnings: [`Deterministic evidence unavailable: ${reason}`],
+    error: reason,
+  };
+}
+
 function getAttemptStrategy(index: number, policy: AuditHarnessPolicy): AuditHarnessAttempt["strategy"] {
   if (index === 1) {
     return "standard";
@@ -630,7 +644,8 @@ async function executeAttempt(
       tracer.logPhaseEnd("Lighthouse Analysis", analyzingStart);
     }
 
-    if (taskPlan.steps.includes("browser") && execution.deterministic) {
+    const deterministicEvidence = execution.deterministic;
+    if (taskPlan.steps.includes("browser") && deterministicEvidence) {
       const brwStart = tracer.logPhaseStart("Browser Collector");
       await skillManager.requireSkill("browser");
       execution.browser = await traceStep(
@@ -640,14 +655,14 @@ async function executeAttempt(
         "Run browser flow collector",
         () => sandbox.execute(
           { type: "network_request", target: payload.url, payload: { stage: "browser" } },
-          () => dependencies.collectBrowserEvidence(payload, execution.deterministic as DeterministicCollectorResult),
+          () => dependencies.collectBrowserEvidence(payload, deterministicEvidence),
         ),
       );
       tracer.logPhaseEnd("Browser Collector", brwStart);
     }
 
     execution.evidence = {
-      deterministic: execution.deterministic,
+      deterministic: execution.deterministic ?? createFailedDeterministicResult(payload, "deterministic_step_not_executed"),
       // Defensive: guarantee a well-formed browser object even if the browser
       // step was not part of the plan or returned nothing, so synthesis and the
       // sensors below can never read properties of undefined.
@@ -739,7 +754,13 @@ async function executeAttempt(
   };
 }
 
-function buildGovernance(policy: AuditHarnessPolicy, attempts: AuditHarnessAttempt[], estimatedTokenSpend: number, circuitBreakerReason?: string): AuditHarnessGovernance {
+function buildGovernance(
+  policy: AuditHarnessPolicy,
+  attempts: AuditHarnessAttempt[],
+  estimatedTokenSpend: number,
+  costUsd: number,
+  circuitBreakerReason?: string,
+): AuditHarnessGovernance {
   const stepsUsed = attempts.reduce((total, attempt) => total + attempt.trace.length, 0);
 
   return {
@@ -752,6 +773,7 @@ function buildGovernance(policy: AuditHarnessPolicy, attempts: AuditHarnessAttem
     circuitBreakerReason: circuitBreakerReason ?? (stepsUsed > policy.maxSteps ? "max_step_budget_exceeded" : undefined),
     tokenBudget: policy.tokenBudget,
     estimatedTokenSpend,
+    costUsd,
   };
 }
 
@@ -832,7 +854,12 @@ export async function runAuditHarness(
       break;
     }
 
-    const governance = buildGovernance(policy, attempts, costTracker.records.reduce((a, b) => a + b.outputTokens, 0));
+    const governance = buildGovernance(
+      policy,
+      attempts,
+      costTracker.records.reduce((a, b) => a + b.outputTokens, 0),
+      costTracker.totalCost,
+    );
 
     if (governance.circuitBreakerTripped || costTracker.overBudget) {
       circuitBreakerReason = governance.circuitBreakerReason || "budget_exceeded";
@@ -895,7 +922,13 @@ ${attempts.map(a => `Attempt ${a.index}:\n` + a.trace.map(t => `  [${t.stage}] $
     middleware: buildMiddlewareRegistry(),
     attempts,
     qualityGate: latestQualityGate,
-    governance: buildGovernance(policy, attempts, costTracker.records.reduce((a, b) => a + b.outputTokens, 0), circuitBreakerReason),
+    governance: buildGovernance(
+      policy,
+      attempts,
+      costTracker.records.reduce((a, b) => a + b.outputTokens, 0),
+      costTracker.totalCost,
+      circuitBreakerReason,
+    ),
     pivots,
     rollback: {
       checkpointId: `${runId}:final`,

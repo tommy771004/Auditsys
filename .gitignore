@@ -10,3 +10,4 @@ coverage/
 test-fetch.js
 test-waf.js
 .agents/*
+docs/*

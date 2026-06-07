@@ -99,15 +99,15 @@
     "intakeSubmitFailed": "引導表單送出失敗，請稍後再試。"
   },
   "auditConsole": {
-    "badge": "代理工作流",
-    "title": "可視化的自主代理稽核控制台",
-    "description": "把代理編排變成可展示、可追蹤、可對投資人與客戶解說的任務控制台。每個子代理、工具呼叫與長期記憶寫入都會在畫面上即時顯示。",
-    "capabilitiesEyebrow": "代理特性",
-    "capabilitiesTitle": "把平行工具執行、子代理生成與長期記憶同步變成第一級 UI。",
+    "badge": "工作流視覺化",
+    "title": "可展示的透明稽核控制台",
+    "description": "把稽核 workflow 變成可展示、可追蹤、可對投資人與客戶解說的任務控制台，並清楚區分模擬跑道、示意工具呼叫與真實後端證據。",
+    "capabilitiesEyebrow": "工作流能力",
+    "capabilitiesTitle": "把平行視覺化、證據接入與長期記憶同步變成第一級 UI。",
     "capabilities": {
       "parallel": {
         "title": "平行工具執行",
-        "description": "同時啟動多個子代理，讓 DOM、API 與架構記憶分析同步推進。"
+        "description": "以平行跑道視覺化 DOM、API 與架構記憶分析，讓客戶能跟上稽核路徑。"
       },
       "memory": {
         "title": "長期記憶同步",
@@ -119,29 +119,35 @@
       }
     },
     "missionEyebrow": "Mission Control",
-    "missionTitle": "代理任務控制台",
+    "missionTitle": "稽核流程控制台",
     "phaseLabel": "目前階段：{{value}}",
     "inputLabel": "目標網站網址",
     "inputPlaceholder": "https://demo.auditlens.io/",
-    "submit": "啟動代理稽核",
-    "submitLoading": "代理執行中",
-    "helper": "這個控制台會先以視覺化流程展示代理編排，並在可用時接入真實 audit pipeline 的 evidence 與 synthesis 結果。",
+    "submit": "啟動視覺化稽核",
+    "submitLoading": "稽核執行中",
+    "helper": "這個控制台會先以視覺化流程展示稽核路徑，並在可用時接入真實後端 evidence 與 synthesis 結果。",
+    "disclosure": {
+      "simulatedTitle": "流程視覺化",
+      "simulatedBody": "控制台動畫用來視覺化稽核流程。專家卡片與工具串流是模擬 UI 跑道。",
+      "realEvidenceTitle": "真實後端證據",
+      "realEvidenceBody": "報告、品質閘、重試與人工接手狀態來自後端 harness。"
+    },
     "phases": {
       "idle": "待命",
       "analyzing_context": "分析上下文中",
-      "spawning_subagents": "子代理生成中",
+      "spawning_subagents": "準備視覺化跑道",
       "parallel_execution": "平行處理中",
       "synthesizing_memory": "寫入長期記憶",
       "streaming_report": "串流報告中",
       "complete": "完成"
     },
     "phaseDescriptions": {
-      "idle": "尚未啟動 agent workflow。送出網址後，控制台會以可視化方式展示子代理如何逐步完成整個網站稽核流程。",
-      "analyzing_context": "主代理正在整理目標網址、任務上下文與可呼叫工具，為接下來的子代理分工建立基礎。",
-      "spawning_subagents": "主代理正在建立平行子代理，並為每個角色分派工具與任務邊界。",
-      "parallel_execution": "子代理已經進入平行處理，每張卡片都會即時顯示自己正在執行的工具輸出。",
+      "idle": "尚未啟動視覺化 workflow。送出網址後，控制台會展示從規劃到綜整的稽核路徑。",
+      "analyzing_context": "控制台正在整理目標網址、任務上下文與可用證據跑道，等待後端稽核結果接入。",
+      "spawning_subagents": "控制台正在建立模擬專家跑道，並為每個角色綁定示意工具串流。",
+      "parallel_execution": "視覺化跑道已進入平行動畫，每張卡片都會即時顯示示意工具輸出。",
       "synthesizing_memory": "系統正在把剛剛發現的 runtime 風險寫入長期記憶，讓後續修復建議與報告能引用同一份上下文。",
-      "streaming_report": "主代理正在把子代理結果綜整成最終報告，內容會以逐字串流的方式出現在畫面上。",
+      "streaming_report": "控制台正在準備報告視圖，並在可用時接入後端 synthesis 結果。",
       "complete": "代理解析模擬流程已完成。你可以直接打開範例報告，比對前端控制台與 evidence-driven report 的銜接。"
     },
     "tools": {
@@ -166,7 +172,7 @@
       "description": "JSON 解析失敗，代理模型啟動了防禦機制，已將 Parsing 錯誤注入上下文並觸發 Two-Retry 迴圈。"
     },
     "metrics": {
-      "subagents": "子代理",
+      "subagents": "視覺跑道",
       "tools": "工具呼叫",
       "memoryWrites": "記憶寫入",
       "reportStatus": "報告狀態",
@@ -175,19 +181,19 @@
       "reportPendingValue": "等待中"
     },
     "sections": {
-      "spawningTitle": "子代理已排程",
-      "spawningCardDescription": "等待主代理完成分工與工具綁定。",
-      "parallelTitle": "平行處理中的子代理",
-      "parallelDescription": "每張 glass card 都代表一個獨立子代理，並附上自己專屬的即時終端輸出。",
+      "spawningTitle": "視覺化跑道已排程",
+      "spawningCardDescription": "等待 workflow 視覺化完成跑道設定與示意工具綁定。",
+      "parallelTitle": "平行視覺化跑道",
+      "parallelDescription": "每張 glass card 都代表一個模擬專家跑道，並附上示意終端輸出。",
       "reportTitle": "最終報告串流",
-      "reportDescription": "這裡會逐字顯示主代理如何把子代理與記憶層結果綜整成高階摘要。",
+      "reportDescription": "這裡會逐字顯示模擬跑道發現與記憶層更新如何形成高階摘要。",
       "reportDescriptionLive": "這裡會直接串流真實 audit pipeline 的 synthesis 與 evidence 摘要，而不是只顯示 mock 結果。",
       "reportDescriptionPending": "主代理已切入最終報告階段，正在等待真實 audit pipeline 回傳 evidence 與 synthesis 結果。",
       "reportWaiting": "等待主代理開始輸出最終報告...",
       "memoryTitle": "長期記憶同步",
       "memoryEmpty": "目前尚未寫入任何長期記憶。",
       "missionStreamTitle": "任務執行流",
-      "missionStreamDescription": "目前任務目標：{{url}}。依階段切換可看到子代理生成、平行處理與報告串流的完整過程。"
+      "missionStreamDescription": "目前任務目標：{{url}}。依階段切換可看到跑道設定、平行視覺化與報告串流的完整過程。"
     },
     "actions": {
       "openSampleReport": "打開範例報告",
@@ -293,7 +299,7 @@
       "handoff": "Two-retry 或品質閘門已要求人工介入：{{reason}}。"
     },
     "subagentCard": {
-      "eyebrow": "子代理",
+      "eyebrow": "視覺跑道",
       "executionTimeLabel": "執行時間",
       "executionTime": "{{value}} ms",
       "activeToolLabel": "主要工具",
@@ -348,16 +354,16 @@
       "badge": "Mock fallback",
       "subagents": {
         "frontend": {
-          "role": "前端速度子代理"
+          "role": "前端速度跑道"
         },
         "backend": {
-          "role": "API 延遲子代理"
+          "role": "API 延遲跑道"
         },
         "architecture": {
-          "role": "架構記憶子代理"
+          "role": "架構記憶跑道"
         },
         "a11y": {
-          "role": "無障礙體驗子代理"
+          "role": "無障礙體驗跑道"
         }
       },
       "logs": {
@@ -390,11 +396,11 @@
         "fact": "已辨識報告頁的 session-backed audit hydration gate 仍是主要阻塞點。"
       },
       "report": {
-        "title": "Agent 稽核摘要",
-        "lead": "已完成對 {{url}} 的三線平行稽核，並收斂出一個主要 runtime gate。",
-        "point1": "前端速度子代理確認首頁與定價頁面都能穩定渲染，問題集中在報告頁 hydration 邊界。",
-        "point2": "API 延遲子代理沒有發現同等級的伺服器側阻塞，因此目前不建議把主要調查焦點移到伺服器。",
-        "point3": "架構記憶子代理已將 session-backed audit evidence 依賴寫入長期記憶，可直接交給修復待辦與報告摘要引用。",
+        "title": "稽核流程摘要",
+        "lead": "已完成對 {{url}} 的三線視覺化稽核，並收斂出一個主要 runtime gate。",
+        "point1": "前端速度跑道顯示首頁與定價頁面都能穩定渲染，問題集中在報告頁 hydration 邊界。",
+        "point2": "API 延遲跑道沒有呈現同等級的伺服器側阻塞，因此目前不建議把主要調查焦點移到伺服器。",
+        "point3": "架構記憶跑道已將 session-backed audit evidence 依賴寫入長期記憶，可直接交給修復待辦與報告摘要引用。",
         "closing": "下一步建議：先解除報告頁的 runtime hydration gate，再讓 browser evidence 與 final report 收斂到同一條真實執行路徑。"
       }
     },

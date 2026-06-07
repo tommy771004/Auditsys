@@ -68,6 +68,8 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
     setImmunizedRules = () => {},
   } = useAuditAgent();
 
+  const activeErrorKey = errorKey ?? agentErrorKey;
+
   const [customRoleInput, setCustomRoleInput] = useState<string>("");
   const [customToolInput, setCustomToolInput] = useState<string>("");
   const [customFormError, setCustomFormError] = useState<string | null>(null);
@@ -263,7 +265,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
         {
           id: "cost",
           label: t("auditConsole.harness.stats.cost", { defaultValue: "Est. Cost" }),
-          value: `$${(harness.governance.estimatedTokenSpend * 0.0000015).toFixed(4)}`, // Rough blend of input/output token cost
+          value: `$${harness.governance.costUsd.toFixed(4)}`,
         },
         {
           id: "duration",
@@ -406,7 +408,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
             <p className="text-sm text-brand-muted leading-relaxed">
               {phase === "analyzing_context" 
                 ? (isZh ? "正在初始化並解析目標倉儲結構..." : "Initializing and parsing target repository structure...")
-                : (isZh ? "請在上方輸入要稽核的 URL 進行部署，以啟動蜂群代理。" : "Enter a URL above to deploy the swarm agents and start the audit.")}
+                : (isZh ? "請在上方輸入要稽核的 URL，以啟動流程視覺化與後端稽核。" : "Enter a URL above to start the workflow visualization and backend audit.")}
             </p>
             {phase === "analyzing_context" && (
               <div className="w-full h-1 overflow-hidden rounded-full bg-black/10 mt-4">
@@ -437,7 +439,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
             <div className="flex items-center justify-between border-b border-black/10 pb-2">
               <p className="text-xs font-bold font-mono text-cyan-600 uppercase tracking-wider flex items-center gap-2">
                 <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                {isZh ? "蜂群子代理常駐工作區" : "Swarm Agent Workspace"}
+                {isZh ? "稽核跑道視覺化工作區" : "Audit Lane Visualization Workspace"}
               </p>
             </div>
             <Office3DScene subagents={subagents} toolCalls={toolCalls} isZh={isZh} />
@@ -639,8 +641,8 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
 
           <div className="space-y-4 pt-4 border-t border-black/10 mt-6">
             <div className="space-y-2">
-              <p className="text-sm font-semibold text-[var(--text)]">{isZh ? "蜂群子代理任務駐留紀錄" : t("auditConsole.sections.parallelTitle")}</p>
-              <p className="text-sm text-brand-muted">{isZh ? "以下為各個子代理在稍早階段所執行的具體軌跡與日誌。" : t("auditConsole.sections.parallelDescription")}</p>
+              <p className="text-sm font-semibold text-[var(--text)]">{isZh ? "視覺化跑道任務紀錄" : t("auditConsole.sections.parallelTitle")}</p>
+              <p className="text-sm text-brand-muted">{isZh ? "以下為各個模擬跑道在稍早階段呈現的軌跡與日誌。" : t("auditConsole.sections.parallelDescription")}</p>
             </div>
             <div className="grid gap-4 xl:grid-cols-2">
               {subagents.map((subagent) => (
@@ -666,7 +668,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
           <Office3DScene subagents={subagents} toolCalls={toolCalls} isZh={isZh} />
 
           <div className="space-y-2 border-t border-black/10 pt-6">
-            <p className="text-sm font-semibold text-[var(--text)]">{isZh ? "蜂群子代理任務監控與日誌" : t("auditConsole.sections.parallelTitle")}</p>
+            <p className="text-sm font-semibold text-[var(--text)]">{isZh ? "視覺化跑道監控與日誌" : t("auditConsole.sections.parallelTitle")}</p>
             <p className="text-sm text-brand-muted">{t("auditConsole.sections.parallelDescription")}</p>
           </div>
           <div className="grid gap-4 xl:grid-cols-2">
@@ -783,6 +785,21 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 </div>
               </div>
 
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="rounded-sm border border-[var(--border)] bg-black/5 px-4 py-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/60">
+                    {t("auditConsole.disclosure.simulatedTitle")}
+                  </p>
+                  <p className="mt-2 text-sm text-brand-muted">{t("auditConsole.disclosure.simulatedBody")}</p>
+                </div>
+                <div className="rounded-sm border border-emerald-500/30 bg-emerald-500/10 px-4 py-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
+                    {t("auditConsole.disclosure.realEvidenceTitle")}
+                  </p>
+                  <p className="mt-2 text-sm text-brand-muted">{t("auditConsole.disclosure.realEvidenceBody")}</p>
+                </div>
+              </div>
+
               {/* Pipeline Progress Indicator */}
               <div className="w-full flex items-center justify-between gap-1.5 sm:gap-2 mt-2">
                 {[
@@ -868,7 +885,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                   </div>
                 </div>
                 <p className="text-sm text-brand-muted">{t("auditConsole.helper", { url: missionTarget })}</p>
-                {(errorKey || agentErrorKey) ? <p className="text-sm text-rose-600">{t(errorKey || agentErrorKey)}</p> : null}
+                {activeErrorKey ? <p className="text-sm text-rose-600">{t(activeErrorKey)}</p> : null}
               </div>
             </form>
 
@@ -1011,9 +1028,9 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
               </div>
           </GlassContainer>
 
-          {/* Layer 3.5: Swarm Routing Visualizer & HITL/Flywheel Operations Panel */}
+          {/* Layer 3.5: Lane Routing Visualizer & HITL/Flywheel Operations Panel */}
           <div className="grid grid-cols-1 xl:grid-cols-[1.10fr_0.90fr] gap-8">
-            {/* Swarm Routing Visualizer Card */}
+            {/* Lane Routing Visualizer Card */}
             <GlassContainer accent="purple" className="space-y-6">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5">
@@ -1022,10 +1039,10 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-[var(--text)]">
-                      {isZh ? "蜂群子代理解析與路由 (Swarm Router)" : "Swarm Routing Engine"}
+                      {isZh ? "稽核跑道解析與路由" : "Audit Lane Routing"}
                     </p>
                     <p className="text-xs text-brand-muted">
-                      {isZh ? "配置調度的子代理，或自主生成特殊領域子代理擴張檢測半徑。" : "Dynamically provision specialized subagents to expand analysis boundaries."}
+                      {isZh ? "配置模擬分析跑道，讓不同稽核焦點在畫面上清楚分流。" : "Configure simulated analysis lanes so audit focus areas stay easy to follow."}
                     </p>
                   </div>
                 </div>
@@ -1036,14 +1053,14 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                 {/* Checkboxes List */}
                 <div className="space-y-2.5">
                   <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-800/80">
-                    {isZh ? "主代理分工調度選擇" : "Swarm Member Recruitment"}
+                    {isZh ? "視覺化跑道選擇" : "Visualization Lane Selection"}
                   </p>
                   {[
-                      { id: "frontend-speed", label: isZh ? "前端速度子代理 (Frontend Speed)" : "Frontend Speed subagent" },
-                      { id: "api-latency", label: isZh ? "API 延遲子代理 (API Latency)" : "API Latency subagent" },
-                      { id: "a11y-scanner", label: isZh ? "無障礙檢索子代理 (A11y Scanner)" : "A11y Inspector subagent" },
-                      { id: "seo-discovery", label: isZh ? "SEO 深度優化分析代理 (SEO & Discovery)" : "SEO & Discovery Engine" },
-                      { id: "memory-synth", label: isZh ? "長期記憶合成子代理 (Memory Synth)" : "Memory Synthesizer" }
+                      { id: "frontend-speed", label: isZh ? "前端速度跑道 (Frontend Speed)" : "Frontend Speed lane" },
+                      { id: "api-latency", label: isZh ? "API 延遲跑道 (API Latency)" : "API Latency lane" },
+                      { id: "a11y-scanner", label: isZh ? "無障礙檢索跑道 (A11y Scanner)" : "A11y Inspector lane" },
+                      { id: "seo-discovery", label: isZh ? "SEO 深度優化跑道 (SEO & Discovery)" : "SEO & Discovery lane" },
+                      { id: "memory-synth", label: isZh ? "長期記憶合成跑道 (Memory Synth)" : "Memory Synth lane" }
                   ].map((chk) => {
                     const isChecked = enabledAgentIds.includes(chk.id);
                     return (
@@ -1072,7 +1089,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                   onSubmit={(e) => {
                     e.preventDefault();
                     if (!customRoleInput.trim() || !customToolInput.trim()) {
-                      setCustomFormError(isZh ? "填入完整的角色 & 綁定工具！" : "Fill in Agent Role & Tool Name.");
+                      setCustomFormError(isZh ? "填入完整的跑道角色與綁定工具！" : "Fill in lane role and tool name.");
                       return;
                     }
                     addCustomAgent(customRoleInput.trim(), customToolInput.trim());
@@ -1083,12 +1100,12 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                   className="space-y-3.5 bg-white/20 p-3 rounded-sm border border-black/5 flex flex-col justify-between"
                 >
                   <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-800/80">
-                    {isZh ? "生成特用領域子代理" : "Spawn Specific Subagent"}
+                    {isZh ? "新增特用領域跑道" : "Add Specific Lane"}
                   </p>
                   
                   <div className="space-y-2 text-xs">
                     <input
-                      placeholder={isZh ? "代理角色 (例如：CSS 優化主管)" : "Agent Role (e.g., CSS Architect)"}
+                      placeholder={isZh ? "跑道角色 (例如：CSS 優化主管)" : "Lane role (e.g., CSS Architect)"}
                       value={customRoleInput}
                       onChange={(e) => setCustomRoleInput(e.target.value)}
                       disabled={isRunning}
@@ -1112,15 +1129,15 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                     loadingLabel=""
                   >
                     <GitFork className="h-3.5 w-3.5 mr-1.5" />
-                    <span>{isZh ? "生成並接入蜂群" : "Spawn Into Swarm"}</span>
+                    <span>{isZh ? "加入視覺化跑道" : "Add To Visualization"}</span>
                   </SolidButton>
                 </form>
               </div>
 
-              {/* Dynamic Swarm Router Node Map */}
+              {/* Dynamic Lane Router Node Map */}
               <div className="relative border border-black/5 bg-[var(--surface)] p-5 rounded-sm overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-brand-cyan/5 to-transparent pointer-events-none" />
-                <p className="text-[10px] font-bold font-mono tracking-wider uppercase text-black/50 mb-4">{isZh ? "蜂群排程分析網絡 (Swarm Router Map)" : "Dynamic Swarm Router Node Map"}</p>
+                <p className="text-[10px] font-bold font-mono tracking-wider uppercase text-black/50 mb-4">{isZh ? "跑道排程視覺網絡" : "Dynamic Lane Router Map"}</p>
                 
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-6 relative">
                   {/* Central target */}
@@ -1307,10 +1324,10 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
                     }, 1400);
                   }}
                   className="w-full justify-center !py-2.5 text-xs !text-teal-900 !shadow-[0_0_20px_rgba(20,184,166,0.15)] bg-teal-500/20 hover:bg-teal-500/35 border-teal-500/20"
-                  loadingLabel={isZh ? "自主稽核 Linter 代碼引導回寫中..." : "Autononmous Code Persistence Compiles..."}
+                  loadingLabel={isZh ? "正在保存規則快照..." : "Saving rule snapshot..."}
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  <span>{isZh ? "Linter 自主修復回寫磁碟並固化飛輪" : "Auto-Write to Disk & Fix Code"}</span>
+                  <span>{isZh ? "保存 Linter 規則快照" : "Save Linter Rule Snapshot"}</span>
                 </SolidButton>
               </div>
             </GlassContainer>

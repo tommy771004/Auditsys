@@ -10,7 +10,7 @@ import SolidButton from "../components/ui/SolidButton";
 import SectionHeader from "../components/ui/SectionHeader";
 import Logos3 from "../components/ui/Logos3";
 import { useAuditForm } from "../hooks/useAuditForm";
-import type { LocalizedContentItem, NavigateTo, TrustPillItem, WorkflowContentItem } from "../types/home";
+import type { LocalizedContentItem, NavigateTo } from "../types/home";
 import Accordion from "../components/ui/Accordion";
 import SeoChecklistGuide from "../components/ui/SeoChecklistGuide";
 
@@ -24,12 +24,16 @@ interface FeatureCard extends LocalizedContentItem {
   rowSpan?: string;
 }
 
-interface WorkflowStep extends WorkflowContentItem {
+interface WorkflowStep extends LocalizedContentItem {
+  eyebrowKey: string;
+  titleKey: string;
+  descriptionKey: string;
   glow: "purple" | "cyan" | "blue";
   icon: LucideIcon;
 }
 
-interface TrustPill extends TrustPillItem {
+interface TrustPill extends LocalizedContentItem {
+  labelKey: string;
   icon: LucideIcon;
 }
 

@@ -24,6 +24,40 @@ import { resolveAdminBootstrapConfig } from "./src/db/adminBootstrap";
 import { loadLocalEnvFiles } from "./src/Server/Services/serverEnv";
 import { registerSpaFallback } from "./src/Server/Services/serverRouting";
 
+type AuditModelConfig = NonNullable<Parameters<typeof generateAuditIntelligence>[1]>;
+type PlanSettingsRecord = typeof planSettings.$inferSelect;
+
+function optionalConfigString(value: string | null | undefined): string | undefined {
+  return value?.trim() || undefined;
+}
+
+function parsePlanAllowedModels(currentPlan: string, allowedModels: string | null | undefined): string[] | undefined {
+  if (currentPlan === "free") {
+    return undefined;
+  }
+
+  const models = allowedModels
+    ?.split(",")
+    .map((model) => model.trim())
+    .filter(Boolean);
+
+  return models?.length ? models : undefined;
+}
+
+function buildPlanModelConfig(userPlanSettings: PlanSettingsRecord | undefined, currentPlan: string): AuditModelConfig | undefined {
+  if (!userPlanSettings) {
+    return undefined;
+  }
+
+  return {
+    aiProvider: optionalConfigString(userPlanSettings.aiProvider),
+    agentRouterApiKey: optionalConfigString(userPlanSettings.agentRouterApiKey),
+    openRouterApiKey: optionalConfigString(userPlanSettings.openRouterApiKey),
+    nvidiaApiKey: optionalConfigString(userPlanSettings.nvidiaApiKey),
+    allowedModels: parsePlanAllowedModels(currentPlan, userPlanSettings.allowedModels),
+  };
+}
+
 async function startServer() {
   loadLocalEnvFiles();
   const JWT_SECRET = getRequiredJwtSecret();
@@ -450,13 +484,7 @@ async function startServer() {
       const currentPlan = dbUser?.subscriptionPlan || 'free';
       const userPlanSettings = await db.select().from(planSettings).where(eq(planSettings.planId, currentPlan)).then(rows => rows[0]);
 
-      const config = userPlanSettings ? {
-        aiProvider: userPlanSettings.aiProvider,
-        agentRouterApiKey: userPlanSettings.agentRouterApiKey,
-        openRouterApiKey: userPlanSettings.openRouterApiKey,
-        nvidiaApiKey: userPlanSettings.nvidiaApiKey,
-        allowedModels: currentPlan === 'free' ? undefined : (userPlanSettings.allowedModels ? userPlanSettings.allowedModels.split(',').map(m => m.trim()).filter(Boolean) : undefined)
-      } : undefined;
+      const config = buildPlanModelConfig(userPlanSettings, currentPlan);
 
       // 1. Immediately create a pending audit record
       const insertedAudit = await db.insert(audits).values({
@@ -501,13 +529,7 @@ async function startServer() {
       const currentPlan = dbUser?.subscriptionPlan || 'free';
       const userPlanSettings = await db.select().from(planSettings).where(eq(planSettings.planId, currentPlan)).then(rows => rows[0]);
 
-      const config = userPlanSettings ? {
-        aiProvider: userPlanSettings.aiProvider,
-        agentRouterApiKey: userPlanSettings.agentRouterApiKey,
-        openRouterApiKey: userPlanSettings.openRouterApiKey,
-        nvidiaApiKey: userPlanSettings.nvidiaApiKey,
-        allowedModels: currentPlan === 'free' ? undefined : (userPlanSettings.allowedModels ? userPlanSettings.allowedModels.split(',').map(m => m.trim()).filter(Boolean) : undefined)
-      } : undefined;
+      const config = buildPlanModelConfig(userPlanSettings, currentPlan);
 
       const body = req.body;
 
@@ -787,13 +809,7 @@ async function startServer() {
     const currentPlan = dbUser?.subscriptionPlan || 'free';
     const userPlanSettings = await db.select().from(planSettings).where(eq(planSettings.planId, currentPlan)).then(rows => rows[0]);
 
-    const config = userPlanSettings ? {
-      aiProvider: userPlanSettings.aiProvider,
-      agentRouterApiKey: userPlanSettings.agentRouterApiKey,
-      openRouterApiKey: userPlanSettings.openRouterApiKey,
-      nvidiaApiKey: userPlanSettings.nvidiaApiKey,
-      allowedModels: currentPlan === 'free' ? undefined : (userPlanSettings.allowedModels ? userPlanSettings.allowedModels.split(',').map(m => m.trim()).filter(Boolean) : undefined)
-    } : undefined;
+    const config = buildPlanModelConfig(userPlanSettings, currentPlan);
 
     const provider = config?.aiProvider || 'openrouter';
     const apiKey = provider === 'agentrouter' 

@@ -162,7 +162,7 @@ export default function DashboardWidget({ currentHarness, isZh = false }: Dashbo
             const passRate = h.qualityGate?.checks?.length 
               ? Math.round((h.qualityGate.passedCount / h.qualityGate.checks.length) * 100) 
               : 100;
-            const costUsd = Number((h.governance?.estimatedTokenSpend * 0.0000015).toFixed(5));
+            const costUsd = Number((h.governance?.costUsd ?? 0).toFixed(5));
             return {
               id: h.runId || idx,
               name: `Run #${idx + 1}`,

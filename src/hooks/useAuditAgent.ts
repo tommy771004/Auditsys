@@ -363,11 +363,11 @@ function buildReportContent(targetUrl: string, t: TFunction, hitlInstructions?: 
   const baseJson = {
     executiveSummary: hitlInstructions 
       ? (isZh 
-          ? `[人工介入方針已整合] 針對目標網址 ${targetUrl} 的稽核任務。在引入人類修復指南（「${hitlInstructions}」）後，多代理蜂群已繞過標準阻礙，直接重構沙箱規則，並在全系統中完成安全性與效能優化校驗。`
-          : `[Human Guidance Integrated] Successfully accomplished the diagnostics swarm for ${targetUrl} incorporating handoff instruction: "${hitlInstructions}". Safe boundary overrides verified, compiling optimal mitigation paths.`)
+          ? `[人工介入方針已整合] 針對目標網址 ${targetUrl} 的稽核任務。在引入人類修復指南（「${hitlInstructions}」）後，視覺化流程已更新示意跑道，並接續等待後端證據校驗。`
+          : `[Human Guidance Integrated] Updated the visual audit workflow for ${targetUrl} with handoff instruction: "${hitlInstructions}". The UI lanes now reflect the mitigation path while backend evidence remains authoritative.`)
       : (isZh
-          ? `[自動稽核分析完成] 主代理多核蜂群已針對目標對象 ${targetUrl} 進行全面深層感測。偵測到部分與架構相容性、標頭安全防禦、以及前端效能相關的問題。`
-          : `[Automated Diagnostics Swarm Complete] General comprehensive telemetry sensor scan completed for target: ${targetUrl}. Discovered potential optimization gaps across transmission layers, document templates, and performance bounds.`),
+          ? `[稽核流程視覺化完成] 控制台已針對目標對象 ${targetUrl} 呈現多跑道分析流程。偵測到部分與架構相容性、標頭安全防禦、以及前端效能相關的問題。`
+          : `[Audit Workflow Visualization Complete] The console completed a multi-lane audit visualization for target: ${targetUrl}. Discovered potential optimization gaps across transmission layers, document templates, and performance bounds.`),
     deterministicFindings: selectedDet,
     browserFlowGaps: [allBrowserFlowGaps[bfIndex]],
     architectureRisks: [
@@ -391,8 +391,8 @@ function buildReportContent(targetUrl: string, t: TFunction, hitlInstructions?: 
         impact: isZh ? "保障傳輸協議安全性，阻絕跨站腳本與中間人篡改" : "Validates TLS bindings and blocks cross-site script pollution"
       },
       {
-        action: isZh ? "設定永久防禦規則與自動飛輪固化" : "Trigger Permanent Flywheel Guardrail Commits",
-        impact: isZh ? "實自主回寫免疫系統，防止後續代碼偏離標準防護" : "Hardens CI/CD pipeline preventing future lint quality regressions"
+        action: isZh ? "保存防禦規則快照與飛輪紀錄" : "Save Guardrail Rule Snapshot",
+        impact: isZh ? "保留後續修復與驗證可引用的規則脈絡" : "Preserves rule context that future remediation and verification can reference"
       }
     ]
   };

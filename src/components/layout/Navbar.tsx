@@ -10,7 +10,13 @@ import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import PageContainer from "./PageContainer";
 
-const navigationItems: NavLinkItem[] = [
+type NavigationItemId = "overview" | "features" | "console" | "pricing";
+interface NavigationItem extends NavLinkItem {
+  id: NavigationItemId;
+  labelKey: string;
+}
+
+const navigationItems: NavigationItem[] = [
   {
     id: "overview",
     route: "home",
@@ -35,7 +41,7 @@ const navigationItems: NavLinkItem[] = [
   },
 ];
 
-const navItemMeta: Record<string, { icon: LucideIcon; gradient: string; iconColor: string }> = {
+const navItemMeta: Record<NavigationItemId, { icon: LucideIcon; gradient: string; iconColor: string }> = {
   overview: {
     icon: Home,
     gradient: "radial-gradient(circle, rgba(58,214,195,0.2) 0%, rgba(34,197,194,0.08) 50%, rgba(20,128,120,0) 100%)",

@@ -93,15 +93,15 @@
     "unauthorized": "Login required or your subscription limits this action."
   },
   "auditConsole": {
-    "badge": "Agentic Workflow",
-    "title": "An autonomous audit console you can actually show",
-    "description": "Turn Agent-style orchestration into a premium mission control surface. Every subagent, tool call, and long-term memory write is visible in real time instead of being buried behind a spinner.",
-    "capabilitiesEyebrow": "Agent capabilities",
-    "capabilitiesTitle": "Expose parallel execution, subagent spawning, and persistent memory as first-class UI.",
+    "badge": "Workflow Visualization",
+    "title": "A transparent audit console you can actually show",
+    "description": "Turn the audit workflow into a premium mission control surface. Simulated lanes, illustrative tool calls, and real backend evidence are clearly separated instead of being buried behind a spinner.",
+    "capabilitiesEyebrow": "Workflow capabilities",
+    "capabilitiesTitle": "Expose parallel visualization, evidence handoff, and persistent memory as first-class UI.",
     "capabilities": {
       "parallel": {
         "title": "Parallel tool execution",
-        "description": "Run DOM, API, and architecture investigations in parallel so investors and clients can watch the system work." 
+        "description": "Visualize DOM, API, and architecture investigations in parallel so investors and clients can follow the audit path." 
       },
       "memory": {
         "title": "Persistent memory sync",
@@ -113,30 +113,36 @@
       }
     },
     "missionEyebrow": "Mission Control",
-    "missionTitle": "Agent mission control terminal",
+    "missionTitle": "Audit workflow console",
     "phaseLabel": "Current phase: {{value}}",
     "inputLabel": "Target website URL",
     "inputPlaceholder": "https://demo.auditlens.io/",
-    "submit": "Launch Agent audit",
-    "submitLoading": "Agent running",
-    "helper": "This console visualizes Agent-style orchestration first and switches to real audit pipeline evidence and synthesis whenever the live result is available.",
+    "submit": "Start visualized audit",
+    "submitLoading": "Audit running",
+    "helper": "This console visualizes the audit workflow first and switches to real backend evidence and synthesis whenever the live result is available.",
+    "disclosure": {
+      "simulatedTitle": "Visualization layer",
+      "simulatedBody": "The console animation visualizes the audit workflow. Specialist cards and tool streams are simulated UI lanes.",
+      "realEvidenceTitle": "Real backend evidence",
+      "realEvidenceBody": "The report, quality gate, retries, and handoff status come from the backend harness."
+    },
     "phases": {
       "idle": "idle",
       "analyzing_context": "analyzing context",
-      "spawning_subagents": "spawning subagents",
+      "spawning_subagents": "preparing visual lanes",
       "parallel_execution": "parallel execution",
       "synthesizing_memory": "synthesizing memory",
       "streaming_report": "streaming report",
       "complete": "complete"
     },
     "phaseDescriptions": {
-      "idle": "The Agent workflow has not started yet. Submit a URL and the console will visualize how the agent coordinates the audit from planning to synthesis.",
-      "analyzing_context": "The primary agent is reviewing the target URL, runtime context, and available tools before delegating work.",
-      "spawning_subagents": "The primary agent is creating specialist subagents and binding tools to each role.",
-      "parallel_execution": "Subagents are now running in parallel. Each glass card streams its own tool output in real time.",
+      "idle": "The visual workflow has not started yet. Submit a URL and the console will show the audit path from planning to synthesis.",
+      "analyzing_context": "The console is reviewing the target URL, runtime context, and available evidence lanes before the backend run completes.",
+      "spawning_subagents": "The console is preparing simulated specialist lanes and binding illustrative tool streams to each role.",
+      "parallel_execution": "Visualization lanes are now animating in parallel. Each glass card streams illustrative tool output in real time.",
       "synthesizing_memory": "The system is promoting the latest runtime finding into long-term memory so later remediation and reporting stay aligned.",
-      "streaming_report": "The primary agent is synthesizing the subagent outputs into a final report that streams directly into view.",
-      "complete": "The Agent simulation is complete. You can open the sample report to compare the console with the evidence-driven reporting surface."
+      "streaming_report": "The console is preparing the report view while the backend synthesis result is attached when available.",
+      "complete": "The workflow simulation is complete. You can open the sample report to compare the console with the evidence-driven reporting surface."
     },
     "tools": {
       "dom_probe": {
@@ -160,7 +166,7 @@
       "description": "LLM output JSON parsing failed. Injecting format feedback and enforcing Two-Retry loop."
     },
     "metrics": {
-      "subagents": "Subagents",
+      "subagents": "Visual lanes",
       "tools": "Tool calls",
       "memoryWrites": "Memory writes",
       "reportStatus": "Report status",
@@ -169,19 +175,19 @@
       "reportPendingValue": "Pending"
     },
     "sections": {
-      "spawningTitle": "Queued subagents",
-      "spawningCardDescription": "Waiting for the primary agent to finish delegation and tool binding.",
-      "parallelTitle": "Subagents in parallel execution",
-      "parallelDescription": "Each glass card represents a dedicated subagent with its own live terminal output.",
+      "spawningTitle": "Queued visualization lanes",
+      "spawningCardDescription": "Waiting for the workflow visualization to finish lane setup and illustrative tool binding.",
+      "parallelTitle": "Visualization lanes in parallel",
+      "parallelDescription": "Each glass card represents a simulated specialist lane with illustrative terminal output.",
       "reportTitle": "Final report stream",
-      "reportDescription": "This pane types out how the primary agent turns subagent evidence and memory updates into an executive summary.",
+      "reportDescription": "This pane types out how simulated lane findings and memory updates become an executive summary.",
       "reportDescriptionLive": "This pane streams the real audit pipeline synthesis and evidence summary instead of only showing mock output.",
-      "reportDescriptionPending": "The primary agent is in final reporting and is waiting for the real audit pipeline to return evidence and synthesis output.",
-      "reportWaiting": "Waiting for the primary agent to begin the final report stream...",
+      "reportDescriptionPending": "The report view is waiting for the real audit pipeline to return evidence and synthesis output.",
+      "reportWaiting": "Waiting for the report stream to begin...",
       "memoryTitle": "Persistent memory sync",
       "memoryEmpty": "No long-term memory writes have been recorded yet.",
       "missionStreamTitle": "Mission execution stream",
-      "missionStreamDescription": "Current target: {{url}}. Move through each phase to watch subagent spawning, parallel execution, and report streaming unfold."
+      "missionStreamDescription": "Current target: {{url}}. Move through each phase to watch lane setup, parallel visualization, and report streaming unfold."
     },
     "actions": {
       "openSampleReport": "Open sample report",
@@ -284,7 +290,7 @@
       "handoff": "Two-retry or quality gate policy requires human handoff: {{reason}}."
     },
     "subagentCard": {
-      "eyebrow": "Subagent",
+      "eyebrow": "Visual lane",
       "toolCount": "{{count}} tool task(s)",
       "executionTimeLabel": "Execution time",
       "executionTime": "{{value}} ms",
@@ -340,16 +346,16 @@
       "badge": "Mock fallback",
       "subagents": {
         "frontend": {
-          "role": "Frontend Speed Subagent"
+          "role": "Frontend Speed Lane"
         },
         "backend": {
-          "role": "API Latency Subagent"
+          "role": "API Latency Lane"
         },
         "architecture": {
-          "role": "Architecture Memory Subagent"
+          "role": "Architecture Memory Lane"
         },
         "a11y": {
-          "role": "Accessibility Subagent"
+          "role": "Accessibility Lane"
         }
       },
       "logs": {
@@ -382,11 +388,11 @@
         "fact": "The report route still depends on a session-backed audit hydration gate, and that remains the primary blocker."
       },
       "report": {
-        "title": "Agent Audit Summary",
-        "lead": "Completed a three-lane parallel audit for {{url}} and converged on one primary runtime gate.",
-        "point1": "The frontend speed subagent confirmed that the homepage and pricing route remain stable, but the report route still depends on a hydration boundary.",
-        "point2": "The API latency subagent did not uncover an equivalent server-side bottleneck, so the next investigation should remain focused on the frontend runtime path.",
-        "point3": "The architecture memory subagent promoted the session-backed evidence dependency into long-term memory so remediation planning and summaries can reuse it.",
+        "title": "Audit Workflow Summary",
+        "lead": "Completed a three-lane visual audit for {{url}} and converged on one primary runtime gate.",
+        "point1": "The frontend speed lane indicated that the homepage and pricing route remain stable, but the report route still depends on a hydration boundary.",
+        "point2": "The API latency lane did not surface an equivalent server-side bottleneck, so the next investigation should remain focused on the frontend runtime path.",
+        "point3": "The architecture memory lane promoted the session-backed evidence dependency into long-term memory so remediation planning and summaries can reuse it.",
         "closing": "Recommended next step: remove the report-route runtime hydration gate before asking browser evidence and final reporting to converge on one reliable execution path."
       }
     },

@@ -224,6 +224,7 @@ export interface AuditHarnessGovernance {
   circuitBreakerReason?: string;
   tokenBudget: number;
   estimatedTokenSpend: number;
+  costUsd: number;
 }
 
 export interface AuditHarnessRun {
