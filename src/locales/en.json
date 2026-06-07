@@ -76,9 +76,9 @@
     "loading": "Preparing audit",
     "helper": "Secure intake. No source code access is required for the first pass.",
     "formCaption": "Paste a production URL and preview the productized intake flow.",
-    "formFootnote": "The endpoint can be connected through VITE_AUDIT_ENDPOINT.",
+    "formFootnote": "Your first pass uses a public URL only. No repository or credentials are required.",
     "successTitle": "Audit intake queued",
-    "successDescription": "The request passed validation and the workflow is ready for a real endpoint.",
+    "successDescription": "The request passed validation and is ready for the audit console.",
     "errorTitle": "Scan request blocked",
     "trustPills": {
       "security": "Secure intake",
@@ -426,7 +426,7 @@
       "analysis": {
         "eyebrow": "02",
         "title": "Trigger the audit pipeline",
-        "description": "A simulated delay mirrors real network latency while the fetch hook stays ready for production."
+      "description": "The audit checks the target URL, validates safety, and prepares evidence for review."
       },
       "delivery": {
         "eyebrow": "03",
@@ -436,16 +436,16 @@
     }
   },
   "homePreview": {
-    "sectionEyebrow": "Multi-page expansion",
-    "sectionTitle": "The marketing shell now extends into pricing, intake, and a sample report experience.",
-    "sectionDescription": "The design drafts are no longer isolated HTML references. They are connected as navigable React pages with shared Liquid Glass components and i18n wiring.",
-    "secondaryEyebrow": "Implementation note",
-    "secondaryTitle": "Hash-based navigation keeps the prototype deployable on a static host.",
-    "secondaryDescription": "The router uses location.hash so the pages can switch without adding server-side rewrite rules during prototype review."
+    "sectionEyebrow": "Evidence path",
+    "sectionTitle": "Move from scan request to report without losing context.",
+    "sectionDescription": "Pricing, intake, mission control, and reporting share the same audit language so the handoff feels like one product.",
+    "secondaryEyebrow": "Delivery model",
+    "secondaryTitle": "One URL can become an executive report, a live scan, or a remediation brief.",
+    "secondaryDescription": "Choose the depth of evidence you need, then keep every finding tied to the same target."
   },
   "status": {
-    "idleTitle": "API-ready intake flow",
-    "idleDescription": "The form validates the URL, manages loading state, and falls back to a simulated success path when no endpoint is configured."
+    "idleTitle": "Ready for a target URL",
+    "idleDescription": "Submit a public website to begin the first audit pass and continue into the console."
   },
   "pricing": {
     "approvalRequired": "Approval Required",

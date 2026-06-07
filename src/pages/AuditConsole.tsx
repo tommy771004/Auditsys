@@ -889,7 +889,7 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
             </div>
           </GlassContainer>
 
-          {/* Layer 2.5: Lighthouse Real-time Telemetry (精細指標感測器) */}
+          {/* Layer 2.5: modeled score preview, not a live Lighthouse run. */}
           <GlassContainer accent="cyan" className="space-y-6">
             <div className="flex items-center gap-3">
               <div className="inline-flex h-11 w-11 items-center justify-center rounded-sm border border-[var(--border)] bg-black/10 text-[var(--text)]">
@@ -897,10 +897,10 @@ export default function AuditConsole({ onNavigate }: AuditConsoleProps) {
               </div>
               <div>
                 <p className="text-sm font-semibold text-[var(--text)]">
-                  {isZh ? "Lighthouse 精細語意感測器 (Lighthouse Telemetry Sensors)" : "Lighthouse Telemetry Sensors"}
+                  {isZh ? "模型化評分預覽" : "Modeled Score Preview"}
                 </p>
                 <p className="text-sm text-brand-muted">
-                  {isZh ? "即時探測並繪製目標的效能、無障礙、安全性與 SEO 性能精精密指標氣泡圖。" : "Provides precise, live client-side telemetry on performance, accessibility bounds, and safety best practices."}
+                  {isZh ? "依目前代理流程與已寫入規則顯示暫定分數；真實 Core Web Vitals 請使用即時引擎。" : "Shows provisional scores from the agent flow and immunized rules. Use Live Engine for real Core Web Vitals."}
                 </p>
               </div>
             </div>

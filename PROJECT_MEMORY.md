@@ -2444,3 +2444,1773 @@
   }
 }
 ```
+
+## [2026-06-07T02:16:02.282Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "failed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "notes": [
+        "Fetch failed"
+      ],
+      "warnings": [],
+      "error": "fetch_failed"
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "completed",
+      "mode": "crawler",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "crawler",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "completed",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [
+        {
+          "id": "step-1",
+          "label": "Fetch Primary Document",
+          "status": "completed",
+          "detail": "HTTP 200"
+        }
+      ],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      }
+    }
+  }
+}
+```
+
+## [2026-06-07T02:16:02.298Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "failed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "notes": [
+        "Fetch failed"
+      ],
+      "warnings": [],
+      "error": "fetch_failed"
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "completed",
+      "mode": "crawler",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "crawler",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "completed",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [
+        {
+          "id": "step-1",
+          "label": "Fetch Primary Document",
+          "status": "completed",
+          "detail": "HTTP 200"
+        }
+      ],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      }
+    }
+  }
+}
+```
+
+## [2026-06-07T02:16:02.317Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "completed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "statusCode": 200,
+      "contentType": "text/html",
+      "responseTimeMs": 120,
+      "headers": {
+        "cacheControl": "max-age=60",
+        "server": "example",
+        "poweredBy": null
+      },
+      "document": {
+        "title": "Example",
+        "metaDescription": "Example site",
+        "canonical": "https://example.com",
+        "robots": null,
+        "lang": "en",
+        "viewport": "width=device-width",
+        "counts": {
+          "scripts": 1,
+          "stylesheets": 1,
+          "images": 0,
+          "imagesMissingAlt": 0,
+          "structuredDataBlocks": 1,
+          "headings": 1,
+          "h1": 1,
+          "internalLinks": 0,
+          "externalLinks": 0,
+          "openGraphTags": 1,
+          "preconnectHints": 1
+        }
+      },
+      "notes": [
+        "Resolved host: example.com"
+      ],
+      "warnings": []
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "completed",
+      "mode": "crawler",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "crawler",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "completed",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [
+        {
+          "id": "step-1",
+          "label": "Fetch Primary Document",
+          "status": "completed",
+          "detail": "HTTP 200"
+        }
+      ],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      }
+    }
+  }
+}
+```
+
+## [2026-06-07T02:16:02.337Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "completed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "statusCode": 200,
+      "contentType": "text/html",
+      "responseTimeMs": 120,
+      "headers": {
+        "cacheControl": "max-age=60",
+        "server": "example",
+        "poweredBy": null
+      },
+      "document": {
+        "title": "Example",
+        "metaDescription": "Example site",
+        "canonical": "https://example.com",
+        "robots": null,
+        "lang": "en",
+        "viewport": "width=device-width",
+        "counts": {
+          "scripts": 1,
+          "stylesheets": 1,
+          "images": 0,
+          "imagesMissingAlt": 0,
+          "structuredDataBlocks": 1,
+          "headings": 1,
+          "h1": 1,
+          "internalLinks": 0,
+          "externalLinks": 0,
+          "openGraphTags": 1,
+          "preconnectHints": 1
+        }
+      },
+      "notes": [
+        "Resolved host: example.com"
+      ],
+      "warnings": []
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "skipped",
+      "mode": "stub",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "stub",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "not_run",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      },
+      "reason": "browser_not_configured"
+    }
+  }
+}
+```
+
+## [2026-06-07T02:16:58.193Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "failed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "notes": [
+        "Fetch failed"
+      ],
+      "warnings": [],
+      "error": "fetch_failed"
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "completed",
+      "mode": "crawler",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "crawler",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "completed",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [
+        {
+          "id": "step-1",
+          "label": "Fetch Primary Document",
+          "status": "completed",
+          "detail": "HTTP 200"
+        }
+      ],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      }
+    }
+  }
+}
+```
+
+## [2026-06-07T02:16:58.199Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "failed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "notes": [
+        "Fetch failed"
+      ],
+      "warnings": [],
+      "error": "fetch_failed"
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "completed",
+      "mode": "crawler",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "crawler",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "completed",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [
+        {
+          "id": "step-1",
+          "label": "Fetch Primary Document",
+          "status": "completed",
+          "detail": "HTTP 200"
+        }
+      ],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      }
+    }
+  }
+}
+```
+
+## [2026-06-07T02:16:58.203Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "completed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "statusCode": 200,
+      "contentType": "text/html",
+      "responseTimeMs": 120,
+      "headers": {
+        "cacheControl": "max-age=60",
+        "server": "example",
+        "poweredBy": null
+      },
+      "document": {
+        "title": "Example",
+        "metaDescription": "Example site",
+        "canonical": "https://example.com",
+        "robots": null,
+        "lang": "en",
+        "viewport": "width=device-width",
+        "counts": {
+          "scripts": 1,
+          "stylesheets": 1,
+          "images": 0,
+          "imagesMissingAlt": 0,
+          "structuredDataBlocks": 1,
+          "headings": 1,
+          "h1": 1,
+          "internalLinks": 0,
+          "externalLinks": 0,
+          "openGraphTags": 1,
+          "preconnectHints": 1
+        }
+      },
+      "notes": [
+        "Resolved host: example.com"
+      ],
+      "warnings": []
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "completed",
+      "mode": "crawler",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "crawler",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "completed",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [
+        {
+          "id": "step-1",
+          "label": "Fetch Primary Document",
+          "status": "completed",
+          "detail": "HTTP 200"
+        }
+      ],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      }
+    }
+  }
+}
+```
+
+## [2026-06-07T02:16:58.209Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "completed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "statusCode": 200,
+      "contentType": "text/html",
+      "responseTimeMs": 120,
+      "headers": {
+        "cacheControl": "max-age=60",
+        "server": "example",
+        "poweredBy": null
+      },
+      "document": {
+        "title": "Example",
+        "metaDescription": "Example site",
+        "canonical": "https://example.com",
+        "robots": null,
+        "lang": "en",
+        "viewport": "width=device-width",
+        "counts": {
+          "scripts": 1,
+          "stylesheets": 1,
+          "images": 0,
+          "imagesMissingAlt": 0,
+          "structuredDataBlocks": 1,
+          "headings": 1,
+          "h1": 1,
+          "internalLinks": 0,
+          "externalLinks": 0,
+          "openGraphTags": 1,
+          "preconnectHints": 1
+        }
+      },
+      "notes": [
+        "Resolved host: example.com"
+      ],
+      "warnings": []
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "skipped",
+      "mode": "stub",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "stub",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "not_run",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      },
+      "reason": "browser_not_configured"
+    }
+  }
+}
+```
+
+## [2026-06-07T02:20:37.792Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "failed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "notes": [
+        "Fetch failed"
+      ],
+      "warnings": [],
+      "error": "fetch_failed"
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "completed",
+      "mode": "crawler",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "crawler",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "completed",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [
+        {
+          "id": "step-1",
+          "label": "Fetch Primary Document",
+          "status": "completed",
+          "detail": "HTTP 200"
+        }
+      ],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      }
+    }
+  }
+}
+```
+
+## [2026-06-07T02:20:37.835Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "failed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "notes": [
+        "Fetch failed"
+      ],
+      "warnings": [],
+      "error": "fetch_failed"
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "completed",
+      "mode": "crawler",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "crawler",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "completed",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [
+        {
+          "id": "step-1",
+          "label": "Fetch Primary Document",
+          "status": "completed",
+          "detail": "HTTP 200"
+        }
+      ],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      }
+    }
+  }
+}
+```
+
+## [2026-06-07T02:20:37.882Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "completed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "statusCode": 200,
+      "contentType": "text/html",
+      "responseTimeMs": 120,
+      "headers": {
+        "cacheControl": "max-age=60",
+        "server": "example",
+        "poweredBy": null
+      },
+      "document": {
+        "title": "Example",
+        "metaDescription": "Example site",
+        "canonical": "https://example.com",
+        "robots": null,
+        "lang": "en",
+        "viewport": "width=device-width",
+        "counts": {
+          "scripts": 1,
+          "stylesheets": 1,
+          "images": 0,
+          "imagesMissingAlt": 0,
+          "structuredDataBlocks": 1,
+          "headings": 1,
+          "h1": 1,
+          "internalLinks": 0,
+          "externalLinks": 0,
+          "openGraphTags": 1,
+          "preconnectHints": 1
+        }
+      },
+      "notes": [
+        "Resolved host: example.com"
+      ],
+      "warnings": []
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "completed",
+      "mode": "crawler",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "crawler",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "completed",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [
+        {
+          "id": "step-1",
+          "label": "Fetch Primary Document",
+          "status": "completed",
+          "detail": "HTTP 200"
+        }
+      ],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      }
+    }
+  }
+}
+```
+
+## [2026-06-07T02:20:37.925Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "completed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "statusCode": 200,
+      "contentType": "text/html",
+      "responseTimeMs": 120,
+      "headers": {
+        "cacheControl": "max-age=60",
+        "server": "example",
+        "poweredBy": null
+      },
+      "document": {
+        "title": "Example",
+        "metaDescription": "Example site",
+        "canonical": "https://example.com",
+        "robots": null,
+        "lang": "en",
+        "viewport": "width=device-width",
+        "counts": {
+          "scripts": 1,
+          "stylesheets": 1,
+          "images": 0,
+          "imagesMissingAlt": 0,
+          "structuredDataBlocks": 1,
+          "headings": 1,
+          "h1": 1,
+          "internalLinks": 0,
+          "externalLinks": 0,
+          "openGraphTags": 1,
+          "preconnectHints": 1
+        }
+      },
+      "notes": [
+        "Resolved host: example.com"
+      ],
+      "warnings": []
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "skipped",
+      "mode": "stub",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "stub",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "not_run",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      },
+      "reason": "browser_not_configured"
+    }
+  }
+}
+```
+
+## [2026-06-07T02:21:09.353Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "failed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "notes": [
+        "Fetch failed"
+      ],
+      "warnings": [],
+      "error": "fetch_failed"
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "completed",
+      "mode": "crawler",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "crawler",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "completed",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [
+        {
+          "id": "step-1",
+          "label": "Fetch Primary Document",
+          "status": "completed",
+          "detail": "HTTP 200"
+        }
+      ],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      }
+    }
+  }
+}
+```
+
+## [2026-06-07T02:21:09.360Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "failed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "notes": [
+        "Fetch failed"
+      ],
+      "warnings": [],
+      "error": "fetch_failed"
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "completed",
+      "mode": "crawler",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "crawler",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "completed",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [
+        {
+          "id": "step-1",
+          "label": "Fetch Primary Document",
+          "status": "completed",
+          "detail": "HTTP 200"
+        }
+      ],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      }
+    }
+  }
+}
+```
+
+## [2026-06-07T02:21:09.366Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "completed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "statusCode": 200,
+      "contentType": "text/html",
+      "responseTimeMs": 120,
+      "headers": {
+        "cacheControl": "max-age=60",
+        "server": "example",
+        "poweredBy": null
+      },
+      "document": {
+        "title": "Example",
+        "metaDescription": "Example site",
+        "canonical": "https://example.com",
+        "robots": null,
+        "lang": "en",
+        "viewport": "width=device-width",
+        "counts": {
+          "scripts": 1,
+          "stylesheets": 1,
+          "images": 0,
+          "imagesMissingAlt": 0,
+          "structuredDataBlocks": 1,
+          "headings": 1,
+          "h1": 1,
+          "internalLinks": 0,
+          "externalLinks": 0,
+          "openGraphTags": 1,
+          "preconnectHints": 1
+        }
+      },
+      "notes": [
+        "Resolved host: example.com"
+      ],
+      "warnings": []
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "completed",
+      "mode": "crawler",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "crawler",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "completed",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [
+        {
+          "id": "step-1",
+          "label": "Fetch Primary Document",
+          "status": "completed",
+          "detail": "HTTP 200"
+        }
+      ],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      }
+    }
+  }
+}
+```
+
+## [2026-06-07T02:21:09.372Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "completed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "statusCode": 200,
+      "contentType": "text/html",
+      "responseTimeMs": 120,
+      "headers": {
+        "cacheControl": "max-age=60",
+        "server": "example",
+        "poweredBy": null
+      },
+      "document": {
+        "title": "Example",
+        "metaDescription": "Example site",
+        "canonical": "https://example.com",
+        "robots": null,
+        "lang": "en",
+        "viewport": "width=device-width",
+        "counts": {
+          "scripts": 1,
+          "stylesheets": 1,
+          "images": 0,
+          "imagesMissingAlt": 0,
+          "structuredDataBlocks": 1,
+          "headings": 1,
+          "h1": 1,
+          "internalLinks": 0,
+          "externalLinks": 0,
+          "openGraphTags": 1,
+          "preconnectHints": 1
+        }
+      },
+      "notes": [
+        "Resolved host: example.com"
+      ],
+      "warnings": []
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "skipped",
+      "mode": "stub",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "stub",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "not_run",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      },
+      "reason": "browser_not_configured"
+    }
+  }
+}
+```
+
+## [2026-06-07T02:23:06.965Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "failed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "notes": [
+        "Fetch failed"
+      ],
+      "warnings": [],
+      "error": "fetch_failed"
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "completed",
+      "mode": "crawler",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "crawler",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "completed",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [
+        {
+          "id": "step-1",
+          "label": "Fetch Primary Document",
+          "status": "completed",
+          "detail": "HTTP 200"
+        }
+      ],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      }
+    }
+  }
+}
+```
+
+## [2026-06-07T02:23:06.979Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "failed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "notes": [
+        "Fetch failed"
+      ],
+      "warnings": [],
+      "error": "fetch_failed"
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "completed",
+      "mode": "crawler",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "crawler",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "completed",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [
+        {
+          "id": "step-1",
+          "label": "Fetch Primary Document",
+          "status": "completed",
+          "detail": "HTTP 200"
+        }
+      ],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      }
+    }
+  }
+}
+```
+
+## [2026-06-07T02:23:06.991Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "completed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "statusCode": 200,
+      "contentType": "text/html",
+      "responseTimeMs": 120,
+      "headers": {
+        "cacheControl": "max-age=60",
+        "server": "example",
+        "poweredBy": null
+      },
+      "document": {
+        "title": "Example",
+        "metaDescription": "Example site",
+        "canonical": "https://example.com",
+        "robots": null,
+        "lang": "en",
+        "viewport": "width=device-width",
+        "counts": {
+          "scripts": 1,
+          "stylesheets": 1,
+          "images": 0,
+          "imagesMissingAlt": 0,
+          "structuredDataBlocks": 1,
+          "headings": 1,
+          "h1": 1,
+          "internalLinks": 0,
+          "externalLinks": 0,
+          "openGraphTags": 1,
+          "preconnectHints": 1
+        }
+      },
+      "notes": [
+        "Resolved host: example.com"
+      ],
+      "warnings": []
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "completed",
+      "mode": "crawler",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "crawler",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "completed",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [
+        {
+          "id": "step-1",
+          "label": "Fetch Primary Document",
+          "status": "completed",
+          "detail": "HTTP 200"
+        }
+      ],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      }
+    }
+  }
+}
+```
+
+## [2026-06-07T02:23:07.006Z] Session Memory [https://example.com]
+{"executiveSummary":"Evidence-backed summary","deterministicFindings":[],"browserFlowGaps":[],"architectureRisks":[],"nextActions":[]}
+
+### State Machine Snapshot
+```json
+{
+  "evidenceCollection": {
+    "deterministic": {
+      "stage": "deterministic",
+      "status": "completed",
+      "startedAt": "2026-05-30T00:00:00.000Z",
+      "completedAt": "2026-05-30T00:00:01.000Z",
+      "targetUrl": "https://example.com",
+      "finalUrl": "https://example.com",
+      "statusCode": 200,
+      "contentType": "text/html",
+      "responseTimeMs": 120,
+      "headers": {
+        "cacheControl": "max-age=60",
+        "server": "example",
+        "poweredBy": null
+      },
+      "document": {
+        "title": "Example",
+        "metaDescription": "Example site",
+        "canonical": "https://example.com",
+        "robots": null,
+        "lang": "en",
+        "viewport": "width=device-width",
+        "counts": {
+          "scripts": 1,
+          "stylesheets": 1,
+          "images": 0,
+          "imagesMissingAlt": 0,
+          "structuredDataBlocks": 1,
+          "headings": 1,
+          "h1": 1,
+          "internalLinks": 0,
+          "externalLinks": 0,
+          "openGraphTags": 1,
+          "preconnectHints": 1
+        }
+      },
+      "notes": [
+        "Resolved host: example.com"
+      ],
+      "warnings": []
+    },
+    "browser": {
+      "stage": "browser",
+      "status": "skipped",
+      "mode": "stub",
+      "startedAt": "2026-05-30T00:00:01.000Z",
+      "completedAt": "2026-05-30T00:00:02.000Z",
+      "runtime": {
+        "runner": "stub",
+        "instruction": "Inspect example.com",
+        "startUrl": "https://example.com",
+        "finalUrl": "https://example.com",
+        "taskId": "test-browser",
+        "workspaceDir": "outputs/test"
+      },
+      "pages": [
+        {
+          "url": "https://example.com",
+          "title": "Example",
+          "notes": [
+            "Captured test page"
+          ]
+        }
+      ],
+      "flows": [
+        {
+          "id": "landing",
+          "label": "Landing page",
+          "status": "not_run",
+          "summary": "Landing page evidence",
+          "steps": [
+            "Fetch page"
+          ]
+        }
+      ],
+      "timeline": [],
+      "observations": [
+        "Browser test observation"
+      ],
+      "warnings": [],
+      "screenshots": [],
+      "artifacts": {
+        "screenshotPaths": [],
+        "logPaths": []
+      },
+      "reason": "browser_not_configured"
+    }
+  }
+}
+```

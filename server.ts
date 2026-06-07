@@ -21,8 +21,11 @@ import { initDb, getDb } from "./src/db/index";
 import { users, audits, planSettings, intakeLeads } from "./src/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { resolveAdminBootstrapConfig } from "./src/db/adminBootstrap";
+import { loadLocalEnvFiles } from "./src/Server/Services/serverEnv";
+import { registerSpaFallback } from "./src/Server/Services/serverRouting";
 
 async function startServer() {
+  loadLocalEnvFiles();
   const JWT_SECRET = getRequiredJwtSecret();
   const app = express();
   const PORT = 3000;
@@ -1342,9 +1345,7 @@ ${routes.map(route => `  <url>
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
+    registerSpaFallback(app, distPath);
   }
 
   app.listen(PORT, "0.0.0.0", () => {

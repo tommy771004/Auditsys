@@ -5,12 +5,13 @@ import bcrypt from "bcryptjs";
 import * as schema from "./schema";
 import { resolveAdminBootstrapConfig } from "./adminBootstrap";
 
-const connectionString = process.env.DATABASE_URL;
-
 let db: ReturnType<typeof drizzle>;
 let pool: pkg.Pool;
+let activeConnectionString: string | undefined;
 
 export function getDb() {
+  const connectionString = process.env.DATABASE_URL;
+
   if (!db) {
     if (!connectionString) {
       throw new Error("DATABASE_URL is not set");
@@ -21,11 +22,15 @@ export function getDb() {
       ssl: connectionString.includes("localhost") ? false : { rejectUnauthorized: false },
     });
     db = drizzle(pool, { schema });
+    activeConnectionString = connectionString;
+  } else if (connectionString && activeConnectionString !== connectionString) {
+    throw new Error("DATABASE_URL changed after database initialization");
   }
   return db;
 }
 
 export async function initDb() {
+  const connectionString = process.env.DATABASE_URL;
   if (!connectionString) return false;
   
   const p = new Pool({ 

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { LayoutDashboard, Radio, MonitorPlay, BarChart3, Presentation } from "lucide-react";
+import { BarChart3, LayoutDashboard, Presentation, Radio } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { AppRoute, NavigateTo } from "../../types/home";
 
@@ -14,7 +14,7 @@ export default function ConsoleTabs({ currentRoute, onNavigate }: ConsoleTabsPro
   const tabs = [
     {
       id: "console",
-      label: "Mission Control",
+      label: t("navbar.console"),
       icon: LayoutDashboard,
       route: "console" as AppRoute,
       activeColor: "text-violet-300",
@@ -22,15 +22,23 @@ export default function ConsoleTabs({ currentRoute, onNavigate }: ConsoleTabsPro
     },
     {
       id: "live",
-      label: "Live Execution",
+      label: t("navbar.live"),
       icon: Radio,
       route: "live" as AppRoute,
       activeColor: "text-brand-cyan",
       pillColor: "bg-brand-cyan/10 border-brand-cyan/20",
     },
     {
+      id: "report",
+      label: t("navbar.sampleReport"),
+      icon: BarChart3,
+      route: "report" as AppRoute,
+      activeColor: "text-emerald-300",
+      pillColor: "bg-emerald-400/10 border-emerald-400/20",
+    },
+    {
       id: "presentation",
-      label: "Presentation Deck",
+      label: t("navbar.presentation"),
       icon: Presentation,
       route: "presentation" as AppRoute,
       activeColor: "text-amber-300",

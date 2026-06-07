@@ -49,7 +49,7 @@ export default function Footer({ currentRoute, onNavigate }: FooterProps) {
                 <span className="grid place-items-center w-8 h-8 rounded-sm bg-black/5 text-[var(--text)] border border-[var(--border)] transition-colors duration-300 group-hover:bg-black/10">
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>
                 </span>
-                <span className="flex items-center">Audit<span className="text-brand-faint ml-0.5 opacity-90 transition-colors group-hover:text-[var(--text)]">Sys</span></span>
+                <span className="flex items-center">{t("brand.name")}</span>
               </p>
               <p className="text-sm leading-7 text-brand-muted">{t("footer.summary")}</p>
             </div>

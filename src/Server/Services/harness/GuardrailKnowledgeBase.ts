@@ -17,6 +17,10 @@ export class GuardrailKnowledgeBase {
    * 紀錄錯誤並產生防護規則
    */
   public async recordError(errorMsg: string, suggestedGuardrail: string) {
+    if (!process.env.DATABASE_URL) {
+      return;
+    }
+
     try {
       const db = getDb();
       await db.insert(agentGuardrails).values({
@@ -33,6 +37,10 @@ export class GuardrailKnowledgeBase {
    * 根據當前上下文提取相關的防護欄 Prompt
    */
   public async getGuardrailsForContext(contextStr: string): Promise<string[]> {
+    if (!process.env.DATABASE_URL) {
+      return [];
+    }
+
     try {
       const db = getDb();
       // 實務上這裡會搭配 Vector Search 或 Semantic Matching

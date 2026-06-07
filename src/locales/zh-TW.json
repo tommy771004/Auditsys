@@ -67,7 +67,7 @@
     "titleLine2": "是在哪裡流失了速度",
     "description": "透過多代理 AI 稽核，在幾分鐘內（而不是幾個月）精準定位前端瓶頸、API 延遲與架構風險。",
     "panelTitle": "啟動稽核收件流程",
-    "panelDescription": "輸入真實網站網址，即可測試驗證、載入狀態與可接正式 API 的提交流程。",
+    "panelDescription": "輸入真實網站網址，開始第一輪公開頁面稽核與後續任務控制台流程。",
     "inputLabel": "網站網址",
     "inputPlaceholder": "https://your-company.com",
     "submit": "開始免費掃描",
@@ -76,9 +76,9 @@
     "loading": "正在準備稽核",
     "helper": "安全收件，首輪評估無需提供原始程式碼。",
     "formCaption": "貼上正式環境網址，預覽產品化收件體驗。",
-    "formFootnote": "可透過 VITE_AUDIT_ENDPOINT 連接正式服務。",
+    "formFootnote": "首輪評估只需要公開網址，不需要提供原始碼或憑證。",
     "successTitle": "稽核請求已排入",
-    "successDescription": "請求已通過驗證，目前流程會先模擬成功回應，之後可直接接上正式 API。",
+    "successDescription": "請求已通過驗證，可繼續進入稽核控制台。",
     "errorTitle": "暫時無法送出掃描",
     "trustPills": {
       "security": "安全收件",
@@ -434,7 +434,7 @@
       "analysis": {
         "eyebrow": "02",
         "title": "觸發稽核流程",
-        "description": "模擬延遲對應真實網路等待，同時保留可直接接上正式 API 的 fetch 寫法。"
+        "description": "系統會檢查目標網址、驗證安全邊界，並準備可供審查的 evidence。"
       },
       "delivery": {
         "eyebrow": "03",
@@ -444,16 +444,16 @@
     }
   },
   "homePreview": {
-    "sectionEyebrow": "多頁延伸",
-    "sectionTitle": "首頁外觀已延伸到定價、引導表單與範例報告頁面。",
-    "sectionDescription": "原本分散的靜態 HTML 設計稿，現在已接成可導航的 React 頁面，並共用 Liquid Glass 元件與 i18n 架構。",
-    "secondaryEyebrow": "實作說明",
-    "secondaryTitle": "目前採用 hash 路由，方便先以靜態站形式檢視原型。",
-    "secondaryDescription": "這樣在原型階段不需要額外設定伺服器 rewrite 規則，也能直接切換不同頁面。"
+    "sectionEyebrow": "證據路徑",
+    "sectionTitle": "從掃描請求到報告交付，不遺失任何上下文。",
+    "sectionDescription": "定價、引導表單、任務控制台與報告頁使用同一套稽核語言，讓交付流程像一個完整產品。",
+    "secondaryEyebrow": "交付模型",
+    "secondaryTitle": "一個網址可以延伸成高階報告、即時掃描或修復簡報。",
+    "secondaryDescription": "依照需要選擇 evidence 深度，並讓每個發現都回到同一個目標網址。"
   },
   "status": {
-    "idleTitle": "可接正式 API 的收件流程",
-    "idleDescription": "表單會驗證網址、管理載入狀態，且在尚未設定端點時改用模擬成功流程。"
+    "idleTitle": "等待目標網址",
+    "idleDescription": "送出公開網站網址後，即可開始第一輪稽核並進入任務控制台。"
   },
   "pricing": {
     "approvalRequired": "需要介入審核",

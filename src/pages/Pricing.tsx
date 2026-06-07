@@ -225,10 +225,10 @@ export default function Pricing({ onNavigate }: PricingPageProps) {
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="text-[10px] font-mono font-bold uppercase tracking-[0.25em] text-brand-faint mb-1">
-                            {t(plan.nameKey)}
+                            {plan.planIdMap}
                           </p>
                           <h3 className="text-2xl font-black text-[var(--text)] tracking-tight">
-                            {isFeatured ? "PRO PLAN" : plan.id.toUpperCase()}
+                            {t(plan.nameKey)}
                           </h3>
                         </div>
                         {isFeatured && (

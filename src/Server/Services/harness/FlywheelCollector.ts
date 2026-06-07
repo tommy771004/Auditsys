@@ -16,6 +16,10 @@ export interface FlywheelRecord {
  */
 export class FlywheelCollector {
   public async record(data: FlywheelRecord) {
+    if (!process.env.DATABASE_URL) {
+      return;
+    }
+
     try {
       const db = getDb();
       await db.insert(agentFlywheel).values({

@@ -28,6 +28,7 @@ import type { AppRoute } from "./types/home";
 
 const AuditConsole = lazy(() => import("./pages/AuditConsole"));
 const RealAuditDashboard = lazy(() => import("./pages/RealAuditDashboard"));
+const SampleReport = lazy(() => import("./pages/SampleReport"));
 
 const SkeletonPage = () => (
   <div className="flex min-h-screen w-full flex-col items-center justify-center space-y-6 pt-20 pb-40 px-4">
@@ -90,6 +91,12 @@ export default function App() {
         return <AuditPresentation onNavigate={navigate} />;
       case "funding":
         return <Funding onNavigate={navigate} />;
+      case "report":
+        return (
+          <Suspense fallback={<SkeletonPage />}>
+            <SampleReport activeSection={section} onNavigate={navigate} />
+          </Suspense>
+        );
       case "home":
       default:
         return <Home activeSection={section} onNavigate={navigate} />;
@@ -116,12 +123,12 @@ export default function App() {
         description={t(`metaDesc.${route}`, { defaultValue: t('metaDesc.home') })} 
         canonicalUrl={canonicalUrl}
         ogTitle={t(`meta.${route}`)}
-        siteName="Agentic SEO Audit"
+        siteName={t("brand.name")}
         ogImage={`${baseUrl}/og-image.jpg`}
         structuredData={{
           "@context": "https://schema.org",
           "@type": "WebSite",
-          "name": "Agentic SEO Audit",
+          "name": t("brand.name"),
           "url": baseUrl,
           "description": t(`metaDesc.${route}`, { defaultValue: t('metaDesc.home') })
         }}

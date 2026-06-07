@@ -62,23 +62,33 @@ interface AttemptExecution {
   error?: string;
 }
 
-async function fetchLighthouse(url: string): Promise<{ performance: number; accessibility: number; seo: number }> {
+async function fetchLighthouse(url: string): Promise<{ performance: number; accessibility: number; seo: number } | undefined> {
   try {
     const key = process.env.VITE_PAGESPEED_API_KEY || process.env.PAGESPEED_API_KEY;
     const urlParam = encodeURIComponent(url);
     const categoryParams = "&category=performance&category=accessibility&category=seo";
     const reqUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${urlParam}${categoryParams}&strategy=mobile${key ? `&key=${encodeURIComponent(key)}` : ""}`;
     const res = await fetch(reqUrl);
-    if (!res.ok) return { performance: 0, accessibility: 0, seo: 0 };
+    if (!res.ok) return undefined;
     const data = await res.json();
     const categories = data.lighthouseResult?.categories || {};
+    const performanceScore = categories.performance?.score;
+    const accessibilityScore = categories.accessibility?.score;
+    const seoScore = categories.seo?.score;
+    if (
+      typeof performanceScore !== "number" ||
+      typeof accessibilityScore !== "number" ||
+      typeof seoScore !== "number"
+    ) {
+      return undefined;
+    }
     return {
-      performance: Math.round((categories.performance?.score || 0) * 100),
-      accessibility: Math.round((categories.accessibility?.score || 0) * 100),
-      seo: Math.round((categories.seo?.score || 0) * 100),
+      performance: Math.round(performanceScore * 100),
+      accessibility: Math.round(accessibilityScore * 100),
+      seo: Math.round(seoScore * 100),
     };
   } catch {
-    return { performance: 0, accessibility: 0, seo: 0 };
+    return undefined;
   }
 }
 
@@ -749,15 +759,15 @@ export async function runAuditHarness(
       costUsd: attemptCost
     });
 
+    if (result.qualityGate.status !== "failed" || index >= policy.maxAttempts) {
+      break;
+    }
+
     const governance = buildGovernance(policy, attempts, costTracker.records.reduce((a, b) => a + b.outputTokens, 0));
 
     if (governance.circuitBreakerTripped || costTracker.overBudget) {
       circuitBreakerReason = governance.circuitBreakerReason || "budget_exceeded";
       console.warn(`[CircuitBreaker] Tripped! Reason: ${circuitBreakerReason}. Total Cost: $${costTracker.totalCost.toFixed(4)}`);
-      break;
-    }
-
-    if (result.qualityGate.status !== "failed" || index >= policy.maxAttempts) {
       break;
     }
 
