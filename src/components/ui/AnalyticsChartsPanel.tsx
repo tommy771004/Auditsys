@@ -6,9 +6,10 @@ import type { LiveScanSummary } from "../../types/liveAudit.types";
 
 interface AnalyticsChartsPanelProps {
   summary?: LiveScanSummary;
+  targetUrl?: string;
 }
 
-export default function AnalyticsChartsPanel({ summary }: AnalyticsChartsPanelProps) {
+export default function AnalyticsChartsPanel({ summary, targetUrl }: AnalyticsChartsPanelProps) {
   const [activeView, setActiveView] = useState<"performance" | "seo">("performance");
   const [auditsData, setAuditsData] = useState<any[]>([]);
 
@@ -21,14 +22,26 @@ export default function AnalyticsChartsPanel({ summary }: AnalyticsChartsPanelPr
         });
         if (res.ok) {
           const data = await res.json();
-          setAuditsData(data);
+          if (Array.isArray(data)) {
+            const filtered = targetUrl ? data.filter(a => {
+              try {
+                // simple hostname matching or exact match
+                const t1 = new URL(a.url).hostname;
+                const t2 = new URL(targetUrl).hostname;
+                return t1 === t2 || a.url === targetUrl;
+              } catch(e) {
+                return a.url === targetUrl;
+              }
+            }) : data;
+            setAuditsData(filtered);
+          }
         }
       } catch (err) {
         console.error(err);
       }
     };
     fetchAudits();
-  }, []);
+  }, [targetUrl]);
 
   const last5Audits = auditsData.filter(a => a.status === 'completed' || a.result?.evidence).slice(0, 5).reverse();
   let timeSeriesData = last5Audits.map((a, idx) => {

@@ -1151,5 +1151,42 @@
         "title": "警告（{{count}}）"
       }
     }
+  },
+  "seoChecklistGuide": {
+    "eyebrow": "SEO 檢查清單",
+    "title": "網站效能最佳化實務指南",
+    "description": "遵循這幾個基本步驟來最佳化網站的速度、無障礙體驗和搜尋引擎表現。",
+    "filters": {
+      "all": "全部",
+      "completed": "已完成",
+      "pending": "待處理"
+    },
+    "progress": "{{completed}} / {{total}} 項已完成",
+    "noTasks": "目前視圖中沒有任務。",
+    "bestPractice": "最佳實務",
+    "markAsComplete": "標記為完成",
+    "markAsIncomplete": "標記為未完成",
+    "steps": {
+      "step-1": {
+        "title": "最佳化 Metadata",
+        "description": "確保 title 標籤與 meta description 簡潔且包含關鍵字，以提高在搜尋結果中的點擊率。",
+        "why": "獨特且具描述性的 metadata 能協助搜尋引擎理解網頁內容，並提升搜尋引擎結果頁面（SERP）上的點閱率。"
+      },
+      "step-2": {
+        "title": "改善載入速度",
+        "description": "壓縮腳本與靜態資源。擁有較短的 LCP（最大內容繪製）時間，對於留住使用者與提高排名至關重要。",
+        "why": "快速的載入時間可降低跳出率，並且是 Google Core Web Vitals 中權重極高的排名信號。"
+      },
+      "step-3": {
+        "title": "無障礙圖片設定",
+        "description": "為所有圖片添加具描述性的 alt 屬性，能協助螢幕閱讀器，並為搜尋引擎爬蟲提供上下文。",
+        "why": "Alt 屬性讓視障使用者能理解圖片內容，也是搜尋引擎進行圖片索引時的重要文本依據。"
+      },
+      "step-4": {
+        "title": "確保連線安全",
+        "description": "始終透過 HTTPS 傳輸內容。搜尋引擎會懲罰不安全的網站，而使用者也期望資料保有隱私。",
+        "why": "HTTPS 能加密瀏覽器與伺服器間的資料。缺乏 HTTPS 的網站會被標記為「不安全」，且搜尋引擎排名會受到嚴重打擊。"
+      }
+    }
   }
 }

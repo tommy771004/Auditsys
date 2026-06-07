@@ -1,38 +1,33 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, ChevronRight, Zap, Image, Search, ShieldCheck } from "lucide-react";
 import SectionHeader from "./SectionHeader";
 import ProgressBar from "./ProgressBar";
+import Tooltip from "./Tooltip";
 
-const steps = [
+const stepsConfig = [
   {
     id: "step-1",
-    title: "Optimize Metadata",
-    description: "Ensure your title tags and meta descriptions are concise and keyword-rich to improve click-through rates from search results.",
     icon: Search,
   },
   {
     id: "step-2",
-    title: "Improve Load Speed",
-    description: "Minimise scripts and compress assets. A fast Largest Contentful Paint (LCP) is crucial for retaining users and ranking higher.",
     icon: Zap,
   },
   {
     id: "step-3",
-    title: "Accessible Images",
-    description: "Add descriptive alt attributes to all images. This assists screen readers and provides context to search engine crawlers.",
     icon: Image,
   },
   {
     id: "step-4",
-    title: "Secure Your Site",
-    description: "Always serve your content over HTTPS. Search engines penalize insecure sites, and users expect privacy.",
     icon: ShieldCheck,
   }
 ];
 
 export default function SeoChecklistGuide() {
-  const [activeStepId, setActiveStepId] = useState<string>(steps[0].id);
+  const { t } = useTranslation();
+  const [activeStepId, setActiveStepId] = useState<string>(stepsConfig[0].id);
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
   const [filter, setFilter] = useState<'all' | 'completed' | 'pending'>('all');
 
@@ -49,6 +44,13 @@ export default function SeoChecklistGuide() {
     });
   };
 
+  const steps = stepsConfig.map(step => ({
+    ...step,
+    title: t(`seoChecklistGuide.steps.${step.id}.title`),
+    description: t(`seoChecklistGuide.steps.${step.id}.description`),
+    why: t(`seoChecklistGuide.steps.${step.id}.why`),
+  }));
+
   const filteredSteps = steps.filter(step => {
     if (filter === 'completed') return completedSteps.has(step.id);
     if (filter === 'pending') return !completedSteps.has(step.id);
@@ -60,9 +62,9 @@ export default function SeoChecklistGuide() {
   return (
     <div className="w-full max-w-4xl mx-auto">
       <SectionHeader 
-        eyebrow="SEO CHECKLIST" 
-        title="Step-by-Step Guide for Site Performance" 
-        description="Follow these fundamental steps to optimize your site for speed, accessibility, and search presence." 
+        eyebrow={t("seoChecklistGuide.eyebrow")} 
+        title={t("seoChecklistGuide.title")} 
+        description={t("seoChecklistGuide.description")} 
         className="text-center mb-8" 
       />
 
@@ -79,12 +81,12 @@ export default function SeoChecklistGuide() {
                     : "text-brand-muted hover:text-[var(--text)] hover:bg-black/5"
                 }`}
               >
-                {f}
+                {t(`seoChecklistGuide.filters.${f}`)}
               </button>
             ))}
           </div>
           <div className="text-sm font-bold text-brand-muted flex items-center gap-2">
-            <span>{completedSteps.size} of {steps.length} Completed</span>
+            <span>{t("seoChecklistGuide.progress", { completed: completedSteps.size, total: steps.length })}</span>
             <span className="inline-block px-2 py-0.5 rounded-full bg-black/10 text-[var(--text)]">{progress}%</span>
           </div>
         </div>
@@ -101,25 +103,25 @@ export default function SeoChecklistGuide() {
               const Icon = step.icon;
 
               return (
-                <motion.button
-                  layout
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  key={step.id}
-                  onClick={() => setActiveStepId(step.id)}
-                  className={`w-full text-left flex items-start gap-4 p-5 rounded-sm border transition-all duration-300 relative ${
-                    isActive
-                      ? "border-[var(--border)] bg-black text-white shadow-[4px_4px_0_rgba(0,0,0,1)] -translate-y-1 -translate-x-1 z-10"
-                      : isCompleted 
-                        ? "border-[var(--border)] bg-black/5 text-brand-faint hover:bg-black/10"
-                        : "border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:bg-black/5"
-                  }`}
-                >
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    key={step.id}
+                    onClick={() => setActiveStepId(step.id)}
+                    className={`w-full text-left flex items-start gap-4 p-5 rounded-sm border transition-all duration-300 relative cursor-pointer ${
+                      isActive
+                        ? "border-[var(--border)] bg-black text-white shadow-[4px_4px_0_rgba(0,0,0,1)] -translate-y-1 -translate-x-1 z-10"
+                        : isCompleted 
+                          ? "border-[var(--border)] bg-black/5 text-brand-faint hover:bg-black/10"
+                          : "border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:bg-black/5"
+                    }`}
+                  >
                   <button
                     onClick={(e) => toggleStep(step.id, e)}
-                    aria-label={isCompleted ? "Mark as incomplete" : "Mark as complete"}
+                    aria-label={isCompleted ? t("seoChecklistGuide.markAsIncomplete") : t("seoChecklistGuide.markAsComplete")}
                     className={`mt-1 flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
                       isCompleted 
                         ? "bg-emerald-500 border-emerald-500 text-white" 
@@ -132,7 +134,11 @@ export default function SeoChecklistGuide() {
                   </button>
                   <div className="flex-1 relative">
                     <h4 className="font-bold text-lg relative inline-block">
-                      <span className={isCompleted && !isActive ? "opacity-50" : ""}>{step.title}</span>
+                      <span className={isCompleted && !isActive ? "opacity-50" : ""}>
+                        <Tooltip content={step.why}>
+                          {step.title}
+                        </Tooltip>
+                      </span>
                       {/* Strikethrough Animation */}
                       <AnimatePresence>
                         {isCompleted && (
@@ -141,8 +147,8 @@ export default function SeoChecklistGuide() {
                             animate={{ scaleX: 1 }}
                             exit={{ scaleX: 0 }}
                             transition={{ duration: 0.3, ease: "easeInOut" }}
-                            className={`absolute left-0 top-1/2 h-[2px] w-full origin-left -translate-y-1/2 ${
-                              isActive ? "bg-cyan-400" : "bg-black"
+                            className={`absolute left-0 top-1/2 h-[2px] w-full origin-left -translate-y-1/2 pointer-events-none ${
+                              isActive ? "bg-cyan-400" : "bg-[var(--text)]"
                             }`}
                           />
                         )}
@@ -166,7 +172,7 @@ export default function SeoChecklistGuide() {
                   <div className={`flex items-center justify-center h-full transition-transform ${isActive ? "rotate-90 text-cyan-400" : "text-brand-faint"}`}>
                     <ChevronRight className="w-5 h-5" />
                   </div>
-                </motion.button>
+                </motion.div>
               );
             })}
             {filteredSteps.length === 0 && (
@@ -175,7 +181,7 @@ export default function SeoChecklistGuide() {
                 animate={{ opacity: 1 }}
                 className="p-8 text-center border border-dashed border-[var(--border)] rounded-sm text-brand-faint"
               >
-                No tasks found in this view.
+                {t("seoChecklistGuide.noTasks")}
               </motion.div>
             )}
           </AnimatePresence>
@@ -218,7 +224,7 @@ export default function SeoChecklistGuide() {
                                 animate={{ scaleX: 1 }}
                                 exit={{ scaleX: 0 }}
                                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                                className="absolute left-0 top-1/2 h-[3px] w-full origin-left bg-black -translate-y-1/2"
+                                className="absolute left-0 top-1/2 h-[3px] w-full origin-left bg-[var(--text)] -translate-y-1/2"
                               />
                             )}
                           </AnimatePresence>
@@ -228,7 +234,7 @@ export default function SeoChecklistGuide() {
                        </p>
                      </div>
                      <div className="inline-flex items-center text-xs font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                        <CheckCircle2 className="w-3 h-3 justify-center mr-1.5" /> Best Practice
+                        <CheckCircle2 className="w-3 h-3 justify-center mr-1.5" /> {t("seoChecklistGuide.bestPractice")}
                      </div>
                    </motion.div>
                  ) : null

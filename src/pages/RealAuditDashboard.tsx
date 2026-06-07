@@ -241,7 +241,7 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
                         rightLabel={String(domIssues.length)}
                       />
                     </div>
-                    <AnalyticsChartsPanel />
+                    <AnalyticsChartsPanel summary={summary} targetUrl={state.targetUrl} />
                     <ScanSummaryPanel summary={summary} />
                   </div>
                 ) : null}

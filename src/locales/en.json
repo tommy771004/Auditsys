@@ -1142,5 +1142,42 @@
         "title": "Warnings ({{count}})"
       }
     }
+  },
+  "seoChecklistGuide": {
+    "eyebrow": "SEO CHECKLIST",
+    "title": "Step-by-Step Guide for Site Performance",
+    "description": "Follow these fundamental steps to optimize your site for speed, accessibility, and search presence.",
+    "filters": {
+      "all": "All",
+      "completed": "Completed",
+      "pending": "Pending"
+    },
+    "progress": "{{completed}} of {{total}} Completed",
+    "noTasks": "No tasks found in this view.",
+    "bestPractice": "Best Practice",
+    "markAsComplete": "Mark as complete",
+    "markAsIncomplete": "Mark as incomplete",
+    "steps": {
+      "step-1": {
+        "title": "Optimize Metadata",
+        "description": "Ensure your title tags and meta descriptions are concise and keyword-rich to improve click-through rates from search results.",
+        "why": "Unique and descriptive metadata helps search engines understand page content and improves click-through rates (CTR) from Search Engine Results Pages."
+      },
+      "step-2": {
+        "title": "Improve Load Speed",
+        "description": "Minimise scripts and compress assets. A fast Largest Contentful Paint (LCP) is crucial for retaining users and ranking higher.",
+        "why": "Fast load times decrease bounce rates and are a heavily weighted Core Web Vitals ranking factor for Google."
+      },
+      "step-3": {
+        "title": "Accessible Images",
+        "description": "Add descriptive alt attributes to all images. This assists screen readers and provides context to search engine crawlers.",
+        "why": "Alt text makes content accessible to visually impaired users and provides context to search engine crawlers for image search indexing."
+      },
+      "step-4": {
+        "title": "Secure Your Site",
+        "description": "Always serve your content over HTTPS. Search engines penalize insecure sites, and users expect privacy.",
+        "why": "HTTPS encrypts data between the browser and server. Without it, browsers show 'Not Secure' warnings, and search engines heavily penalize the site."
+      }
+    }
   }
 }
