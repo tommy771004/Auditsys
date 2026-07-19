@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import { UNSAFE_AUDIT_TARGET_ERROR, AUDIT_TARGET_REDIRECT_LIMIT_ERROR } from "../Services/securityPolicies";
 
 /**
  * Typed application error with an HTTP status code.
@@ -23,8 +24,8 @@ export class AppError extends Error {
  */
 const CLIENT_ERROR_CODES = new Set([
   "INVALID_AUDIT_PAYLOAD",
-  "UNSAFE_AUDIT_TARGET",
-  "AUDIT_TARGET_REDIRECT_LIMIT",
+  UNSAFE_AUDIT_TARGET_ERROR,
+  AUDIT_TARGET_REDIRECT_LIMIT_ERROR,
   "INVALID_JSON_BODY",
   "missing_url",
   "invalid_plan",
@@ -37,6 +38,24 @@ const CLIENT_ERROR_CODES = new Set([
  */
 export function isClientError(message: string): boolean {
   return CLIENT_ERROR_CODES.has(message);
+}
+
+export interface MappedErrorResponse {
+  status: number;
+  body: { error: { code: "client_error" | "server_error"; message: string } };
+}
+
+/**
+ * The single error→HTTP mapping for route handlers that catch their own errors.
+ * Client-caused codes map to 400; everything else is a 502 upstream fault.
+ */
+export function mapErrorToResponse(error: unknown, fallbackMessage = "internal_error"): MappedErrorResponse {
+  const message = error instanceof Error ? error.message : fallbackMessage;
+  const status = error instanceof AppError ? error.statusCode : isClientError(message) ? 400 : 502;
+  return {
+    status,
+    body: { error: { code: status < 500 ? "client_error" : "server_error", message } },
+  };
 }
 
 /**

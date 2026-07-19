@@ -7,8 +7,8 @@ import {
 } from "../Services/liveScanCollector";
 import { collectDeterministicEvidence } from "../Services/deterministicCollector";
 import { fetchCruxReport } from "../Services/cruxCollector";
-import { UNSAFE_AUDIT_TARGET_ERROR, AUDIT_TARGET_REDIRECT_LIMIT_ERROR } from "../Services/securityPolicies";
 import { issueStreamToken, authenticateToken, authenticateStream } from "../Middleware/authMiddleware";
+import { mapErrorToResponse } from "../Middleware/errorMiddleware";
 import type { LiveScanSummary } from "../../types/liveAudit.types";
 
 export const scanRouter = Router();
@@ -160,9 +160,8 @@ scanRouter.get("/dom-issues", authenticateToken, async (req, res) => {
     const issues = await scanDomIssues(url);
     res.json(issues);
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "dom_scan_failed";
-    const isClientErr = message === UNSAFE_AUDIT_TARGET_ERROR || message === AUDIT_TARGET_REDIRECT_LIMIT_ERROR;
-    res.status(isClientErr ? 400 : 502).json({ error: message });
+    const mapped = mapErrorToResponse(error, "dom_scan_failed");
+    res.status(mapped.status).json(mapped.body);
   }
 });
 

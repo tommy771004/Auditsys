@@ -6,7 +6,7 @@ import { safeJsonParse } from "../Helpers/jsonHelper";
 import { auditQueue } from "../Services/queue/auditQueue";
 import { authenticateToken } from "../Middleware/authMiddleware";
 import { requirePlanLimits } from "../Middleware/planMiddleware";
-import { isClientError } from "../Middleware/errorMiddleware";
+import { mapErrorToResponse } from "../Middleware/errorMiddleware";
 
 // ---------------------------------------------------------------------------
 // Shared audit request handler
@@ -15,7 +15,6 @@ import { isClientError } from "../Middleware/errorMiddleware";
 interface AuditHandlerConfig {
   saveIntakeLead?: (body: Record<string, unknown>, userId: number, db: ReturnType<typeof getDb>) => Promise<void>;
   getUrl: (body: Record<string, unknown>) => string;
-  clientErrorCodes: string[];
 }
 
 async function handleAuditRequest(
@@ -65,9 +64,8 @@ async function handleAuditRequest(
       throw innerError;
     }
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "audit_failed";
-    const status = config.clientErrorCodes.includes(message) || isClientError(message) ? 400 : 502;
-    res.status(status).json({ error: { code: status === 400 ? "client_error" : "server_error", message } });
+    const mapped = mapErrorToResponse(error, "audit_failed");
+    res.status(mapped.status).json(mapped.body);
   }
 }
 
@@ -82,7 +80,6 @@ export const auditRouter = Router();
 auditRouter.post("/", authenticateToken, requirePlanLimits, async (req, res) => {
   await handleAuditRequest(req, res, {
     getUrl: (body) => (typeof body.url === "string" ? body.url : "unknown"),
-    clientErrorCodes: ["INVALID_AUDIT_PAYLOAD", "UNSAFE_AUDIT_TARGET", "AUDIT_TARGET_REDIRECT_LIMIT"],
   });
 });
 
@@ -110,7 +107,6 @@ intakeRouter.post("/", authenticateToken, requirePlanLimits, async (req, res) =>
       }
     },
     getUrl: (body) => (typeof body.url === "string" ? body.url : "unknown"),
-    clientErrorCodes: ["INVALID_JSON_BODY", "INVALID_AUDIT_PAYLOAD", "UNSAFE_AUDIT_TARGET", "AUDIT_TARGET_REDIRECT_LIMIT"],
   });
 });
 

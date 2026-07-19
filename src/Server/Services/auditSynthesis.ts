@@ -1,5 +1,5 @@
 import type { AuditEvidenceBundle, AuditRequestPayload, AuditSynthesisResult, BrowserCollectorTimelineStep, DeterministicCollectorResult } from "../../shared/types/auditPipelineTypes";
-import { fetchOpenRouterWithFallback, fetchAgentRouter, fetchNvidia } from "./openrouterHelper";
+import { resolveProviderCredentials, callLlmProvider } from "./llmProvider";
 
 function buildEvidenceLines(payload: AuditRequestPayload, deterministic: DeterministicCollectorResult): string[] {
   const lines = [
@@ -186,7 +186,7 @@ function buildFallbackSummary(payload: AuditRequestPayload, evidence: AuditEvide
 }
 
 export async function synthesizeAudit(payload: AuditRequestPayload, evidence: AuditEvidenceBundle, config?: { aiProvider?: string, agentRouterApiKey?: string, openRouterApiKey?: string, nvidiaApiKey?: string, apiKey?: string, allowedModels?: string[] }): Promise<AuditSynthesisResult> {
-  const provider = config?.aiProvider || 'openrouter';
+  const credentials = resolveProviderCredentials(config);
 
   if (evidence.deterministic.status === "failed") {
     const reason = `deterministic_collector_failed: ${evidence.deterministic.error ?? "unknown_error"}`;
@@ -197,17 +197,8 @@ export async function synthesizeAudit(payload: AuditRequestPayload, evidence: Au
       summary: buildFallbackSummary(payload, evidence, reason),
     };
   }
-  
-  let apiKey = config?.apiKey || process.env.OPENROUTER_API_KEY;
-  if (provider === 'agentrouter') {
-    apiKey = config?.agentRouterApiKey || process.env.AGENT_ROUTER_TOKEN;
-  } else if (provider === 'nvidia') {
-    apiKey = config?.nvidiaApiKey || process.env.NVIDIA_API_KEY;
-  } else {
-    apiKey = config?.openRouterApiKey || config?.apiKey || process.env.OPENROUTER_API_KEY;
-  }
 
-  if (!apiKey) {
+  if (!credentials.apiKey) {
     return {
       provider: "fallback",
       queued: false,
@@ -218,18 +209,10 @@ export async function synthesizeAudit(payload: AuditRequestPayload, evidence: Au
 
   try {
     const prompt = buildAuditPrompt(payload, evidence);
-
-    let response;
-    if (provider === 'agentrouter') {
-      response = await fetchAgentRouter(apiKey, prompt, config?.allowedModels?.[0] || 'gpt-4o');
-    } else if (provider === 'nvidia') {
-      response = await fetchNvidia(apiKey, prompt, config?.allowedModels?.[0] || 'nvidia/nemotron-3-super-120b-a12b:free');
-    } else {
-      response = await fetchOpenRouterWithFallback(apiKey, prompt, config?.allowedModels);
-    }
+    const response = await callLlmProvider(credentials, prompt);
 
     return {
-      provider: provider as "openrouter" | "agentrouter" | "fallback" | "nvidia",
+      provider: credentials.provider,
       queued: false,
       summary: response.text ?? "",
       model: response.model,
