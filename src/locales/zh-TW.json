@@ -194,6 +194,34 @@
       "reset": "重設模擬",
       "cancel": "取消掃描"
     },
+    "real": {
+      "badge": "證據控制台",
+      "title": "執行一次稽核，讓每個數字都可追溯",
+      "description": "這裡只顯示已收集的證據與後端治理結果，不使用模擬進度或佔位報告。",
+      "targetLabel": "目標網站網址",
+      "targetPlaceholder": "https://example.com",
+      "submit": "執行稽核",
+      "running": "正在收集證據",
+      "reset": "清除結果",
+      "phase": { "idle": "待命", "running": "執行中", "complete": "完成", "error": "失敗" },
+      "errorTitle": "稽核未完成",
+      "errorDescription": "系統沒有偽造結果。請處理請求或驗證問題後重新執行。",
+      "resultTitle": "稽核結果",
+      "target": "目標",
+      "provider": "綜整來源",
+      "deterministic": "HTTP 證據",
+      "browser": "瀏覽器證據",
+      "warnings": "警告",
+      "summaryTitle": "綜整摘要",
+      "summaryEmpty": "管線沒有回傳文字摘要；以下證據仍是判讀依據。",
+      "harnessTitle": "治理結果",
+      "harnessStatus": "狀態",
+      "harnessAttempts": "嘗試",
+      "harnessPivots": "轉向",
+      "harnessDuration": "延遲",
+      "harnessChecks": "品質檢查",
+      "noHarness": "這次執行沒有回傳 harness 治理紀錄。"
+    },
     "live": {
       "badge": "真實 pipeline",
       "memory": {
@@ -1178,6 +1206,68 @@
       }
     }
   },
+  "auditReport": {
+    "scores": {
+      "overall": "綜合",
+      "performance": "效能",
+      "seo": "SEO",
+      "architecture": "架構"
+    },
+    "severity": {
+      "high": "高",
+      "medium": "中",
+      "low": "低"
+    },
+    "findings": {
+      "empty": "目前收集的證據沒有發現問題。",
+      "deterministicCollection": {
+        "title": "靜態證據尚未完整",
+        "detail": "HTTP 收集完成前，報告不會對頁面做可靠判定。"
+      },
+      "metaDescription": {
+        "title": "缺少 meta description",
+        "detail": "加入精簡描述，讓搜尋結果能清楚表達頁面用途。"
+      },
+      "canonical": {
+        "title": "缺少 canonical URL",
+        "detail": "宣告偏好的網址，降低重複索引訊號。"
+      },
+      "missingAlt": {
+        "title": "有 {{value}} 張圖片缺少 alt 文字",
+        "detail": "為內容圖片加入替代文字，裝飾圖片則明確標示為裝飾。"
+      },
+      "scriptVolume": {
+        "title": "Script 數量為 {{value}} 個",
+        "detail": "檢視首屏會阻塞渲染與非必要的初始腳本。"
+      },
+      "responseTime": {
+        "title": "首次回應需要 {{value}} 毫秒",
+        "detail": "先降低伺服器與上游等待，再優化瀏覽器渲染。"
+      },
+      "cacheControl": {
+        "title": "缺少 Cache-Control",
+        "detail": "為重複請求與靜態資源設定明確快取政策。"
+      },
+      "runtimeGate": {
+        "title": "瀏覽器證據需要注意",
+        "detail": "{{value}} 這個執行步驟沒有順利完成。"
+      }
+    },
+    "assets": {
+      "scripts": "Script",
+      "stylesheets": "樣式表",
+      "images": "圖片",
+      "imagesMissingAlt": "缺少 alt"
+    },
+    "charts": {
+      "scoreTitle": "分數輪廓",
+      "assetsTitle": "資產量",
+      "routesTitle": "路由耗時",
+      "route": "路由",
+      "status": "HTTP",
+      "responseTime": "回應"
+    }
+  },
   "seoChecklistGuide": {
     "eyebrow": "SEO 檢查清單",
     "title": "網站效能最佳化實務指南",
@@ -1213,6 +1303,18 @@
         "description": "始終透過 HTTPS 傳輸內容。搜尋引擎會懲罰不安全的網站，而使用者也期望資料保有隱私。",
         "why": "HTTPS 能加密瀏覽器與伺服器間的資料。缺乏 HTTPS 的網站會被標記為「不安全」，且搜尋引擎排名會受到嚴重打擊。"
       }
+    }
+  },
+  "report": {
+    "explanation": {
+      "slow_lcp": "您的網站顯示主要內容的時間太長，導致訪客在頁面完全載入前就離開。",
+      "missing_meta": "搜尋引擎無法在搜尋結果中正確描述您的頁面，降低了使用者點擊進入的機會。",
+      "low_contrast": "文字與背景對比度不足，難以閱讀，造成視障使用者無法順暢使用您的網站。",
+      "insecure_protocol": "您的網站使用不安全的連線，會讓訪客資料處於風險中，並觸發瀏覽器安全警告。",
+      "blocked_resource": "重要的腳本或樣式表被阻擋無法載入，可能導致頁面功能失效。",
+      "heavy_image": "過大的圖片拖慢頁面載入速度，同時損害使用者體驗與搜尋排名。",
+      "sparse_content": "您的頁面內容過於單薄，搜尋引擎難以理解網站主題，影響收錄與排名。",
+      "fallback": "這項稽核發現指出有改善空間。建議與您的開發團隊一起檢視技術細節。"
     }
   }
 }

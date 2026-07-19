@@ -8,15 +8,16 @@ import { useTranslation } from "react-i18next";
 import PageContainer from "../components/layout/PageContainer";
 import GlassCard from "../components/ui/GlassCard";
 import ConsoleTabs from "../components/ui/ConsoleTabs";
-import Tooltip from "../components/ui/Tooltip";
 import SolidButton from "../components/ui/SolidButton";
 import PageIntro from "../components/ui/PageIntro";
 import { useLatestAuditReport } from "../hooks/useLatestAuditReport";
 import { buildSampleReportViewModel, type PanelContent, type ReportSectionId } from "../services/reportViewModel";
 import type { NavigateTo } from "../types/home";
 import SeoChecklist from "../components/ui/SeoChecklist";
-import MetricRing from "../components/ui/MetricRing";
-import ProgressBar from "../components/ui/ProgressBar";
+import AuditCharts from "../components/report/AuditCharts";
+import AuditFindings from "../components/report/AuditFindings";
+import AuditScoreBoard from "../components/report/AuditScoreBoard";
+import { buildAuditReportViewModel } from "../services/auditReport";
 
 interface SampleReportProps {
   activeSection: string | null;
@@ -113,6 +114,7 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
   const { i18n, t } = useTranslation();
   const latestReport = useLatestAuditReport();
   const viewModel = latestReport ? buildSampleReportViewModel(latestReport, t, i18n.language) : null;
+  const auditReport = latestReport ? buildAuditReportViewModel(latestReport) : null;
   const resolvedActiveSection: ReportSectionId = isReportSectionId(activeSection) ? activeSection : "overview";
   const activePanel: PanelContent | null = viewModel ? viewModel.panelContentMap[resolvedActiveSection] : null;
   const activeSectionItem = sectionItems.find((item) => item.id === resolvedActiveSection) ?? sectionItems[0];
@@ -235,47 +237,24 @@ export default function SampleReport({ activeSection, onNavigate }: SampleReport
               </div>
             </motion.div>
 
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
-              {viewModel.metricItems.map((item, index) => {
-                const isPrimary = index === 0;
-                return (
-                  <motion.div 
-                    key={item.id} 
-                    initial={{ opacity: 0, y: 18 }} 
-                    whileInView={{ opacity: 1, y: 0 }} 
-                    viewport={{ once: true, amount: 0.15 }} 
-                    transition={{ duration: 0.38, delay: index * 0.05 }}
-                    className={isPrimary ? "md:col-span-2 xl:col-span-2" : "col-span-1"}
-                  >
-                    <div 
-                      className={[
-                        "flex flex-col h-full rounded-sm border p-5 transition-colors duration-300 bg-[var(--surface)] justify-between",
-                        isPrimary 
-                          ? "border-[var(--border)] ring-1 ring-white/10 bg-gradient-to-br from-[#111728] to-[#0a0d18]" 
-                          : "border-[var(--border)]"
-                      ].join(" ")}
-                    >
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between gap-4">
-                          {item.tooltip ? (
-                            <Tooltip content={item.tooltip}>
-                              <p className="text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-brand-faint">{t(item.labelKey)}</p>
-                            </Tooltip>
-                          ) : (
-                            <p className="text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-brand-faint">{t(item.labelKey)}</p>
-                          )}
-                          <MetricRing value={item.value} delay={index * 0.1 + 0.1} />
-                        </div>
-                        <div className="space-y-3 pt-2">
-                          <p className="text-xs sm:text-sm leading-relaxed text-brand-muted">{item.support}</p>
-                          <ProgressBar value={item.value} delay={index * 0.1 + 0.2} />
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
+            {auditReport ? (
+              <div className="space-y-8 border-y border-black/10 py-7">
+                <AuditScoreBoard
+                  scores={auditReport.scores}
+                  labels={{
+                    overall: t("auditReport.scores.overall"),
+                    performance: t("auditReport.scores.performance"),
+                    seo: t("auditReport.scores.seo"),
+                    architecture: t("auditReport.scores.architecture"),
+                  }}
+                />
+                <AuditCharts viewModel={auditReport} t={t} />
+                <div>
+                  <h3 className="text-sm font-semibold text-[var(--text)]">{t("report.sections.actions")}</h3>
+                  <AuditFindings findings={auditReport.findings} t={t} />
+                </div>
+              </div>
+            ) : null}
 
             <div className="flex flex-col gap-6 w-full">
               <motion.div {...pageMotion}>

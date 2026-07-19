@@ -2,7 +2,8 @@ import { AUDIT_TARGET_REDIRECT_LIMIT_ERROR, assertSafeAuditTargetUrl } from "./s
 import { collectDeterministicEvidence } from "./deterministicCollector";
 import { collectBrowserEvidence } from "./browserCollector";
 import type { BrowserCollectorResult, DeterministicCollectorResult } from "../../shared/types/auditPipelineTypes";
-import type { LiveScanRoute, LiveScanScores, LiveScanSummary } from "../../types/liveAudit.types";
+import { computeAuditScores } from "../../shared/auditScores";
+import type { LiveScanRoute, LiveScanSummary } from "../../types/liveAudit.types";
 
 /** Mirrors the client-side `SSELog` log levels. */
 export type SSELogLevel = "info" | "warn" | "error" | "success";
@@ -223,10 +224,6 @@ export function estimateDomIssueCount(deterministic: DeterministicCollectorResul
   return count;
 }
 
-function clampScore(value: number): number {
-  return Math.max(0, Math.min(100, Math.round(value)));
-}
-
 /** Derives per-route timing from the browser collector's typed page fields. */
 function deriveRoutes(browser: BrowserCollectorResult): LiveScanRoute[] {
   return browser.pages.map((page) => {
@@ -239,56 +236,6 @@ function deriveRoutes(browser: BrowserCollectorResult): LiveScanRoute[] {
       ok: status !== null ? status >= 200 && status < 400 : false,
     };
   });
-}
-
-function buildLiveScores(
-  deterministic: DeterministicCollectorResult,
-  browser: BrowserCollectorResult,
-  averageRouteMs: number | null,
-): LiveScanScores {
-  if (deterministic.status !== "completed" || !deterministic.document) {
-    return { overall: 28, performance: 24, seo: 30, architecture: 36 };
-  }
-
-  const document = deterministic.document;
-
-  let performance = 92;
-  if (typeof deterministic.responseTimeMs === "number") {
-    performance -= Math.max(0, (deterministic.responseTimeMs - 600) / 35);
-  }
-  if (averageRouteMs !== null) {
-    performance -= Math.max(0, (averageRouteMs - 800) / 60);
-  }
-  performance -= Math.max(0, document.counts.scripts - 12) * 1.3;
-  performance -= Math.max(0, document.counts.stylesheets - 4) * 1.5;
-
-  let seo = 94;
-  if (!document.metaDescription) seo -= 18;
-  if (!document.canonical) seo -= 16;
-  if (!document.lang) seo -= 8;
-  if (!document.viewport) seo -= 8;
-  if (document.counts.structuredDataBlocks === 0) seo -= 12;
-  if (document.counts.h1 !== 1) seo -= 8;
-  if (document.counts.openGraphTags === 0) seo -= 6;
-  seo -= Math.min(16, document.counts.imagesMissingAlt * 2);
-
-  let architecture = 82;
-  if (browser.status === "partial") architecture -= 10;
-  else if (browser.status !== "completed") architecture -= 18;
-  if (deterministic.headers?.poweredBy) architecture -= 8;
-  if (!deterministic.headers?.cacheControl) architecture -= 6;
-  if (deterministic.warnings.length > 2) architecture -= Math.min(18, deterministic.warnings.length * 2);
-
-  const performanceScore = clampScore(performance);
-  const seoScore = clampScore(seo);
-  const architectureScore = clampScore(architecture);
-
-  return {
-    overall: clampScore((performanceScore + seoScore + architectureScore) / 3),
-    performance: performanceScore,
-    seo: seoScore,
-    architecture: architectureScore,
-  };
 }
 
 function foldLiveScanSummary(
@@ -310,7 +257,7 @@ function foldLiveScanSummary(
     statusCode: deterministic.statusCode ?? null,
     responseTimeMs: deterministic.responseTimeMs ?? null,
     server: deterministic.headers?.server ?? deterministic.headers?.poweredBy ?? null,
-    scores: buildLiveScores(deterministic, browser, averageRouteResponseMs),
+    scores: computeAuditScores({ deterministic, browser }, averageRouteResponseMs),
     assets: {
       scripts: document?.counts.scripts ?? 0,
       stylesheets: document?.counts.stylesheets ?? 0,

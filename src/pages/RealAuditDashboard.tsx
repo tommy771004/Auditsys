@@ -9,11 +9,13 @@ import SolidButton from "../components/ui/SolidButton";
 import CoreWebVitalsCard from "../components/live/CoreWebVitalsCard";
 import DOMIssueHighlighter from "../components/live/DOMIssueHighlighter";
 import ExecutionTerminal from "../components/live/ExecutionTerminal";
-import ScanSummaryPanel from "../components/live/ScanSummaryPanel";
-import AnalyticsChartsPanel from "../components/ui/AnalyticsChartsPanel";
+import AuditCharts from "../components/report/AuditCharts";
+import AuditFindings from "../components/report/AuditFindings";
+import AuditScoreBoard from "../components/report/AuditScoreBoard";
 import StatusBadge from "../components/ui/StatusBadge";
 import { Reveal } from "../components/ui/Reveal";
 import { useRealTimeAudit } from "../hooks/useRealTimeAudit";
+import { buildLiveAuditReportViewModel } from "../services/auditReport";
 import type { ExecutionStatus } from "../types/liveAudit.types";
 import type { NavigateTo } from "../types/home";
 
@@ -59,6 +61,7 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
   // PageSpeed is fetched once the live scan reaches the Lighthouse (analyzing) stage.
   const lighthouseActive = state.status === "analyzing" || state.status === "complete";
   const showReport = state.status === "complete";
+  const auditReport = summary ? buildLiveAuditReportViewModel(summary, state.targetUrl) : null;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -241,8 +244,24 @@ export default function RealAuditDashboard({ onNavigate }: RealAuditDashboardPro
                         rightLabel={String(domIssues.length)}
                       />
                     </div>
-                    <AnalyticsChartsPanel summary={summary} targetUrl={state.targetUrl} />
-                    <ScanSummaryPanel summary={summary} />
+                    {auditReport ? (
+                      <div className="space-y-8 border-y border-black/10 py-7">
+                        <AuditScoreBoard
+                          scores={auditReport.scores}
+                          labels={{
+                            overall: t("auditReport.scores.overall"),
+                            performance: t("auditReport.scores.performance"),
+                            seo: t("auditReport.scores.seo"),
+                            architecture: t("auditReport.scores.architecture"),
+                          }}
+                        />
+                        <AuditCharts viewModel={auditReport} t={t} />
+                        <div>
+                          <h3 className="text-sm font-semibold text-[var(--text)]">{t("report.sections.actions")}</h3>
+                          <AuditFindings findings={auditReport.findings} t={t} />
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
                 ) : null}
 

@@ -2,7 +2,6 @@ interface PostAuditRequestOptions<Payload extends Record<string, unknown>> {
   endpoint?: string;
   defaultEndpoint: string;
   payload: Payload;
-  fallbackPayload: Record<string, unknown>;
 }
 
 async function readJsonResponse(response: Response): Promise<unknown> {
@@ -23,7 +22,6 @@ export async function postAuditRequest<Payload extends Record<string, unknown>>(
   endpoint,
   defaultEndpoint,
   payload,
-  fallbackPayload,
 }: PostAuditRequestOptions<Payload>): Promise<unknown> {
   const token = localStorage.getItem("auth_token");
   
@@ -57,18 +55,7 @@ export async function postAuditRequest<Payload extends Record<string, unknown>>(
     }
 
     return await readJsonResponse(response);
-  } catch (error: any) {
-    if (endpoint || error.message === "unauthorized") {
-      throw error;
-    }
-
-    const fallbackEndpoint = `data:application/json,${encodeURIComponent(JSON.stringify(fallbackPayload))}`;
-    const fallbackResponse = await fetch(fallbackEndpoint);
-
-    if (!fallbackResponse.ok) {
-      throw error;
-    }
-
-    return await readJsonResponse(fallbackResponse);
+  } catch (error) {
+    throw error;
   }
 }

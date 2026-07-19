@@ -1,5 +1,6 @@
 import type { TFunction } from "i18next";
 import type { AuditIntelligenceResult, BrowserCollectorFlow, BrowserCollectorTimelineStep } from "../shared/types/auditPipelineTypes";
+import { buildAuditReportViewModel } from "./auditReport";
 
 export type ReportSectionId = "overview" | "performance" | "seo" | "architecture" | "actions";
 
@@ -73,10 +74,6 @@ const summaryHeadingLines = new Set([
   "Architecture Risks",
   "Highest Priority Next Actions",
 ]);
-
-function clampScore(value: number): number {
-  return Math.max(0, Math.min(100, Math.round(value)));
-}
 
 function uniqueStrings(values: string[]): string[] {
   return [...new Set(values.filter(Boolean))];
@@ -289,160 +286,15 @@ function buildBrowserEvidence(report: AuditIntelligenceResult, t: TFunction, mod
   };
 }
 
-function buildPerformanceScore(report: AuditIntelligenceResult): number {
-  const deterministic = report.evidence.deterministic;
-
-  if (deterministic.status !== "completed") {
-    return 24;
-  }
-
-  let score = 92;
-
-  if (typeof deterministic.responseTimeMs === "number") {
-    score -= Math.max(0, (deterministic.responseTimeMs - 600) / 35);
-  }
-
-  if (deterministic.document) {
-    score -= Math.max(0, deterministic.document.counts.scripts - 12) * 1.3;
-    score -= Math.max(0, deterministic.document.counts.stylesheets - 4) * 1.5;
-  }
-
-  return clampScore(score);
-}
-
-function buildSeoScore(report: AuditIntelligenceResult): number {
-  const deterministic = report.evidence.deterministic;
-
-  if (deterministic.status !== "completed" || !deterministic.document) {
-    return 30;
-  }
-
-  let score = 94;
-
-  if (!deterministic.document.metaDescription) {
-    score -= 18;
-  }
-
-  if (!deterministic.document.canonical) {
-    score -= 16;
-  }
-
-  if (!deterministic.document.lang) {
-    score -= 8;
-  }
-
-  if (deterministic.document.counts.structuredDataBlocks === 0) {
-    score -= 14;
-  }
-
-  score -= Math.min(16, deterministic.document.counts.imagesMissingAlt * 2);
-
-  return clampScore(score);
-}
-
-function buildArchitectureScore(report: AuditIntelligenceResult): number {
-  const deterministic = report.evidence.deterministic;
-  const browser = report.evidence.browser;
-
-  let score = 82;
-
-  if (browser.status === "partial") {
-    score -= 10;
-  } else if (browser.status !== "completed") {
-    score -= 18;
-  }
-
-  if (deterministic.headers?.poweredBy) {
-    score -= 8;
-  }
-
-  if (!deterministic.headers?.cacheControl) {
-    score -= 6;
-  }
-
-  if (deterministic.warnings.length > 2) {
-    score -= Math.min(18, deterministic.warnings.length * 2);
-  }
-
-  if (deterministic.status !== "completed") {
-    score = 36;
-  }
-
-  return clampScore(score);
-}
-
-function buildOverallScore(performance: number, seo: number, architecture: number): number {
-  return clampScore((performance + seo + architecture) / 3);
-}
-
-function buildActionItems(report: AuditIntelligenceResult, t: TFunction): string[] {
-  const deterministic = report.evidence.deterministic;
-  const browser = report.evidence.browser;
-  const actions: string[] = [];
-  const blockedTimelineStep = browser.timeline?.find((step) => step.status === "blocked");
-  const incompleteTimelineStep = browser.timeline?.find((step) => step.status === "partial" || step.status === "not_run");
-
-  if (blockedTimelineStep) {
-    actions.push(
-      t("report.runtime.panels.actions.actionResolveBlockedStep", {
-        step: blockedTimelineStep.label,
-      }),
-    );
-  } else if (incompleteTimelineStep) {
-    actions.push(
-      t("report.runtime.panels.actions.actionReviewPartialStep", {
-        step: incompleteTimelineStep.label,
-      }),
-    );
-  }
-
-  if ((deterministic.responseTimeMs ?? 0) > 1800) {
-    actions.push(t("report.runtime.panels.actions.actionReduceResponseTime"));
-  }
-
-  if ((deterministic.document?.counts.scripts ?? 0) > 12) {
-    actions.push(t("report.runtime.panels.actions.actionReviewScripts"));
-  }
-
-  if (!deterministic.document?.metaDescription) {
-    actions.push(t("report.runtime.panels.actions.actionAddMeta"));
-  }
-
-  if (!deterministic.document?.canonical) {
-    actions.push(t("report.runtime.panels.actions.actionAddCanonical"));
-  }
-
-  if ((deterministic.document?.counts.structuredDataBlocks ?? 0) === 0) {
-    actions.push(t("report.runtime.panels.actions.actionAddStructuredData"));
-  }
-
-  if ((deterministic.document?.counts.imagesMissingAlt ?? 0) > 0) {
-    actions.push(t("report.runtime.panels.actions.actionFixAlt"));
-  }
-
-  if (!hasBrowserRuntimeEvidence(browser.status)) {
-    actions.push(t("report.runtime.panels.actions.actionEnableBrowser"));
-  }
-
-  if (!deterministic.headers?.cacheControl) {
-    actions.push(t("report.runtime.panels.actions.actionReviewCache"));
-  }
-
-  if (actions.length === 0) {
-    actions.push(t("report.runtime.panels.actions.actionGeneral"));
-  }
-
-  return uniqueStrings(actions).slice(0, 3);
-}
-
 export function buildSampleReportViewModel(report: AuditIntelligenceResult, t: TFunction, language: string): SampleReportViewModel {
+  const auditReport = buildAuditReportViewModel(report);
   const deterministic = report.evidence.deterministic;
   const browser = report.evidence.browser;
   const summaryLines = parseSummaryLines(report.summary);
-  const performanceScore = buildPerformanceScore(report);
-  const seoScore = buildSeoScore(report);
-  const architectureScore = buildArchitectureScore(report);
-  const overallScore = buildOverallScore(performanceScore, seoScore, architectureScore);
+  const performanceScore = auditReport.scores.performance;
+  const seoScore = auditReport.scores.seo;
+  const architectureScore = auditReport.scores.architecture;
+  const overallScore = auditReport.scores.overall;
   const firstFlow = getFirstRelevantFlow(browser.flows);
   const missingSeoSignals = [
     !deterministic.document?.metaDescription,
@@ -524,7 +376,7 @@ export function buildSampleReportViewModel(report: AuditIntelligenceResult, t: T
   ]).slice(0, 3);
 
   const architectureIssueKey = browser.status === "partial" ? "browserPartial" : browser.status !== "completed" ? "browserPending" : (deterministic.responseTimeMs ?? 0) > 1800 ? "performance" : missingSeoSignals > 0 ? "seo" : "general";
-  const actionItems = buildActionItems(report, t);
+  const actionItems = auditReport.actions.map((finding) => t(finding.titleKey, { value: finding.value, defaultValue: finding.id }));
 
   return {
     headerSubtitle: report.request.companyName ?? host,

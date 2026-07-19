@@ -4,13 +4,11 @@
  */
 
 import { useEffect, useRef, Suspense, lazy } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import Footer from "./components/layout/Footer";
 import Navbar from "./components/layout/Navbar";
 import { NetworkBanner } from "./components/ui/NetworkBanner";
 import { CommandPalette } from "./components/ui/CommandPalette";
-import MeshBackground from "./components/ui/MeshBackground";
 import MetaTags from "./components/ui/MetaTags";
 import { useHashRoute } from "./hooks/useHashRoute";
 import { useMetaLogger } from "./hooks/useMetaLogger";
@@ -46,22 +44,16 @@ export default function App() {
   const { navigate, route, section } = useHashRoute();
   const previousRouteRef = useRef<AppRoute | null>(null);
 
-  // Initialize theme, useLocalStorage will handle applying it to the document
   useLocalStorage('theme', 'light');
-
   useMetaLogger(route);
-
-  // Note: document.title is now managed by MetaTags component
 
   useEffect(() => {
     const previousRoute = previousRouteRef.current;
-
     if (previousRoute !== null && previousRoute !== route) {
       if (!(route === "home" && section)) {
         window.scrollTo({ top: 0, left: 0 });
       }
     }
-
     previousRouteRef.current = route;
   }, [route, section]);
 
@@ -106,47 +98,30 @@ export default function App() {
   const baseUrl = (import.meta.env as any).VITE_CLIENT_URL || window.location.origin;
   const canonicalUrl = `${baseUrl}/#${route}`;
 
-  // Dashboard/app surfaces are designed light-only; force light tokens there until
-  // they get a proper per-component dark pass, so the global toggle can't half-break them.
-  const lightLockRoutes: AppRoute[] = ["console", "live", "admin", "presentation"];
-  const lightLock = lightLockRoutes.includes(route);
-
   return (
     <ErrorBoundary>
-      <div className={`relative min-h-screen overflow-hidden bg-[var(--bg)] text-[var(--text)]${lightLock ? " theme-lock-light" : ""}`}>
+      <div className="relative min-h-screen overflow-hidden bg-[var(--bg)] text-[var(--text)]">
         <NetworkBanner />
         <CommandPalette onNavigate={navigate} />
         <ToastProvider />
-        <div className="bg-noise" />
-      <MetaTags 
-        title={t(`meta.${route}`)} 
-        description={t(`metaDesc.${route}`, { defaultValue: t('metaDesc.home') })} 
-        canonicalUrl={canonicalUrl}
-        ogTitle={t(`meta.${route}`)}
-        siteName={t("brand.name")}
-        ogImage={`${baseUrl}/og-image.jpg`}
-        structuredData={{
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          "name": t("brand.name"),
-          "url": baseUrl,
-          "description": t(`metaDesc.${route}`, { defaultValue: t('metaDesc.home') })
-        }}
-      />
-      <MeshBackground variant={route === "console" || route === "live" ? "console" : "default"} />
-      <Navbar currentRoute={route} currentSection={section} onNavigate={navigate} />
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={route}
-          initial={{ opacity: 0, scale: 0.98, filter: "blur(4px)" }}
-          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, scale: 1.02, filter: "blur(4px)" }}
-          transition={{ duration: 0.4, type: "spring", stiffness: 200, damping: 25 }}
-        >
-          {renderCurrentPage()}
-        </motion.div>
-      </AnimatePresence>
-      <Footer currentRoute={route} onNavigate={navigate} />
+        <MetaTags
+          title={t(`meta.${route}`)}
+          description={t(`metaDesc.${route}`, { defaultValue: t('metaDesc.home') })}
+          canonicalUrl={canonicalUrl}
+          ogTitle={t(`meta.${route}`)}
+          siteName={t("brand.name")}
+          ogImage={`${baseUrl}/og-image.jpg`}
+          structuredData={{
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": t("brand.name"),
+            "url": baseUrl,
+            "description": t(`metaDesc.${route}`, { defaultValue: t('metaDesc.home') })
+          }}
+        />
+        <Navbar currentRoute={route} currentSection={section} onNavigate={navigate} />
+        {renderCurrentPage()}
+        <Footer currentRoute={route} onNavigate={navigate} />
       </div>
     </ErrorBoundary>
   );

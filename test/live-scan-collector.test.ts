@@ -102,6 +102,12 @@ test("live scan routes derive from typed page fields", async () => {
       [null, null, false],
     ],
   );
+  assert.deepEqual(summary.scores, {
+    overall: 89,
+    performance: 92,
+    seo: 94,
+    architecture: 82,
+  });
 });
 
 test("live scan routes ignore prose notes entirely", async () => {

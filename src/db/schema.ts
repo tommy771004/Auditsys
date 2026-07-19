@@ -40,3 +40,5 @@ export const intakeLeads = pgTable('audit_intake_leads', {
   notes: text('notes'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+export type AuditRow = typeof audits.$inferSelect;

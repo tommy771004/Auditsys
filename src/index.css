@@ -126,18 +126,6 @@
 }
 
 @layer components {
-  .hero-grid-bg {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image:
-      linear-gradient(var(--grid-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-    background-size: 30px 30px;
-    opacity: 1;
-    z-index: 0;
-  }
-
   .glass-panel {
     border: 1px solid var(--border);
     box-shadow: var(--shadow);
@@ -146,10 +134,6 @@
     -webkit-backdrop-filter: blur(40px) saturate(150%);
     border-radius: var(--radius-sm);
     color: var(--text);
-  }
-
-  .bg-noise {
-    display: none;
   }
 
   .brand-gradient-text {

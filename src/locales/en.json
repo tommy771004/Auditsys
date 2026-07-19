@@ -188,6 +188,34 @@
       "reset": "Reset simulation",
       "cancel": "Cancel scan"
     },
+    "real": {
+      "badge": "Evidence console",
+      "title": "Run one audit, keep every number traceable",
+      "description": "This console shows the collected evidence and the backend governance result. There is no simulated progress or placeholder report.",
+      "targetLabel": "Target website URL",
+      "targetPlaceholder": "https://example.com",
+      "submit": "Run audit",
+      "running": "Collecting evidence",
+      "reset": "Clear result",
+      "phase": { "idle": "Ready", "running": "Running", "complete": "Complete", "error": "Failed" },
+      "errorTitle": "The audit did not complete",
+      "errorDescription": "No result was fabricated. Resolve the request or authentication issue and run it again.",
+      "resultTitle": "Audit result",
+      "target": "Target",
+      "provider": "Synthesis",
+      "deterministic": "HTTP evidence",
+      "browser": "Browser evidence",
+      "warnings": "Warnings",
+      "summaryTitle": "Synthesis summary",
+      "summaryEmpty": "The pipeline returned no narrative summary; the evidence below remains the source of truth.",
+      "harnessTitle": "Governance result",
+      "harnessStatus": "Status",
+      "harnessAttempts": "Attempts",
+      "harnessPivots": "Pivots",
+      "harnessDuration": "Latency",
+      "harnessChecks": "Quality checks",
+      "noHarness": "No harness governance record was returned for this run."
+    },
     "live": {
       "badge": "Live pipeline",
       "memory": {
@@ -1143,6 +1171,68 @@
       }
     }
   },
+  "auditReport": {
+    "scores": {
+      "overall": "Overall",
+      "performance": "Performance",
+      "seo": "SEO",
+      "architecture": "Architecture"
+    },
+    "severity": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "findings": {
+      "empty": "No findings were detected from the collected evidence.",
+      "deterministicCollection": {
+        "title": "Deterministic evidence is incomplete",
+        "detail": "The report cannot make a reliable page-level assessment until the HTTP collection completes."
+      },
+      "metaDescription": {
+        "title": "Meta description is missing",
+        "detail": "Add a concise description so search results can explain the page intent."
+      },
+      "canonical": {
+        "title": "Canonical URL is missing",
+        "detail": "Declare the preferred URL to reduce duplicate indexing signals."
+      },
+      "missingAlt": {
+        "title": "{{value}} image(s) are missing alt text",
+        "detail": "Add meaningful alternative text or explicitly mark decorative images."
+      },
+      "scriptVolume": {
+        "title": "Script volume is {{value}} files",
+        "detail": "Review render-blocking and non-critical scripts on the initial route."
+      },
+      "responseTime": {
+        "title": "Initial response takes {{value}} ms",
+        "detail": "Reduce server work and upstream waits before optimizing browser rendering."
+      },
+      "cacheControl": {
+        "title": "Cache-Control is not present",
+        "detail": "Set explicit caching policy for repeat requests and static resources."
+      },
+      "runtimeGate": {
+        "title": "Browser evidence needs attention",
+        "detail": "The {{value}} runtime step did not complete cleanly."
+      }
+    },
+    "assets": {
+      "scripts": "Scripts",
+      "stylesheets": "Stylesheets",
+      "images": "Images",
+      "imagesMissingAlt": "Missing alt"
+    },
+    "charts": {
+      "scoreTitle": "Score profile",
+      "assetsTitle": "Asset volume",
+      "routesTitle": "Route timings",
+      "route": "Route",
+      "status": "HTTP",
+      "responseTime": "Response"
+    }
+  },
   "seoChecklistGuide": {
     "eyebrow": "SEO CHECKLIST",
     "title": "Step-by-Step Guide for Site Performance",
@@ -1178,6 +1268,18 @@
         "description": "Always serve your content over HTTPS. Search engines penalize insecure sites, and users expect privacy.",
         "why": "HTTPS encrypts data between the browser and server. Without it, browsers show 'Not Secure' warnings, and search engines heavily penalize the site."
       }
+    }
+  },
+  "report": {
+    "explanation": {
+      "slow_lcp": "Your website takes too long to show the main content, causing visitors to leave before the page fully loads.",
+      "missing_meta": "Search engines cannot properly describe your page in search results, reducing the chance that people will click through.",
+      "low_contrast": "Text is hard to read against the background, making your site difficult to use for people with visual impairments.",
+      "insecure_protocol": "Your site uses insecure connections, which puts visitor data at risk and causes browser security warnings.",
+      "blocked_resource": "Important files like scripts or stylesheets are blocked from loading, which can break page functionality.",
+      "heavy_image": "Large images slow down your page load, hurting both user experience and search rankings.",
+      "sparse_content": "Your pages have very little content, making it difficult for search engines to understand what your site is about.",
+      "fallback": "This audit finding indicates an area for improvement. Consider reviewing the technical details with your development team."
     }
   }
 }

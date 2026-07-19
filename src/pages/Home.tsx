@@ -12,7 +12,7 @@ import Logos3 from "../components/ui/Logos3";
 import { useAuditForm } from "../hooks/useAuditForm";
 import type { LocalizedContentItem, NavigateTo, TrustPillItem, WorkflowContentItem } from "../types/home";
 import Accordion from "../components/ui/Accordion";
-import SeoChecklistGuide from "../components/ui/SeoChecklistGuide";
+import SeoChecklist from "../components/ui/SeoChecklist";
 
 interface FeatureCard extends LocalizedContentItem {
   titleKey: string;
@@ -255,7 +255,6 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
 
   return (
     <div className="relative w-full min-h-screen overflow-hidden antialiased" ref={containerRef}>
-      <div className="hero-grid-bg transition-opacity duration-300 ease-out" />
       <AmbientOrbs />
 
       <PageContainer className="relative z-10 flex flex-col pt-24 pb-24 lg:pb-32">
@@ -636,7 +635,7 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
 
         {/* SEO CHECKLIST GUIDE SECTION */}
         <section id="seo-checklist" className="relative space-y-16 py-24 section-divider border-t">
-          <SeoChecklistGuide />
+          <SeoChecklist standalone={true} />
         </section>
 
         {/* BOTTOM TEASERS */}
@@ -679,4 +678,3 @@ export default function Home({ activeSection, onNavigate }: HomeProps) {
     </div>
   );
 }
-
