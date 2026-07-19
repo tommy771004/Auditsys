@@ -65,6 +65,11 @@ export interface BrowserCollectedPage {
   url: string;
   title?: string;
   screenshotPath?: string;
+  /** HTTP status of the crawled route; null when the route failed to load. */
+  status?: number | null;
+  /** Route response time in milliseconds; null when the route failed to load. */
+  responseTimeMs?: number | null;
+  /** Human-readable observations only — never parse structured data out of these. */
   notes: string[];
 }
 

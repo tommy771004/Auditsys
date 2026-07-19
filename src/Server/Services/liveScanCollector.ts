@@ -227,18 +227,15 @@ function clampScore(value: number): number {
   return Math.max(0, Math.min(100, Math.round(value)));
 }
 
-/** Derives per-route timing from the browser collector's crawled page notes. */
+/** Derives per-route timing from the browser collector's typed page fields. */
 function deriveRoutes(browser: BrowserCollectorResult): LiveScanRoute[] {
   return browser.pages.map((page) => {
-    const noteText = page.notes.join(" ");
-    const statusMatch = noteText.match(/HTTP (\d{3})/);
-    const timeMatch = noteText.match(/in (\d+) ms/);
-    const status = statusMatch ? Number(statusMatch[1]) : null;
+    const status = page.status ?? null;
 
     return {
       url: page.url,
       status,
-      responseTimeMs: timeMatch ? Number(timeMatch[1]) : null,
+      responseTimeMs: page.responseTimeMs ?? null,
       ok: status !== null ? status >= 200 && status < 400 : false,
     };
   });
@@ -362,9 +359,10 @@ async function buildLiveScanSummary(targetUrl: string, domIssueCount: number): P
 export async function buildLiveScanSummaryFromDeterministic(
   deterministic: DeterministicCollectorResult,
   domIssueCount: number,
+  dependencies: { collectBrowserEvidence: typeof collectBrowserEvidence } = { collectBrowserEvidence },
 ): Promise<LiveScanSummary | null> {
   try {
-    const browser = await collectBrowserEvidence({ url: deterministic.targetUrl }, deterministic);
+    const browser = await dependencies.collectBrowserEvidence({ url: deterministic.targetUrl }, deterministic);
     return foldLiveScanSummary(deterministic, browser, domIssueCount);
   } catch {
     return null;

@@ -807,6 +807,8 @@ async function buildCrawlerResult(payload: AuditRequestPayload, deterministic: D
   const pages: BrowserCollectedPage[] = crawledRoutes.map((route, index) => ({
     url: route.url,
     title: route.title ?? (index === 0 ? deterministic.document?.title ?? undefined : undefined),
+    status: route.status,
+    responseTimeMs: route.responseTimeMs,
     notes: [
       route.ok ? `Responded with HTTP ${route.status} in ${route.responseTimeMs} ms.` : `Failed to load${route.error ? ` (${route.error})` : ""}.`,
       index === 0 ? "Primary landing document captured by the lightweight crawler." : "Internal route traversed during flow validation.",
