@@ -51,4 +51,4 @@ npx tsc --noEmit   # 型別檢查(無 lint script)
 
 - `CLAUDE.md` — 架構總覽(後端管線、harness、三種瀏覽器收集模式、前端路由)
 - `docs/specs/` — 規格文件
-- DB schema 變更:`src/db/schema.ts` 與 `src/db/index.ts` 的冪等 SQL 需同步修改(遷移導入前的過渡狀態)
+- DB schema 變更:改 `src/db/schema.ts` 後執行 `npm run db:generate` 產生新的遷移檔(`drizzle/`),`initDb()` 啟動時自動套用

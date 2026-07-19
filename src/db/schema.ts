@@ -24,7 +24,7 @@ export const planSettings = pgTable('audit_plan_settings', {
   openRouterApiKey: text('openrouter_api_key').default(''),
   agentRouterApiKey: text('agentrouter_api_key').default(''),
   nvidiaApiKey: text('nvidia_api_key').default(''),
-  allowedModels: text('allowed_models').default('google/gemini-2.5-flash'),
+  allowedModels: text('allowed_models').default(''),
   price: text('price').default('$0'),
 });
 
@@ -38,22 +38,5 @@ export const intakeLeads = pgTable('audit_intake_leads', {
   stack: text('stack'), // JSON stringified array
   teamSize: text('team_size'),
   notes: text('notes'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-});
-
-export const agentGuardrails = pgTable('agent_guardrails', {
-  id: serial('id').primaryKey(),
-  errorPattern: text('error_pattern').notNull(),
-  guardrailPrompt: text('guardrail_prompt').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-});
-
-export const agentFlywheel = pgTable('agent_flywheel', {
-  id: serial('id').primaryKey(),
-  runId: text('run_id').notNull(),
-  latencyMs: integer('latency_ms').notNull(),
-  costUsd: text('cost_usd').notNull(),
-  success: boolean('success').notNull(),
-  contextSummary: text('context_summary'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
