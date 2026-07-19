@@ -1,22 +1,13 @@
-import { z } from "zod";
 import { collectBrowserEvidence } from "./browserCollector";
 import { collectDeterministicEvidence } from "./deterministicCollector";
 import { synthesizeAudit } from "./auditSynthesis";
 import { readPositiveIntegerEnv, withTimeout } from "./ioTimeouts";
-import { AgentIdentityManager, CredentialsVault } from "./harness/AgentIdentity";
-import { AgentSandbox, MiddlewareHandler } from "./harness/AgentSandbox";
-import { ExecutionTracer, CostTracker, calculateModelCost, CostRecord } from "./harness/ObservabilityTelemetry";
-import { ContextManager } from "./harness/ContextManager";
-import { AgentOrchestrator } from "./harness/AgentOrchestrator";
-import { SkillManager } from "./harness/SkillManager";
-import { GuardrailKnowledgeBase } from "./harness/GuardrailKnowledgeBase";
-import { FlywheelCollector } from "./harness/FlywheelCollector";
+import { CostTracker, calculateModelCost } from "./harness/ObservabilityTelemetry";
 import type {
   AuditEvidenceBundle,
   AuditHarnessAttempt,
   AuditHarnessCheckStatus,
   AuditHarnessGovernance,
-  AuditHarnessMiddlewareDefinition,
   AuditHarnessQualityGate,
   AuditHarnessRun,
   AuditHarnessRunStatus,
@@ -28,6 +19,13 @@ import type {
   BrowserCollectorResult,
   DeterministicCollectorResult,
 } from "../../shared/types/auditPipelineTypes";
+
+/**
+ * The audit pipeline always runs deterministic -> browser -> synthesis.
+ * `browser` is mandatory: synthesis and the quality-gate sensors consume a
+ * well-formed BrowserCollectorResult (even when it resolves to a skipped/stub
+ * result), so dropping it would leave downstream code dereferencing undefined.
+ */
 
 export interface AuditHarnessConfig {
   aiProvider?: string;
@@ -270,7 +268,6 @@ function buildToolRegistry(): AuditHarnessToolDefinition[] {
       name: "Deterministic Evidence Collector",
       description: "Fetches the target document and extracts stable HTML, SEO, header, and timing signals.",
       inputSchema: targetSchema,
-      middleware: ["schema_contract_guard", "url_safety_guard", "observability_trace"],
       enabled: true,
     },
     {
@@ -278,7 +275,6 @@ function buildToolRegistry(): AuditHarnessToolDefinition[] {
       name: "Browser Flow Sensor",
       description: "Validates lightweight browser or Webwright flow evidence and records runtime gates.",
       inputSchema: targetSchema,
-      middleware: ["retry_budget_guard", "observability_trace"],
       enabled: true,
     },
     {
@@ -293,38 +289,7 @@ function buildToolRegistry(): AuditHarnessToolDefinition[] {
           evidence: { type: "object" },
         },
       },
-      middleware: ["schema_contract_guard", "quality_gate_guard", "observability_trace"],
       enabled: true,
-    },
-  ];
-}
-
-function buildMiddlewareRegistry(): AuditHarnessMiddlewareDefinition[] {
-  return [
-    {
-      id: "schema_contract_guard",
-      name: "Schema Contract Guard",
-      description: "Keeps every tool call inside the declared input shape before model or collector work begins.",
-    },
-    {
-      id: "url_safety_guard",
-      name: "URL Safety Guard",
-      description: "Blocks unsafe target protocols, private IPs, and redirect destinations before evidence collection.",
-    },
-    {
-      id: "retry_budget_guard",
-      name: "Retry Budget Guard",
-      description: "Applies the two-retry cap and prevents endless failed collector loops.",
-    },
-    {
-      id: "quality_gate_guard",
-      name: "Quality Gate Guard",
-      description: "Turns sensor output into a pass, manual-review, or failed delivery decision.",
-    },
-    {
-      id: "observability_trace",
-      name: "Observability Trace",
-      description: "Records each deterministic step with timing and status for after-action debugging.",
     },
   ];
 }
@@ -610,9 +575,6 @@ async function executeAttempt(
   policy: AuditHarnessPolicy,
   index: number,
   retryReason: string | undefined,
-  orchestrator: AgentOrchestrator,
-  skillManager: SkillManager,
-  guardrails: GuardrailKnowledgeBase
 ): Promise<{ attempt: AuditHarnessAttempt; execution: AttemptExecution; qualityGate: AuditHarnessQualityGate; estimatedTokenSpend: number; traceEvents: AuditHarnessTraceEvent[] }> {
   const startedAt = nowIso();
   const startedAtMs = Date.now();
@@ -620,107 +582,25 @@ async function executeAttempt(
     trace: [],
   };
 
-  // P1: Identity & Authentication
-  const identity = AgentIdentityManager.issueIdentity(`auditor-attempt-${index}`);
-  const vault = new CredentialsVault(config?.apiKey, config?.allowedModels);
-
-  // P1: Observability (Execution Tracer)
-  const tracer = new ExecutionTracer(identity.correlationId, identity.role);
-  // Allowlist the audit target plus the external services the pipeline is
-  // permitted to reach, so the sandbox's network checks enforce a real boundary.
-  const allowedHosts = [
-    new URL(payload.url).hostname,
-    "www.googleapis.com",          // PageSpeed / Lighthouse
-    "chromeuxreport.googleapis.com", // CrUX
-    "openrouter.ai",               // synthesis LLM
-  ];
-  const sandbox = new AgentSandbox(identity, allowedHosts);
-  const contextManager = new ContextManager();
-  
-  // P2: Orchestration & Guardrails
-  const taskPlan = orchestrator.planTask(payload.url, payload.goals);
-  const activeGuardrails = await guardrails.getGuardrailsForContext(payload.url);
-  if (activeGuardrails.length > 0) {
-    tracer.logDecisionPath("Guardrails Injected", "Matched context", `${activeGuardrails.length} rules applied`);
-  }
-
-  // P3: Middleware & Scratchpad setup
-  sandbox.setContext("taskPlan", taskPlan);
-  sandbox.setContext("attemptIndex", index);
-  
-  const telemetryMiddleware: MiddlewareHandler = async (id, action, next) => {
-    const start = performance.now();
-    if (process.env.NODE_ENV !== "production") {
-      console.log(`[Middleware] -> Executing ${action.type} against ${action.target}`);
-    }
-    const result = await next(action);
-    if (process.env.NODE_ENV !== "production") {
-      console.log(`[Middleware] <- ${action.type} completed in ${(performance.now() - start).toFixed(2)}ms`);
-    }
-    return result;
-  };
-
-  const securityMiddleware: MiddlewareHandler = async (id, action, next) => {
-    // 攔截器：在模型嘗試調用有風險的方法前執行驗證
-    if (action.type === 'file_write' || action.payload?.method === 'DELETE') {
-      throw new Error(`[Security Validation] Blocked forbidden action: ${action.type}`);
-    }
-    void id; // intentionally unused — parameter required by MiddlewareHandler signature
-    return await next(action);
-  };
-  
-  const schemaMiddleware: MiddlewareHandler = async (id, action, next) => {
-    // 斷層 3: 引入極嚴格的 Schema 確定性校驗邊界
-    const actionSchema = z.object({
-      type: z.enum(["llm_call", "file_write", "file_read", "network_request", "tool_call", "deterministic", "browser", "synthesis"]),
-      target: z.string(),
-      payload: z.record(z.string(), z.any()).optional()
-    });
-    const parsed = actionSchema.safeParse(action);
-    if (!parsed.success) {
-      throw new Error(`[Schema Validation] Strict boundary violation: ${parsed.error.message}`);
-    }
-    return await next(action);
-  };
-  
-  sandbox.useMiddleware(schemaMiddleware);
-  sandbox.useMiddleware(securityMiddleware);
-  sandbox.useMiddleware(telemetryMiddleware);
-
   try {
-    if (taskPlan.steps.includes("deterministic")) {
-      const detStart = tracer.logPhaseStart("Deterministic Collector");
-      await skillManager.requireSkill("deterministic");
-      execution.deterministic = await traceStep(
-        execution.trace,
-        index,
-        "tool_call",
-        "Run deterministic collector",
-        () => withTimeout(
-          () => sandbox.execute(
-            { type: "network_request", target: payload.url, payload: { stage: "deterministic" } },
-            () => dependencies.collectDeterministicEvidence(payload),
-          ),
-          policy.stepTimeoutMs,
-          "Deterministic collector",
-        ),
-      );
-      tracer.logPhaseEnd("Deterministic Collector", detStart);
-    }
-    
-    // Swarm Router: determine subagents based on discovered headers + stack
-    if (execution.deterministic) {
-        taskPlan.subagents = orchestrator.routeSwarm(payload.stack, execution.deterministic.headers);
-        sandbox.setContext("taskPlan", taskPlan);
-    }
-    
+    execution.deterministic = await traceStep(
+      execution.trace,
+      index,
+      "tool_call",
+      "Run deterministic collector",
+      () => withTimeout(
+        () => dependencies.collectDeterministicEvidence(payload),
+        policy.stepTimeoutMs,
+        "Deterministic collector",
+      ),
+    );
+
     // Analyzing Phase: Lighthouse Sensor. Only run when a PageSpeed key is
     // configured and only on the first attempt — it is an external call that
     // does not change between retries (it measures the target site, not our run),
     // so re-running it on every retry just wastes quota.
     const pagespeedKey = process.env.VITE_PAGESPEED_API_KEY || process.env.PAGESPEED_API_KEY;
     if (pagespeedKey && index === 1) {
-      const analyzingStart = tracer.logPhaseStart("Lighthouse Analysis");
       execution.lighthouse = await traceStep(
         execution.trace,
         index,
@@ -732,84 +612,41 @@ async function executeAttempt(
           "Lighthouse PageSpeed analysis",
         ),
       );
-      tracer.logPhaseEnd("Lighthouse Analysis", analyzingStart);
     }
 
-    if (taskPlan.steps.includes("browser") && execution.deterministic) {
-      const brwStart = tracer.logPhaseStart("Browser Collector");
-      await skillManager.requireSkill("browser");
+    if (execution.deterministic) {
       execution.browser = await traceStep(
         execution.trace,
         index,
         "tool_call",
         "Run browser flow collector",
         () => withTimeout(
-          () => sandbox.execute(
-            { type: "network_request", target: payload.url, payload: { stage: "browser" } },
-            () => dependencies.collectBrowserEvidence(payload, execution.deterministic as DeterministicCollectorResult),
-          ),
+          () => dependencies.collectBrowserEvidence(payload, execution.deterministic as DeterministicCollectorResult),
           policy.stepTimeoutMs,
           "Browser collector",
         ),
       );
-      tracer.logPhaseEnd("Browser Collector", brwStart);
     }
 
     execution.evidence = {
       deterministic: execution.deterministic,
       // Defensive: guarantee a well-formed browser object even if the browser
-      // step was not part of the plan or returned nothing, so synthesis and the
-      // sensors below can never read properties of undefined.
+      // step returned nothing, so synthesis and the sensors below can never
+      // read properties of undefined.
       browser: execution.browser ?? createSkippedBrowserResult(payload, "browser_step_not_executed"),
     };
 
-    // P1: Context Management
-    let safeEvidence = execution.evidence;
-    const evidenceStr = JSON.stringify(safeEvidence);
-    let resetEvidenceContext = evidenceStr;
-    
-    if (contextManager.needsCompression(evidenceStr)) {
-      const compressed = contextManager.compressContext(evidenceStr);
-      safeEvidence = JSON.parse(compressed);
-      
-      // Perform Context Reset to hand off clean information to Synthesis
-      resetEvidenceContext = contextManager.resetContextForPhase(safeEvidence, "Synthesize the provided collected trace and generate actionable findings.", "evidenceCollection");
-      
-      tracer.logDecisionPath("Context Reset / Compression", `Original size: ${evidenceStr.length}`, `Reset context ready for synthesis. Compressed size: ${compressed.length}`);
-    } else {
-      // Still use Context Reset even without compression to ensure the SoR updates
-      resetEvidenceContext = contextManager.resetContextForPhase(safeEvidence, "Synthesize the provided collected trace and generate actionable findings.", "evidenceCollection");
-    }
-
-    if (taskPlan.steps.includes("synthesis")) {
-      const synStart = tracer.logPhaseStart("Audit Synthesis");
-      await skillManager.requireSkill("synthesis");
-      execution.synthesis = await traceStep(
-        execution.trace,
-        index,
-        "tool_call",
-        "Run evidence-grounded synthesis",
-        () => withTimeout(
-          () => sandbox.executeLlmCall("synthesis", resetEvidenceContext.length, () => dependencies.synthesizeAudit(payload, safeEvidence as AuditEvidenceBundle, config)),
-          policy.stepTimeoutMs,
-          "Audit synthesis",
-        ),
-      );
-      tracer.logPhaseEnd("Audit Synthesis", synStart);
-      
-      if (execution.synthesis.summary) {
-         tracer.logDecisionPath("Synthesis Output", "evidence provided", execution.synthesis.summary);
-
-         // Persist cross-session long-term memory only when explicitly opted in.
-         // Previously this appended every audit (URL + full report) to a
-         // git-tracked PROJECT_MEMORY.md on disk on EVERY run, causing unbounded
-         // file growth and leaking each audited target into a shared file. It is
-         // now off by default and gated behind HARNESS_PERSIST_MEMORY=true.
-         if (process.env.HARNESS_PERSIST_MEMORY === "true") {
-           await contextManager.persistLongTermMemory(payload.url, execution.synthesis.summary);
-         }
-      }
-    }
+    execution.synthesis = await traceStep(
+      execution.trace,
+      index,
+      "tool_call",
+      "Run evidence-grounded synthesis",
+      () => withTimeout(
+        () => dependencies.synthesizeAudit(payload, execution.evidence as AuditEvidenceBundle, config),
+        policy.stepTimeoutMs,
+        "Audit synthesis",
+      ),
+    );
   } catch (error) {
     execution.error = error instanceof Error ? error.message : "Unexpected harness attempt error";
     execution.deterministic ??= createFailedDeterministicResult(payload, execution.error);
@@ -899,37 +736,13 @@ export async function runAuditHarness(
   let latestExecution: AttemptExecution | null = null;
   let latestQualityGate: AuditHarnessQualityGate | null = null;
   
-  // P1: Observability Cost Tracker (budget is in USD, not tokens)
+  // Observability cost tracker (budget is in USD, not tokens)
   let costTracker = new CostTracker(policy.costBudgetUsd);
   let retryReason: string | undefined;
   let circuitBreakerReason: string | undefined;
 
-  // P2: Core Initializations
-  const orchestrator = new AgentOrchestrator();
-  const skillManager = new SkillManager();
-  const guardrails = new GuardrailKnowledgeBase();
-  const flywheel = new FlywheelCollector();
-
-  // 動態技能與工具註冊表 (Toolset & Skill Disclosure) 
-  // 只註冊各自的 Schema
-  skillManager.registerSkill("deterministic", "Deterministic Evidence Collector", async () => { /* lazy load logic */ }, {
-    name: "run_deterministic_collector",
-    description: "Fetches target payload statically.",
-    parameters: { type: "object", properties: { url: { type: "string" } }, required: ["url"] }
-  });
-  skillManager.registerSkill("browser", "Browser Flow Collector", async () => { /* lazy load logic */ }, {
-    name: "run_browser_collector",
-    description: "Evaluates the page interactively via headless browser.",
-    parameters: { type: "object", properties: { url: { type: "string" } }, required: ["url"] }
-  });
-  skillManager.registerSkill("synthesis", "Audit Synthesis", async () => { /* lazy load logic */ }, {
-    name: "run_audit_synthesis",
-    description: "Synthesize collected evidence into an audit report.",
-    parameters: { type: "object", properties: { url: { type: "string" } }, required: ["url"] }
-  });
-
   for (let index = 1; index <= policy.maxAttempts; index += 1) {
-    const result = await executeAttempt(payload, config, dependencies, policy, index, retryReason, orchestrator, skillManager, guardrails);
+    const result = await executeAttempt(payload, config, dependencies, policy, index, retryReason);
     attempts.push(result.attempt);
     latestExecution = result.execution;
     latestQualityGate = result.qualityGate;
@@ -961,17 +774,11 @@ export async function runAuditHarness(
     }
 
     retryReason = getRetryReason(result.qualityGate, result.execution.error);
-    
-    // P2: Record Error Guardrails on Failure to learn for next time
-    if (retryReason) {
-      await guardrails.recordError(retryReason, `Avoid triggering ${retryReason}. Enhance DOM inspection and timeout limits.`);
-    }
 
     pivots.push({
       afterAttempt: index,
       reason: retryReason,
       nextStrategy: index + 1 >= policy.maxAttempts ? "pivot_after_retries" : "retry_same_contract",
-      rollbackCheckpointId: `${runId}:attempt-${index}`,
     });
   }
 
@@ -987,9 +794,7 @@ export async function runAuditHarness(
       ? "quality_gate_requires_manual_review"
       : undefined;
 
-  const activeGuardrailsCount = (await guardrails.getGuardrailsForContext(payload.url)).length;
-
-  // P3: Retrospective Report Generation
+  // Retrospective report generation
   const retrospective = `
 ## Audit Retrospective [${runId}]
 - **Status**: ${finalStatus.toUpperCase()}
@@ -997,7 +802,6 @@ export async function runAuditHarness(
 - **Attempts**: ${attempts.length}
 - **Pivots**: ${pivots.length}
 - **Cost**: $${costTracker.totalCost.toFixed(4)}
-- **Guardrails Triggered**: ${activeGuardrailsCount}
 - **Failure Summary**: ${latestExecution?.error || "None"}
 
 ### Debug Trace
@@ -1012,31 +816,14 @@ ${attempts.map(a => `Attempt ${a.index}:\n` + a.trace.map(t => `  [${t.stage}] $
     durationMs: durationMs(startedAtMs),
     policyVersion: policy.policyVersion,
     toolRegistry: buildToolRegistry(),
-    middleware: buildMiddlewareRegistry(),
     attempts,
     qualityGate: latestQualityGate,
     governance: buildGovernance(policy, attempts, costTracker.records.reduce((a, b) => a + b.outputTokens, 0), circuitBreakerReason),
     pivots,
-    rollback: {
-      checkpointId: `${runId}:final`,
-      supported: false,
-      action: "metadata_checkpoint",
-      reason: "This audit run only reads public target evidence; rollback is represented as a checkpoint for future mutable workflows.",
-    },
     handoffRequired,
     handoffReason,
     retrospective,
   };
-
-  // P2: Data Flywheel
-  await flywheel.record({
-    runId,
-    timestamp: nowIso(),
-    latencyMs: harness.durationMs,
-    costUsd: costTracker.totalCost,
-    success: finalStatus === "passed",
-    contextSummary: latestExecution.synthesis.summary ? "Complete Report Generated" : "Incomplete"
-  });
 
   return {
     synthesis: latestExecution.synthesis,

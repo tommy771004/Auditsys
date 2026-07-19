@@ -153,14 +153,7 @@ export interface AuditHarnessToolDefinition {
   name: string;
   description: string;
   inputSchema: Record<string, unknown>;
-  middleware: string[];
   enabled: boolean;
-}
-
-export interface AuditHarnessMiddlewareDefinition {
-  id: string;
-  name: string;
-  description: string;
 }
 
 export interface AuditHarnessTraceEvent {
@@ -209,14 +202,6 @@ export interface AuditHarnessPivot {
   afterAttempt: number;
   reason: string;
   nextStrategy: AuditHarnessAttempt["strategy"];
-  rollbackCheckpointId: string;
-}
-
-export interface AuditHarnessRollback {
-  checkpointId: string;
-  supported: boolean;
-  action: "metadata_checkpoint";
-  reason: string;
 }
 
 export interface AuditHarnessGovernance {
@@ -239,12 +224,10 @@ export interface AuditHarnessRun {
   durationMs: number;
   policyVersion: string;
   toolRegistry: AuditHarnessToolDefinition[];
-  middleware: AuditHarnessMiddlewareDefinition[];
   attempts: AuditHarnessAttempt[];
   qualityGate: AuditHarnessQualityGate;
   governance: AuditHarnessGovernance;
   pivots: AuditHarnessPivot[];
-  rollback: AuditHarnessRollback;
   handoffRequired: boolean;
   handoffReason?: string;
   retrospective?: string;

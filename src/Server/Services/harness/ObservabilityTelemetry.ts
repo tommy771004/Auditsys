@@ -58,35 +58,3 @@ export function calculateModelCost(model: string, inputTokens: number, outputTok
   const cost = (inputTokens / 1000000) * inputPricePerM + (outputTokens / 1000000) * outputPricePerM;
   return cost;
 }
-
-/**
- * 執行追蹤器，負責測量延遲與記錄決策路徑
- */
-export class ExecutionTracer {
-  private correlationId: string;
-  private role: string;
-
-  constructor(correlationId: string, role: string) {
-    this.correlationId = correlationId;
-    this.role = role;
-  }
-
-  public logPhaseStart(phase: string): number {
-    console.log(`[Trace][${this.correlationId}][${this.role}] Started phase: ${phase}`);
-    return performance.now();
-  }
-
-  public logPhaseEnd(phase: string, startTime: number, metadata?: any): void {
-    const latencyMs = performance.now() - startTime;
-    console.log(`[Trace][${this.correlationId}][${this.role}] Finished phase: ${phase} (Latency: ${latencyMs.toFixed(2)}ms)`);
-    if (metadata) {
-      console.log(`[Trace][${this.correlationId}][${this.role}] Metadata:`, JSON.stringify(metadata));
-    }
-  }
-
-  public logDecisionPath(decisionPoint: string, inputSummary: string, result: string): void {
-    console.log(`[Decision][${this.correlationId}][${this.role}] Node: ${decisionPoint}`);
-    console.log(`  - Input Context: ${inputSummary.length > 100 ? inputSummary.substring(0, 100) + '...' : inputSummary}`);
-    console.log(`  - Output Result: ${result.length > 100 ? result.substring(0, 100) + '...' : result}`);
-  }
-}
